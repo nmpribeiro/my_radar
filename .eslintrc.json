@@ -1,0 +1,92 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jest": true
+  },
+  "extends": [
+    "plugin:react/recommended",
+    "airbnb",
+    "plugin:import/typescript",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly",
+    "fetch": true,
+    "expect": true,
+    "it": true,
+    "jest": true,
+    "describe": true,
+    "test": true,
+    "Response": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true,
+      "classes": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "@typescript-eslint/ban-ts-ignore": "off", // TODO: to delete once TS migration is done
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "no-useless-constructor": "off",
+    "lines-between-class-members": "off",
+    "func-names": "off",
+    "jsx-a11y/href-no-hash": "off",
+    "jsx-a11y/anchor-is-valid": ["warn", { "aspects": ["invalidHref"] }],
+    "import/no-extraneous-dependencies": "off",
+    "react/forbid-prop-types": 0,
+    "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".tsx"] }],
+    "react/prop-types": "off",
+    "react/jsx-curly-newline": "off",
+    "import/prefer-default-export": "off",
+    "object-curly-newline": "off",
+    "function-paren-newline": "off",
+    "max-len": [
+      1,
+      {
+        "code": 130,
+        "tabWidth": 2
+      }
+    ],
+    "import/no-unresolved": [2],
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "never",
+        "jsx": "never",
+        "ts": "never",
+        "tsx": "never"
+      }
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [["builtin", "external"], "internal", "parent", ["sibling", "index"]],
+        "newlines-between": "always"
+      }
+    ],
+    "react/destructuring-assignment": "off",
+    "prettier/prettier": "error"
+  },
+  "plugins": ["jsx-a11y", "import", "react", "@typescript-eslint", "prettier"],
+  "settings": {
+    "import/resolver": {
+      "alias": {
+        "map": [
+          ["app", "./src"],
+          ["containers", "./src/components/containers"],
+          ["presentational", "./src/components/presentational"]
+        ],
+        "extensions": [".ts", ".tsx", ".js", ".jsx", ".json"]
+      }
+    }
+  }
+}
