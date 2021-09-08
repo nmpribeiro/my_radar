@@ -2,9 +2,9 @@ import React from 'react';
 
 import { RAW_BLIP_DATA, RADAR_DATA } from '../../constants/RadarData';
 
-import { Radar as RadarUtils } from './utilities/RadarUtilities';
 import style from './Radar.module.scss';
 import './RadarSvg.scss';
+import { RadarRenderUtils } from './utilities/RadarRenderUtils';
 
 export const Radar: React.FC = () => {
   const radarRef = React.createRef<HTMLDivElement>();
@@ -12,7 +12,7 @@ export const Radar: React.FC = () => {
   // On radar ref
   React.useEffect(() => {
     if (radarRef.current) {
-      RadarUtils.setupForQuadrants(radarRef.current, RADAR_DATA, RAW_BLIP_DATA);
+      RadarRenderUtils.setupForQuadrants(radarRef.current, RADAR_DATA, RAW_BLIP_DATA);
     }
   }, [radarRef]);
 
