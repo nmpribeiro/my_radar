@@ -225,6 +225,10 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataTy
 };
 
 function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
+  // TODO: get a reset strategy!
+  // while (rootElement.firstChild) {
+  //   rootElement.firstChild.remove();
+  // }
   const width = data.width || 800;
   const height = data.height || 600;
   const cx = width / 2;
