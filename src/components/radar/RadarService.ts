@@ -5,10 +5,6 @@ import * as d3 from 'd3';
 
 import { Dot } from './RadarApi';
 
-const identity = (i: unknown): any => {
-  return i as any;
-};
-
 interface DataType {
   width?: number;
   height?: number;
@@ -19,8 +15,8 @@ interface DataType {
 type D3SvgEl = d3.Selection<SVGSVGElement, unknown, null, undefined>;
 type D3SvgGEL = d3.Selection<SVGGElement, unknown, null, undefined>;
 
-interface DataItem {
-  quadrant: string[];
+interface DataItem extends d3.DefaultArcObject {
+  quadrant: number;
   id: string;
   x: number;
   y: number;
@@ -70,7 +66,7 @@ function addHorizons(base: D3SvgGEL, data: DataType, horizonUnit: number) {
   const horizons = base.append('g').attr('class', 'horizons');
   horizons
     .selectAll('.horizon')
-    .data(data.horizons, identity)
+    .data(data.horizons)
     .enter()
     .append('circle')
     .attr('r', function (d, i) {
@@ -86,9 +82,6 @@ function addHorizons(base: D3SvgGEL, data: DataType, horizonUnit: number) {
 function addQuadrants(base: D3SvgGEL, data: DataType) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
-  function quadrantClass(d: { name: string }) {
-    return `quadrant quadarant-${d.name.toLowerCase().replace(/ /, '-')}`;
-  }
 
   const width = data.width || 800;
   const height = data.height || 600;
@@ -98,41 +91,85 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
   const quadAngle = (2 * Math.PI) / data.quadrants.length;
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
+  const quadrantStroke = (d: string, i: number) => {
+    // return 'rgba(0,0,0,.4)';
+    switch (d) {
+      case 'frameworks':
+        return 'rgba(255,0,0,1)';
+      case 'languages':
+        return 'rgba(0,255,0,1)';
+      case 'tools':
+        return 'rgba(0,0,255,1)';
+      case 'big data':
+        return 'rgba(255,0,255,1)';
+      default:
+        return 'rgba(0,0,0,1)';
+    }
+    // colorScale(i.toString());
+  };
+
   quadrants
     .selectAll('line.quadrant')
-    .data(data.quadrants, identity)
+    .data(data.quadrants)
     .enter()
     .append('line')
     .attr('x1', 0)
     .attr('y1', 0)
-    .attr('x2', function (d, i) {
-      return Math.cos(quadAngle * i) * horizonWidth;
-    })
-    .attr('y2', function (d, i) {
-      return Math.sin(quadAngle * i) * horizonWidth;
-    })
-    // .attr('class', quadrant_class)
-    .attr('stroke', function (d, i) {
-      return colorScale(i.toString());
-    });
+    .attr('x2', (d, i) => Math.cos(quadAngle * i) * horizonWidth)
+    .attr('y2', (d, i) => Math.sin(quadAngle * i) * horizonWidth)
+    .attr('class', (d) => `quadrant quadarant-${d.toLowerCase().replace(/ /, '-')}`)
+    .attr('stroke', quadrantStroke)
+    .attr('stroke-width', '5px');
 
-  const arcFunction = d3
-    .arc()
-    .outerRadius(function (d, i) {
-      return d.outerRadius * horizonWidth;
-    })
-    .innerRadius(function (d, i) {
-      return d.innerRadius * horizonWidth;
-    })
-    .startAngle(function (d, i) {
-      // return d.quadrant * quadAngle + Math.PI / 2;
-      return quadAngle + Math.PI / 2;
-    })
-    .endAngle(function (d, i) {
-      return 1 * quadAngle + Math.PI / 2;
-    });
+  const textAngle = 360 / data.quadrants.length;
 
-  const quads = [];
+  // TODO: move labels to each corner
+  const getY = (d: { horizon: number; quadrant: number }) => {
+    switch (d.quadrant) {
+      case 1:
+        return width / 2.25;
+      case 2:
+        return width / 2.25;
+      case 3:
+        return -width / 2.25;
+      case 0:
+        return -width / 2.25;
+      default:
+        return 0;
+    }
+  };
+
+  const getX = (d: { horizon: number; quadrant: number }) => {
+    switch (d.quadrant) {
+      case 1:
+        return height / 2.25;
+      case 2:
+        return -height / 2.25;
+      case 3:
+        return -height / 2.25;
+      case 0:
+        return height / 2.25;
+      default:
+        return 0;
+    }
+  };
+  const getLabelAnchor = (d: { horizon: number; quadrant: number }) => {
+    switch (d.quadrant) {
+      case 1:
+        return 'end';
+      case 2:
+        return 'start';
+      case 3:
+        return 'start';
+      case 0:
+        return 'end';
+      default:
+        return 0;
+    }
+  };
+
+  type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
+  const quads: QuadsType[] = [];
   for (let i = 0, ilen = data.quadrants.length; i < ilen; i++) {
     for (let j = 0, jlen = data.horizons.length; j < jlen; j++) {
       quads.push({
@@ -140,41 +177,59 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
         innerRadius: j / jlen,
         quadrant: i,
         horizon: j,
-        name: data.quadrants[i],
+        label: data.quadrants[i],
       });
     }
   }
-  const textAngle = 360 / data.quadrants.length;
 
-  // TODO: move labels to each corner
   quadrants
     .selectAll('text.quadrant')
-    .data(
-      quads.filter(function (d) {
-        return d.horizon === 0;
-      })
-    )
+    .data(quads.filter((d) => d.horizon === 0))
     .enter()
     .append('text')
-    .attr('class', 'quadrant')
-    .attr('dx', horizonWidth / data.horizons.length)
-    .attr('transform', function (d) {
-      return `rotate(${d.quadrant * textAngle + textAngle})`;
-    })
-    .text(function (d) {
-      return d.name;
-    });
+    .attr('class', (d) => `quadrant-text quadrant-${d.label}`)
+    .attr('dx', getX)
+    .attr('dy', getY)
+    .attr('text-anchor', getLabelAnchor)
+    .text((d) => d.label);
 
+  type RgbOut = string | number | boolean | null;
+  const fillQuadrant = (d: { quadrant: number; horizon: number }, i: number): RgbOut => {
+    return 'rgba(0,0,0,0)';
+    // return d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length) * 3) ;
+    // const result = d3.rgb(colorScale((d.quadrant + 1).toString())).brighter((d.horizon / data.horizons.length + 0.5) * 4);
+    // return result as unknown as RgbOut;
+  };
+
+  const arcFunction = d3
+    .arc<QuadsType>()
+    .outerRadius((d) => d.outerRadius * horizonWidth)
+    .innerRadius((d) => d.innerRadius * horizonWidth)
+    .startAngle((d) => d.quadrant * quadAngle + Math.PI / 2)
+    .endAngle((d) => 1 * quadAngle + Math.PI / 2);
+
+  const newArcFunction = (d: QuadsType, i: number) => {
+    return 'test';
+  };
+  const quadrantClass = (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`;
+
+  // Create arcs
+  // quadrants
+  //   .selectAll('path.quadrant')
+  //   .data(quads2)
+  //   .enter()
+  //   .append('path')
+  //   .attr('d', arcFunction)
+  //   .attr('fill', 'rgba(0,0,0,0)')
+  //   .attr('class', quadrantClass);
+  // console.log(quads);
   quadrants
     .selectAll('path.quadrant')
     .data(quads)
     .enter()
     .append('path')
-    .attr('d', arcFunction as any)
-    .attr('fill', (d) => {
-      const rgb = d3.rgb(colorScale(d.quadrant.toString()));
-      return rgb.brighter((d.horizon / data.horizons.length) * 3) as unknown as any;
-    })
+    .attr('d', newArcFunction)
+    .attr('fill', fillQuadrant)
     .attr('class', quadrantClass);
 }
 
