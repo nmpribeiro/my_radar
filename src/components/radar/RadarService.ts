@@ -92,7 +92,7 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
   const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   const quadrantStroke = (d: string, i: number) => {
-    // return 'rgba(0,0,0,.4)';
+    return 'rgba(0,0,0,1)';
     switch (d) {
       case 'frameworks':
         return 'rgba(255,0,0,1)';
@@ -195,22 +195,21 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
 
   type RgbOut = string | number | boolean | null;
   const fillQuadrant = (d: { quadrant: number; horizon: number }, i: number): RgbOut => {
-    return 'rgba(0,0,0,0)';
-    // return d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length) * 3) ;
-    // const result = d3.rgb(colorScale((d.quadrant + 1).toString())).brighter((d.horizon / data.horizons.length + 0.5) * 4);
-    // return result as unknown as RgbOut;
+    const result = 'rgba(0,0,0,0)';
+    // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length) * 3);
+    // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length + 0.5) * 4);
+    // const thisColorScale = d3.scaleOrdinal(d3.schemeGreens);
+    // const result = d3.rgb(thisColorScale()).brighter((d.horizon / data.horizons.length + 0.5) * 4);
+    return result as unknown as RgbOut;
   };
 
   const arcFunction = d3
     .arc<QuadsType>()
     .outerRadius((d) => d.outerRadius * horizonWidth)
     .innerRadius((d) => d.innerRadius * horizonWidth)
-    .startAngle((d) => d.quadrant * quadAngle + Math.PI / 2)
-    .endAngle((d) => 1 * quadAngle + Math.PI / 2);
+    .startAngle((d) => d.quadrant * (Math.PI / 2))
+    .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2);
 
-  const newArcFunction = (d: QuadsType, i: number) => {
-    return 'test';
-  };
   const quadrantClass = (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`;
 
   // Create arcs
@@ -228,7 +227,7 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
     .data(quads)
     .enter()
     .append('path')
-    .attr('d', newArcFunction)
+    .attr('d', arcFunction)
     .attr('fill', fillQuadrant)
     .attr('class', quadrantClass);
 }
@@ -313,6 +312,7 @@ const render = (svgEl: SVGSVGElement, values: Dot[], data: DataType): void => {
   const height = data.height || 600;
 
   const svgOuter = d3.select(svgEl);
+  svgOuter.selectChildren().remove();
   const svg = svgOuter.attr('width', width).attr('height', height);
   svg
     .append('marker')

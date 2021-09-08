@@ -5,12 +5,12 @@ svg {
     opacity: 0.1;
   }
   line.quadrant {
-    stroke-width: 5px;
+    stroke-width: 1px;
   }
   circle.horizon {
     stroke: #000;
-    // stroke-width: 2px;
-    // stroke-opacity: 0.5;
+    stroke-width: 2px;
+    stroke-opacity: 0.2;
     fill: none;
   }
 
