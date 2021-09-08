@@ -1,17 +1,10 @@
 import React from 'react';
 
-import { RadarService } from './RadarService';
-import { Data, RadarApi } from './RadarApi';
+import { RAW_BLIP_DATA, RADAR_DATA } from '../../constants/RadarData';
+
+import { Radar as RadarUtils } from './utilities/RadarUtilities';
 import style from './Radar.module.scss';
 import './RadarSvg.scss';
-
-const DATA: Data[] = [];
-
-DATA.push({
-  text: 'A point',
-  circle: 2,
-  quadrant: 1,
-});
 
 export const Radar: React.FC = () => {
   const radarRef = React.createRef<SVGSVGElement>();
@@ -19,12 +12,7 @@ export const Radar: React.FC = () => {
   // On radar ref
   React.useEffect(() => {
     if (radarRef.current) {
-      RadarService.render(radarRef.current, RadarApi.cleanData(DATA), {
-        horizons: ['discover', 'assess', 'learn', 'use'],
-        quadrants: ['languages', 'frameworks', 'tools', 'big data'],
-        width: 850,
-        height: 850,
-      });
+      RadarUtils.setupForQuadrants(radarRef.current, RADAR_DATA, RAW_BLIP_DATA);
     }
   }, [radarRef]);
 

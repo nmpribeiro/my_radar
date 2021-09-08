@@ -1,68 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-plusplus */
 import * as d3 from 'd3';
 
-import { Dot } from './RadarApi';
+import { RadarUtilities } from './Utilities';
 
-interface DataType {
-  width?: number;
-  height?: number;
-  quadrants: string[];
-  horizons: string[];
-}
-
-type D3SvgEl = d3.Selection<SVGSVGElement, unknown, null, undefined>;
-type D3SvgGEL = d3.Selection<SVGGElement, unknown, null, undefined>;
-
-interface DataItem extends d3.DefaultArcObject {
-  quadrant: number;
-  id: string;
-  x: number;
-  y: number;
-  name: string;
-}
-
-function processRadarData(data: unknown, currentTime = new Date()): DataItem[] {
-  // go through the data
-  const results: DataItem[] = [];
-  // for (const i in data.data) {
-  //   const entry = data.data[i];
-  //   const history = entry.history.filter(function (e) {
-  //     return e.end == null || (e.end > currentTime && e.start < currentTime);
-  //   })[0];
-  //   let quadrant_delta = 0;
-  //   // figure out which quadrant this is
-  //   for (let j = 0, len = data.quadrants.length; j < len; j++) {
-  //     if (data.quadrants[j] == history.quadrant) {
-  //       quadrant_delta = quad_angle * j;
-  //     }
-  //   }
-  //   const theta = history.position_angle * quad_angle + quadrant_delta;
-  //   const r = history.position * horizonWidth;
-  //   const cart = polar_to_cartesian(r, theta);
-  //   const blip = {
-  //     id: i,
-  //     name: entry.name,
-  //     quadrant: history.quadrant,
-  //     r,
-  //     theta,
-  //     x: cart[0],
-  //     y: cart[1],
-  //   };
-  //   if (history.direction) {
-  //     const r2 = history.direction * horizonWidth;
-  //     const theta2 = history.direction_angle * quad_angle + quadrant_delta;
-  //     const vector = polar_to_cartesian(r2, theta2);
-  //     blip.dx = vector[0] - cart[0];
-  //     blip.dy = vector[1] - cart[1];
-  //   }
-  //   results.push(blip);
-  // }
-  return results;
-}
-
-function addHorizons(base: D3SvgGEL, data: DataType, horizonUnit: number) {
+function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
   const horizons = base.append('g').attr('class', 'horizons');
   horizons
     .selectAll('.horizon')
@@ -79,17 +21,17 @@ function addHorizons(base: D3SvgGEL, data: DataType, horizonUnit: number) {
     .attr('class', 'horizon');
 }
 
-function addQuadrants(base: D3SvgGEL, data: DataType) {
+function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
 
   const width = data.width || 800;
   const height = data.height || 600;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = horizonWidth / data.horizons.length;
+  // const horizonUnit = horizonWidth / data.horizons.length;
 
   const quadAngle = (2 * Math.PI) / data.quadrants.length;
-  const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+  // const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
   const quadrantStroke = (d: string, i: number) => {
     return 'rgba(0,0,0,1)';
@@ -194,7 +136,7 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
     .text((d) => d.label);
 
   type RgbOut = string | number | boolean | null;
-  const fillQuadrant = (d: { quadrant: number; horizon: number }, i: number): RgbOut => {
+  const fillQuadrant = (d: QuadsType, i: number): RgbOut => {
     const result = 'rgba(0,0,0,0)';
     // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length) * 3);
     // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length + 0.5) * 4);
@@ -212,16 +154,7 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
 
   const quadrantClass = (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`;
 
-  // Create arcs
-  // quadrants
-  //   .selectAll('path.quadrant')
-  //   .data(quads2)
-  //   .enter()
-  //   .append('path')
-  //   .attr('d', arcFunction)
-  //   .attr('fill', 'rgba(0,0,0,0)')
-  //   .attr('class', quadrantClass);
-  // console.log(quads);
+  // Create quadrant arcs
   quadrants
     .selectAll('path.quadrant')
     .data(quads)
@@ -232,7 +165,61 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
     .attr('class', quadrantClass);
 }
 
-function drawRadar(svg: D3SvgEl, data: DataType) {
+const drawBlips = (svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): void => {
+  const processedBlips = RadarUtilities.processBlips(data, blips);
+  const sortedBlips = processedBlips.sort(RadarUtilities.blipsSorting);
+
+  const svgBlips = svg
+    .selectAll('.blip')
+    .data<BlipType>(sortedBlips)
+    .enter()
+    .append('g')
+    .attr('class', 'blip')
+    .attr('id', (d) => `blip-${d.id}`)
+    .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
+    .on('mouseover', (d) =>
+      d3
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .select(this as any)
+        .select('text.name')
+        .style('opacity: 1')
+    )
+    .on('mouseout', (d) =>
+      d3
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .select(this as any)
+        .select('text.name')
+        .style('opacity: 0')
+    );
+
+  // svgBlips
+  //   .append('line')
+  //   .attr('class', 'direction')
+  //   .attr('x1', 0)
+  //   .attr('y1', 0)
+  //   .attr('x2', (d) => d.dx)
+  //   .attr('y2', (d) => d.dy);
+
+  svgBlips.append('circle').attr('r', '7px');
+
+  svgBlips
+    .append('text')
+    .attr('dy', '20px')
+    .style('text-anchor', 'middle')
+    .attr('class', 'name')
+    .text((d) => d.name);
+
+  // add the lists
+  const ul = svg.append('ul');
+  ul.selectAll('li.quadrant')
+    .data<BlipType>(sortedBlips)
+    .enter()
+    .append('li')
+    .attr('class', 'quadrant')
+    .text((d) => d.name);
+};
+
+function drawRadar(svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
   const width = data.width || 800;
   const height = data.height || 600;
   const cx = width / 2;
@@ -246,68 +233,10 @@ function drawRadar(svg: D3SvgEl, data: DataType) {
   addHorizons(base, data, horizonUnit);
   addQuadrants(base, data);
 
-  const blipData = processRadarData(data);
-  blipData.sort(function (a, b) {
-    if (a.quadrant < b.quadrant) return -1;
-    if (a.quadrant > b.quadrant) return 1;
-    return 0;
-  });
-
-  const blips = base
-    .selectAll('.blip')
-    .data(blipData)
-    .enter()
-    .append('g')
-    .attr('class', 'blip')
-    .attr('id', function (d) {
-      return `blip-${d.id}`;
-    })
-    .attr('transform', function (d) {
-      return `translate(${d.x},${d.y})`;
-    })
-    .on('mouseover', function (d) {
-      d3.select(this).select('text.name').style('opacity: 1');
-    })
-    .on('mouseout', function (d) {
-      d3.select(this).select('text.name').style('opacity: 1');
-    });
-
-  blips
-    .append('line')
-    .attr('class', 'direction')
-    .attr('x1', 0)
-    .attr('y1', 0)
-    .attr('x2', function (d) {
-      return d.x;
-    })
-    .attr('y2', function (d) {
-      return d.y;
-    });
-
-  blips.append('circle').attr('r', '7px');
-
-  blips
-    .append('text')
-    .attr('dy', '20px')
-    .style('text-anchor', 'middle')
-    .attr('class', 'name')
-    .text(function (d) {
-      return d.name;
-    });
-
-  // add the lists
-  const ul = svg.append('ul');
-  ul.selectAll('li.quadrant')
-    .data(blipData)
-    .enter()
-    .append('li')
-    .attr('class', 'quadrant')
-    .text(function (d) {
-      return d.name;
-    });
+  drawBlips(base, data, blips);
 }
 
-const render = (svgEl: SVGSVGElement, values: Dot[], data: DataType): void => {
+const render = (svgEl: SVGSVGElement, data: RadarDataType, blips: RawBlipType[]): void => {
   const width = data.width || 800;
   const height = data.height || 600;
 
@@ -325,9 +254,7 @@ const render = (svgEl: SVGSVGElement, values: Dot[], data: DataType): void => {
     .append('path')
     .attr('d', 'M0,0 V4 L2,2 Z');
 
-  drawRadar(svgOuter, data);
+  drawRadar(svgOuter, data, blips);
 };
 
-export const RadarService = {
-  render,
-};
+export const RadarRenderUtils = { setupForQuadrants: render };
