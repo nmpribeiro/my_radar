@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-plusplus */
 import * as d3 from 'd3';
@@ -165,10 +166,18 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
     .attr('class', quadrantClass);
 }
 
-const drawBlips = (svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): void => {
+const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): void => {
   const processedBlips = RadarUtilities.processBlips(data, blips);
   const sortedBlips = processedBlips.sort(RadarUtilities.blipsSorting);
 
+  // Add a div
+  const RADAR_TOOLTIP_ID = 'radar-tooltip';
+  let tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> = d3.select(`#${RADAR_TOOLTIP_ID}`);
+  if (tooltip.empty()) {
+    tooltip = d3.select('body').append('div').attr('id', RADAR_TOOLTIP_ID).style('opacity', 0);
+  }
+
+  // Draw each BLIP
   const svgBlips = svg
     .selectAll('.blip')
     .data<BlipType>(sortedBlips)
@@ -177,40 +186,29 @@ const drawBlips = (svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): vo
     .attr('class', 'blip')
     .attr('id', (d) => `blip-${d.id}`)
     .attr('transform', (d) => `translate(${d.x}, ${d.y})`)
-    .on('mouseover', (d) =>
-      d3
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .select(this as any)
-        .select('text.name')
-        .style('opacity: 1')
-    )
-    .on('mouseout', (d) =>
-      d3
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .select(this as any)
-        .select('text.name')
-        .style('opacity: 0')
-    );
-
-  // svgBlips
-  //   .append('line')
-  //   .attr('class', 'direction')
-  //   .attr('x1', 0)
-  //   .attr('y1', 0)
-  //   .attr('x2', (d) => d.dx)
-  //   .attr('y2', (d) => d.dy);
+    .attr('cursor', 'pointer')
+    .on('mouseover', function (event, d) {
+      tooltip.transition().duration(200).style('opacity', 0.9);
+      tooltip
+        .html(`<h4>${d.name}</h4><p>${d.description}</p>`)
+        .style('left', `${event.pageX + 15}px`)
+        .style('top', `${event.pageY - 28}px`);
+      this.setAttribute('opacity', '0.5');
+    })
+    .on('mousemove', (event, d) => tooltip.style('left', `${event.pageX + 15}px`).style('top', `${event.pageY - 28}px`))
+    .on('mouseout', function (d) {
+      tooltip.transition().duration(250).style('opacity', 0);
+      this.setAttribute('opacity', '1');
+    });
 
   svgBlips.append('circle').attr('r', '7px');
 
-  svgBlips
-    .append('text')
-    .attr('dy', '20px')
-    .style('text-anchor', 'middle')
-    .attr('class', 'name')
-    .text((d) => d.name);
-
   // add the lists
-  const ul = svg.append('ul');
+  const UL_ID = 'radar-list';
+  let ul: d3.Selection<HTMLUListElement, unknown, null | HTMLElement, any> = d3.select(`#${UL_ID}`);
+  if (ul.empty()) {
+    ul = d3.select(rootElement).append('ul').attr('id', UL_ID);
+  }
   ul.selectAll('li.quadrant')
     .data<BlipType>(sortedBlips)
     .enter()
@@ -219,7 +217,7 @@ const drawBlips = (svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): vo
     .text((d) => d.name);
 };
 
-function drawRadar(svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
+function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
   const width = data.width || 800;
   const height = data.height || 600;
   const cx = width / 2;
@@ -233,16 +231,17 @@ function drawRadar(svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
   addHorizons(base, data, horizonUnit);
   addQuadrants(base, data);
 
-  drawBlips(base, data, blips);
+  drawBlips(rootElement, base, data, blips);
 }
 
-const render = (svgEl: SVGSVGElement, data: RadarDataType, blips: RawBlipType[]): void => {
+const setupForQuadrants = (svgEl: HTMLDivElement, data: RadarDataType, blips: RawBlipType[]): void => {
   const width = data.width || 800;
   const height = data.height || 600;
 
-  const svgOuter = d3.select(svgEl);
-  svgOuter.selectChildren().remove();
-  const svg = svgOuter.attr('width', width).attr('height', height);
+  const svg = d3.select(svgEl).append('svg').attr('width', width).attr('height', height);
+
+  svg.selectChildren().remove();
+
   svg
     .append('marker')
     .attr('id', 'arrow')
@@ -254,7 +253,7 @@ const render = (svgEl: SVGSVGElement, data: RadarDataType, blips: RawBlipType[])
     .append('path')
     .attr('d', 'M0,0 V4 L2,2 Z');
 
-  drawRadar(svgOuter, data, blips);
+  drawRadar(svgEl, svg, data, blips);
 };
 
-export const RadarRenderUtils = { setupForQuadrants: render };
+export const RadarRenderUtils = { setupForQuadrants };

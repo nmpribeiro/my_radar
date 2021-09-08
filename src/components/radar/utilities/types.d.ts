@@ -19,6 +19,7 @@ interface RawBlipType {
 interface BlipType {
   id: number;
   name: string;
+  description: string;
   quadrant: string;
   r: number;
   theta: number;

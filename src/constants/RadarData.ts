@@ -30,7 +30,7 @@ const entry = (
 
 export const RAW_BLIP_DATA: RawBlipType[] = [
   {
-    name: 'This is D3 test',
+    name: 'This is D3 test (frameworks)',
     description: 'The d3 library for producing visualisation and data driven documents',
     links: ['http://d3js.org'],
     history: [

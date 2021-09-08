@@ -7,7 +7,7 @@ import style from './Radar.module.scss';
 import './RadarSvg.scss';
 
 export const Radar: React.FC = () => {
-  const radarRef = React.createRef<SVGSVGElement>();
+  const radarRef = React.createRef<HTMLDivElement>();
 
   // On radar ref
   React.useEffect(() => {
@@ -18,9 +18,7 @@ export const Radar: React.FC = () => {
 
   return (
     <div className={style.techradar__chart}>
-      <div className={style.chart}>
-        <svg ref={radarRef} />
-      </div>
+      <div className={style.chart} ref={radarRef} />
     </div>
   );
 };

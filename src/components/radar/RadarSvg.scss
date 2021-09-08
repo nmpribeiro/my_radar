@@ -2,7 +2,7 @@ svg {
   text.name {
     font-family: Arial, Sans-serif;
     font-size: 12px;
-    opacity: 0.1;
+    // opacity: 0.1;
   }
   line.quadrant {
     stroke-width: 1px;
@@ -34,5 +34,24 @@ svg {
     // opacity: 0.3;
     // font-size: 40px;
     text-align: right;
+  }
+}
+
+div#radar-tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 5px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+
+  h4 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
   }
 }

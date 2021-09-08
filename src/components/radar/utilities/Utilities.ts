@@ -38,6 +38,7 @@ const processBlips = (data: RadarDataType, rawBlips: RawBlipType[], currentTime 
     const blip: BlipType = {
       id: i,
       name: value.name,
+      description: value.description,
       quadrant: history.quadrant,
       r,
       theta,
