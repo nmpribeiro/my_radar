@@ -13,7 +13,7 @@ DATA.push({
   quadrant: 1,
 });
 
-export const Radar = () => {
+export const Radar: React.FC = () => {
   const radarRef = React.createRef<SVGSVGElement>();
 
   // On radar ref
