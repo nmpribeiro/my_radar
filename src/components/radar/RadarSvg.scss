@@ -1,0 +1,57 @@
+svg {
+  text.name {
+    font-family: Arial, Sans-serif;
+    font-size: 12px;
+    // opacity: 0.1;
+  }
+  line.quadrant {
+    stroke-width: 1px;
+  }
+  circle.horizon {
+    stroke: #000;
+    stroke-width: 2px;
+    stroke-opacity: 0.2;
+    fill: none;
+  }
+
+  line.direction {
+    stroke: black;
+    stroke-width: 5px;
+    marker-end: url(#arrow);
+    // opacity: 0.2;
+  }
+  #arrow {
+    fill: black;
+  }
+
+  path.quadrant {
+    fill-opacity: 0.5;
+  }
+  text.quadrant-text {
+    font-family: Arial, Sans-serif;
+    // font-weight: bold;
+    color: white;
+    // opacity: 0.3;
+    // font-size: 40px;
+    text-align: right;
+  }
+}
+
+div#radar-tooltip {
+  position: absolute;
+  text-align: center;
+  padding: 5px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+
+  h4 {
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}

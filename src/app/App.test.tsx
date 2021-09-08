@@ -5,6 +5,6 @@ import { App } from './App';
 
 test('renders learn react link', () => {
   render(<App />);
-  const el = screen.getByText(/app/i);
+  const el = screen.getByText(/Radar diagram construction/i);
   expect(el).toBeInTheDocument();
 });
