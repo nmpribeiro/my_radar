@@ -30,6 +30,7 @@ interface BlipType {
 }
 
 interface RadarDataType {
+  title: string;
   width?: number;
   height?: number;
   quadrants: string[];

@@ -20,6 +20,8 @@ function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
     // .attr('fill', 'none')
     .attr('stroke', 'gray')
     .attr('class', 'horizon');
+
+  // TODO: add horizons labels
 }
 
 function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
@@ -204,6 +206,11 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataTy
   svgBlips.append('circle').attr('r', '7px');
 
   // add the lists
+  // TODO: remove this list once we hav all layout completed
+  const title = document.createElement('h5');
+  title.innerText = 'List';
+  rootElement.append(title);
+
   const UL_ID = 'radar-list';
   let ul: d3.Selection<HTMLUListElement, unknown, null | HTMLElement, any> = d3.select(`#${UL_ID}`);
   if (ul.empty()) {
@@ -227,6 +234,11 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataTyp
 
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = horizonWidth / data.horizons.length;
+
+  const title = document.createElement('h3');
+  title.innerText = data.title;
+
+  rootElement.prepend(title);
 
   addHorizons(base, data, horizonUnit);
   addQuadrants(base, data);
