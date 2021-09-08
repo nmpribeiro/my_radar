@@ -1,9 +1,9 @@
 import React from 'react';
-import * as d3 from 'd3';
 
 import { RadarService } from './RadarService';
-import { Data, Dot, RadarApi } from './RadarApi';
+import { Data, RadarApi } from './RadarApi';
 import style from './Radar.module.scss';
+import './RadarSvg.scss';
 
 const DATA: Data[] = [];
 
@@ -19,7 +19,12 @@ export const Radar = () => {
   // On radar ref
   React.useEffect(() => {
     if (radarRef.current) {
-      RadarService.create(radarRef.current, RadarApi.cleanData(DATA));
+      RadarService.render(radarRef.current, RadarApi.cleanData(DATA), {
+        horizons: ['discover', 'assess', 'learn', 'use'],
+        quadrants: ['languages', 'frameworks', 'tools', 'big data'],
+        width: 850,
+        height: 850,
+      });
     }
   }, [radarRef]);
 
