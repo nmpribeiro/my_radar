@@ -348,6 +348,7 @@ function addQuadrants(base: D3SvgGEL, data: DataType) {
   }
   const textAngle = 360 / data.quadrants.length;
 
+  // TODO: move labels to each corner
   quadrants
     .selectAll('text.quadrant')
     .data(
