@@ -6,15 +6,13 @@ import * as d3 from 'd3';
 import { RadarUtilities } from './Utilities';
 
 function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
-  const horizons = base.append('g').attr('class', 'horizons');
+  const horizons = base.append('g').attr('class', 'horizons').selectAll('.horizon');
+
   horizons
-    .selectAll('.horizon')
     .data(data.horizons)
     .enter()
     .append('circle')
-    .attr('r', function (d, i) {
-      return (i + 1) * horizonUnit;
-    })
+    .attr('r', (d, i) => (i + 1) * horizonUnit)
     .attr('cx', 0)
     .attr('cy', 0)
     // .attr('fill', 'none')
@@ -22,6 +20,14 @@ function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
     .attr('class', 'horizon');
 
   // TODO: add horizons labels
+  horizons
+    .data(data.horizons)
+    .enter()
+    .append('text')
+    .attr('class', (d) => `horizon-text horizon-${d}`)
+    .attr('dx', (d, i) => i * horizonUnit + 5)
+    .attr('dy', 10)
+    .text((d) => d);
 }
 
 function addQuadrants(base: D3SvgGEL, data: RadarDataType) {

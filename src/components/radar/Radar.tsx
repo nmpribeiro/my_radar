@@ -16,9 +16,5 @@ export const Radar: React.FC = () => {
     }
   }, [radarRef]);
 
-  return (
-    <div className={style.techradar__chart}>
-      <div className={style.chart} ref={radarRef} />
-    </div>
-  );
+  return <div className={style.techradar} ref={radarRef} />;
 };
