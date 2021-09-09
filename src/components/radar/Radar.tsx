@@ -12,7 +12,7 @@ export const Radar: React.FC = () => {
   // On radar ref
   React.useEffect(() => {
     if (radarRef.current) {
-      RadarRenderUtils.setupForQuadrants(radarRef.current, RADAR_DATA, RAW_BLIP_DATA);
+      RadarRenderUtils.setupFourQuadrants(radarRef.current, RADAR_DATA, RAW_BLIP_DATA);
     }
   }, [radarRef]);
 

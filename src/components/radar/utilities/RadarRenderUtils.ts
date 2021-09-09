@@ -5,17 +5,26 @@ import * as d3 from 'd3';
 
 import { RadarUtilities } from './Utilities';
 
-function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
+const DEFAULT_WIDTH = 800;
+const DEFAULT_HEIGHT = 600;
+const HORIZON_SHIFT_RADIUS = 30;
+
+function addHorizons(base: D3SvgGEL, data: RadarDataType) {
+  const width = data.width || DEFAULT_WIDTH;
+  const height = data.height || DEFAULT_HEIGHT;
+  const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
+  const horizonUnit = (horizonWidth - HORIZON_SHIFT_RADIUS) / data.horizons.length;
+
   const horizons = base.append('g').attr('class', 'horizons').selectAll('.horizon');
 
   horizons
     .data(data.horizons)
     .enter()
     .append('circle')
-    .attr('r', (d, i) => (i + 1) * horizonUnit)
+    .attr('r', (d, i) => (i + 1) * horizonUnit + HORIZON_SHIFT_RADIUS)
     .attr('cx', 0)
     .attr('cy', 0)
-    // .attr('fill', 'none')
+    .attr('fill', 'none')
     .attr('stroke', 'gray')
     .attr('class', 'horizon');
 
@@ -25,7 +34,8 @@ function addHorizons(base: D3SvgGEL, data: RadarDataType, horizonUnit: number) {
     .enter()
     .append('text')
     .attr('class', (d) => `horizon-text horizon-${d}`)
-    .attr('dx', (d, i) => i * horizonUnit + 5)
+    .attr('text-anchor', 'end')
+    .attr('dx', (d, i) => (i + 1) * horizonUnit + HORIZON_SHIFT_RADIUS / 1.5)
     .attr('dy', 10)
     .text((d) => d);
 }
@@ -34,10 +44,9 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
 
-  const width = data.width || 800;
-  const height = data.height || 600;
+  const width = data.width || DEFAULT_WIDTH;
+  const height = data.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  // const horizonUnit = horizonWidth / data.horizons.length;
 
   const quadAngle = (2 * Math.PI) / data.quadrants.length;
   // const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
@@ -72,10 +81,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
     .attr('stroke', quadrantStroke)
     .attr('stroke-width', '5px');
 
-  const textAngle = 360 / data.quadrants.length;
-
-  // TODO: move labels to each corner
-  const getY = (d: { horizon: number; quadrant: number }) => {
+  const getY = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
         return width / 2.25;
@@ -90,7 +96,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
     }
   };
 
-  const getX = (d: { horizon: number; quadrant: number }) => {
+  const getX = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
         return height / 2.25;
@@ -104,7 +110,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
         return 0;
     }
   };
-  const getLabelAnchor = (d: { horizon: number; quadrant: number }) => {
+  const getLabelAnchor = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
         return 'end';
@@ -175,6 +181,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
 }
 
 const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): void => {
+  // process and sort the blips
   const processedBlips = RadarUtilities.processBlips(data, blips);
   const sortedBlips = processedBlips.sort(RadarUtilities.blipsSorting);
 
@@ -198,25 +205,25 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataTy
     .on('mouseover', function (event, d) {
       tooltip.transition().duration(200).style('opacity', 0.9);
       tooltip
-        .html(`<h4>${d.name}</h4><p>${d.description}</p>`)
+        .html(`<h4>${d.name}</h4>`)
         .style('left', `${event.pageX + 15}px`)
-        .style('top', `${event.pageY - 28}px`);
+        .style('top', `${event.pageY - 10}px`);
       this.setAttribute('opacity', '0.5');
     })
-    .on('mousemove', (event, d) => tooltip.style('left', `${event.pageX + 15}px`).style('top', `${event.pageY - 28}px`))
-    .on('mouseout', function (d) {
+    .on('mousemove', (event, d) => tooltip.style('left', `${event.pageX + 15}px`).style('top', `${event.pageY - 10}px`))
+    .on('mouseout', function (d: BlipType) {
       tooltip.transition().duration(250).style('opacity', 0);
       this.setAttribute('opacity', '1');
     });
 
   svgBlips.append('circle').attr('r', '7px');
 
-  // add the lists
-  // TODO: remove this list once we hav all layout completed
   const title = document.createElement('h5');
   title.innerText = 'List';
   rootElement.append(title);
 
+  // add the lists
+  // TODO: remove this list once we hav all layout completed
   const UL_ID = 'radar-list';
   let ul: d3.Selection<HTMLUListElement, unknown, null | HTMLElement, any> = d3.select(`#${UL_ID}`);
   if (ul.empty()) {
@@ -231,38 +238,36 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataTy
 };
 
 function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
-  // TODO: get a reset strategy!
-  // while (rootElement.firstChild) {
-  //   rootElement.firstChild.remove();
-  // }
-  const width = data.width || 800;
-  const height = data.height || 600;
-  const cx = width / 2;
-  const cy = height / 2;
-  // add the horizons
-  const base: D3SvgGEL = svg.append('g').attr('transform', `translate(${cx},${cy})`);
-
-  const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = horizonWidth / data.horizons.length;
-
+  // Title
   const title = document.createElement('h3');
   title.innerText = data.title;
-
   rootElement.prepend(title);
 
-  addHorizons(base, data, horizonUnit);
+  // add the horizons
+  const base: D3SvgGEL = svg
+    .append('g')
+    .attr('transform', `translate(${(data.width || DEFAULT_WIDTH) / 2},${(data.height || DEFAULT_HEIGHT) / 2})`);
+
+  addHorizons(base, data);
+
+  // add the quadrants
   addQuadrants(base, data);
 
+  // add the blips
   drawBlips(rootElement, base, data, blips);
 }
 
-const setupForQuadrants = (svgEl: HTMLDivElement, data: RadarDataType, blips: RawBlipType[]): void => {
-  const width = data.width || 800;
-  const height = data.height || 600;
+const setupFourQuadrants = (rootElement: HTMLDivElement, data: RadarDataType, blips: RawBlipType[]): void => {
+  // reset strategy!
+  while (rootElement.firstChild) {
+    rootElement.firstChild.remove();
+  }
 
-  const svg = d3.select(svgEl).append('svg').attr('width', width).attr('height', height);
-
-  svg.selectChildren().remove();
+  const svg = d3
+    .select(rootElement)
+    .append('svg')
+    .attr('width', data.width || DEFAULT_WIDTH)
+    .attr('height', data.height || DEFAULT_HEIGHT);
 
   svg
     .append('marker')
@@ -275,7 +280,7 @@ const setupForQuadrants = (svgEl: HTMLDivElement, data: RadarDataType, blips: Ra
     .append('path')
     .attr('d', 'M0,0 V4 L2,2 Z');
 
-  drawRadar(svgEl, svg, data, blips);
+  drawRadar(rootElement, svg, data, blips);
 };
 
-export const RadarRenderUtils = { setupForQuadrants };
+export const RadarRenderUtils = { setupFourQuadrants };
