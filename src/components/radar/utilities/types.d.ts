@@ -28,7 +28,7 @@ interface BlipType {
   y: number;
 }
 
-interface RadarDataType {
+interface RadarOptionsType {
   title: string;
   width?: number;
   height?: number;

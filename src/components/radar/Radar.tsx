@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RADAR_DATA } from '../../constants/RadarData';
+import { RADAR_OPTIONS } from '../../constants/RadarData';
 import csvData from '../../assets/techradar_dataset.csv';
 import { CSVManager, getCSVFileFromUrl } from '../../services/CSVManager';
 
@@ -30,10 +30,10 @@ export const Radar: React.FC = () => {
     if (radarRef.current && radarData.length > 0) {
       // TODO: Setup RADAR_DATA adding quadrants and horizon, as they come from CSV radarData
       const newHorizons = RadarUtilities.getNewHorizons(radarData, 'Level of implementation');
-      RADAR_DATA.horizons = newHorizons;
+      RADAR_OPTIONS.horizons = newHorizons;
       const newQuadrants = RadarUtilities.getNewQuadrants(radarData);
-      RADAR_DATA.quadrants = newQuadrants;
-      RadarRenderUtils.setupFourQuadrants(radarRef.current, RADAR_DATA, radarData);
+      RADAR_OPTIONS.quadrants = newQuadrants;
+      RadarRenderUtils.setupFourQuadrants(radarRef.current, RADAR_OPTIONS, radarData);
     }
   }, [radarRef, radarData]);
 

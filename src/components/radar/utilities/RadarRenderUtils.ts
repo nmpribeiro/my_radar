@@ -9,7 +9,7 @@ const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 600;
 const HORIZON_SHIFT_RADIUS = 30;
 
-function addHorizons(base: D3SvgGEL, data: RadarDataType) {
+function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
   const width = data.width || DEFAULT_WIDTH;
   const height = data.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
@@ -40,7 +40,7 @@ function addHorizons(base: D3SvgGEL, data: RadarDataType) {
     .text((d) => d);
 }
 
-function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
+function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
 
@@ -180,7 +180,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataType) {
     .attr('class', quadrantClass);
 }
 
-const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataType, blips: RawBlipType[]): void => {
+const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: RawBlipType[]): void => {
   // process and sort the blips
   const processedBlips = RadarUtilities.processBlips(data, blips);
   const sortedBlips = processedBlips.sort(RadarUtilities.blipsSorting);
@@ -237,7 +237,7 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataTy
     .text((d) => d.name);
 };
 
-function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataType, blips: RawBlipType[]) {
+function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarOptionsType, blips: RawBlipType[]) {
   // Title
   const title = document.createElement('h3');
   title.innerText = data.title;
@@ -257,7 +257,7 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarDataTyp
   drawBlips(rootElement, base, data, blips);
 }
 
-const setupFourQuadrants = (rootElement: HTMLDivElement, data: RadarDataType, blips: RawBlipType[]): void => {
+const setupFourQuadrants = (rootElement: HTMLDivElement, data: RadarOptionsType, blips: RawBlipType[]): void => {
   // reset strategy!
   while (rootElement.firstChild) {
     rootElement.firstChild.remove();

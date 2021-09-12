@@ -17,7 +17,7 @@ const blipsSorting = (a: BlipType, b: BlipType): number => {
 //   // return [x, y];
 // };
 
-const processBlips = (data: RadarDataType, rawBlips: RawBlipType[]): BlipType[] => {
+const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType[] => {
   // go through the data
   const results: BlipType[] = [];
 
