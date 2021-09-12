@@ -65,7 +65,27 @@ const processBlips = (data: RadarDataType, rawBlips: RawBlipType[]): BlipType[] 
   return results;
 };
 
+const getNewHorizons = (rawBlipData: RawBlipType[], key: string): string[] => {
+  const newHorizons: string[] = [];
+  rawBlipData.forEach((val) => {
+    const newVal = val[key].charAt(0).toUpperCase() + val[key].slice(1);
+    if (!newHorizons.includes(newVal)) newHorizons.push(newVal);
+  });
+  return newHorizons;
+};
+
+const getNewQuadrants = (rawBlipData: RawBlipType[], key = 'Quadrant'): string[] => {
+  const newQuadrants: string[] = [];
+  rawBlipData.forEach((val) => {
+    const newVal = val[key].charAt(0).toUpperCase() + val[key].slice(1);
+    if (!newQuadrants.includes(newVal)) newQuadrants.push(newVal);
+  });
+  return newQuadrants;
+};
+
 export const RadarUtilities = {
   blipsSorting,
   processBlips,
+  getNewHorizons,
+  getNewQuadrants,
 };
