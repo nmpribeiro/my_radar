@@ -34,8 +34,8 @@ function addHorizons(base: D3SvgGEL, data: RadarDataType) {
     .enter()
     .append('text')
     .attr('class', (d) => `horizon-text horizon-${d}`)
-    .attr('text-anchor', 'end')
-    .attr('dx', (d, i) => (i + 1) * horizonUnit + HORIZON_SHIFT_RADIUS / 1.5)
+    .attr('text-anchor', 'middle')
+    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + HORIZON_SHIFT_RADIUS)
     .attr('dy', 10)
     .text((d) => d);
 }

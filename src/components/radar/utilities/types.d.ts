@@ -8,12 +8,13 @@ type HistoryItem = {
   directionAngle: number;
 };
 
-interface RawBlipType {
-  // id: string;
-  name: string;
-  description: string;
-  links: string[];
-  history: HistoryItem[];
+type BaseCSVType = Record<string, string>;
+interface RawBlipType extends BaseCSVType {
+  Title: string;
+  Summary: string;
+  Description: string;
+  'Level of implementation': string;
+  Quadrant: string;
 }
 
 interface BlipType {
@@ -21,12 +22,10 @@ interface BlipType {
   name: string;
   description: string;
   quadrant: string;
-  r: number;
-  theta: number;
+  // r: number;
+  // theta: number;
   x: number;
-  dx: number | null;
   y: number;
-  dy: number | null;
 }
 
 interface RadarDataType {
