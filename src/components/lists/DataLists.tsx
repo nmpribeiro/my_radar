@@ -35,8 +35,6 @@ const ItemList: React.FC<{ quadrant: ListMatrixItem; horizon: ListMatrixItem }> 
 export const DataLists: React.FC = () => {
   const radarContext = useContext(RadarContext);
 
-  // const [listMatrix, setListMatrix] = useState<ListMatrixType>(new Map());
-
   const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
   const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
 
@@ -53,12 +51,8 @@ export const DataLists: React.FC = () => {
         newHorizons.push({ uuid: uuidv4(), name: horizon });
       });
       setHorizons(newHorizons);
-
-      console.log(newHeaders, newHorizons);
     }
   }, [radarContext]);
-
-  const getBorder = (color: string) => ({ borderColor: color, borderWidth: 3, borderStyle: 'solid' });
 
   return (
     <section>
