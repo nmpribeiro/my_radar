@@ -18,6 +18,8 @@ export const Radar: React.FC = () => {
     const radarCSV = await getCSVFileFromUrl(csvData);
     const csvManager = new CSVManager(radarCSV);
     const dataType = csvManager.processCSV<RawBlipType>();
+    // eslint-disable-next-line no-console
+    console.log(dataType);
     setRadarData(dataType);
   };
 

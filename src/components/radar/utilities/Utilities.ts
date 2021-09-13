@@ -16,7 +16,6 @@ const processBlips = (
 ): BlipType[] => {
   // go through the data
   const results: BlipType[] = [];
-  console.log(rawBlips);
 
   const width = data.width || 800;
   const height = data.height || 600;
@@ -24,6 +23,9 @@ const processBlips = (
   const horizonUnit = (horizonWidth - data.horizonShiftRadius) / data.horizons.length;
 
   rawBlips.forEach((blip, i) => {
+    // TODO: get them a bit more appart
+    // for instance: (quantize the area and assign to each square)
+
     // get angle
     const quadrantIndex = data.quadrants.indexOf(blip[quadrantKey]) - 1;
     const angle = randomFromInterval(quadrantIndex * (Math.PI / 2), quadrantIndex * (Math.PI / 2) + Math.PI / 2);
