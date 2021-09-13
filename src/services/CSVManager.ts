@@ -12,11 +12,10 @@ export class CSVManager {
 
   public processCSV = <T extends BaseCSVType>(delim = ','): T[] => {
     const str = this.content;
-    const headers = str.slice(0, str.indexOf('\n')).split(delim);
-    const rows = str
-      .slice(str.indexOf('\n') + 1)
-      .split('\n')
-      .filter((row) => row !== '');
+    const docRows = str.split('\n');
+    const headerRow = docRows[0];
+    const rows = docRows.slice(1, docRows.length).filter((row) => row !== '');
+    const headers = headerRow.split(delim);
 
     const newArray: T[] = rows.map((row) => {
       const values = row.split(delim);

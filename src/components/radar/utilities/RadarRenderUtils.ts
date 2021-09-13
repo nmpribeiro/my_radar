@@ -7,13 +7,12 @@ import { RadarUtilities } from './Utilities';
 
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 600;
-const HORIZON_SHIFT_RADIUS = 30;
 
 function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
   const width = data.width || DEFAULT_WIDTH;
   const height = data.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = (horizonWidth - HORIZON_SHIFT_RADIUS) / data.horizons.length;
+  const horizonUnit = (horizonWidth - data.horizonShiftRadius) / data.horizons.length;
 
   const horizons = base.append('g').attr('class', 'horizons').selectAll('.horizon');
 
@@ -21,7 +20,7 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .data(data.horizons)
     .enter()
     .append('circle')
-    .attr('r', (d, i) => (i + 1) * horizonUnit + HORIZON_SHIFT_RADIUS)
+    .attr('r', (d, i) => (i + 1) * horizonUnit + data.horizonShiftRadius)
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('fill', 'none')
@@ -35,9 +34,9 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .append('text')
     .attr('class', (d) => `horizon-text horizon-${d}`)
     .attr('text-anchor', 'middle')
-    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + HORIZON_SHIFT_RADIUS)
+    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius)
     .attr('dy', 10)
-    .text((d) => d);
+    .text((d) => d.charAt(0).toUpperCase() + d.slice(1));
 }
 
 function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
@@ -125,7 +124,6 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     }
   };
 
-  type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
   const quads: QuadsType[] = [];
   for (let i = 0, ilen = data.quadrants.length; i < ilen; i++) {
     for (let j = 0, jlen = data.horizons.length; j < jlen; j++) {
@@ -148,7 +146,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('dx', getX)
     .attr('dy', getY)
     .attr('text-anchor', getLabelAnchor)
-    .text((d) => d.label);
+    .text((d) => d.label.charAt(0).toUpperCase() + d.label.slice(1));
 
   type RgbOut = string | number | boolean | null;
   const fillQuadrant = (d: QuadsType, i: number): RgbOut => {
