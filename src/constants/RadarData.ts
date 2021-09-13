@@ -9,3 +9,5 @@ export const RADAR_OPTIONS: RadarOptionsType = {
   horizonShiftRadius: HORIZON_SHIFT_RADIUS,
   tech: [],
 };
+
+export const HORIZONS_KEY = 'Level of implementation';

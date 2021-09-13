@@ -46,7 +46,13 @@ interface BlipType {
   tech: string;
 }
 
+interface SelectableItem {
+  uuid: string;
+  name: string;
+}
+
 interface TechItemType {
+  uuid: string;
   color: string;
   type: string;
 }
