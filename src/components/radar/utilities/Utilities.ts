@@ -5,64 +5,69 @@ const blipsSorting = (a: BlipType, b: BlipType): number => {
   return 0;
 };
 
-const polarToCartesian = (r: number, t: number) => {
-  const x = r * Math.cos(t);
-  const y = r * Math.sin(t);
-  return [x, y];
-};
+const randomFromInterval = (min: number, max: number): number => Math.random() * (max - min) + min;
 
-const processBlips = (data: RadarDataType, rawBlips: RawBlipType[], currentTime = new Date()): BlipType[] => {
+const processBlips = (
+  data: RadarOptionsType,
+  rawBlips: RawBlipType[],
+  titleKey = 'Title',
+  quadrantKey = 'Quadrant',
+  horizonKey = 'Level of implementation'
+): BlipType[] => {
   // go through the data
   const results: BlipType[] = [];
 
-  const quadAngle = (2 * Math.PI) / data.quadrants.length;
   const width = data.width || 800;
   const height = data.height || 600;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
+  const horizonUnit = (horizonWidth - data.horizonShiftRadius) / data.horizons.length;
 
-  rawBlips.forEach((value, i) => {
-    const history = value.history.filter((e) => e.end == null || (e.end > currentTime && e.start < currentTime))[0];
+  rawBlips.forEach((blip, i) => {
+    // TODO: get them a bit more appart
+    // for instance: (quantize the area and assign to each square)
 
-    let quadrantDelta = 0;
+    // get angle
+    const quadrantIndex = data.quadrants.indexOf(blip[quadrantKey]) - 1;
+    const angle = randomFromInterval(quadrantIndex * (Math.PI / 2), quadrantIndex * (Math.PI / 2) + Math.PI / 2);
 
-    for (let j = 0; j < data.quadrants.length; j++) {
-      if (data.quadrants[j] === history.quadrant) {
-        quadrantDelta = quadAngle * j;
-      }
-    }
+    // get radius
+    const horizonIndex = data.horizons.indexOf(blip[horizonKey]) + 1;
+    const outerRadius = horizonIndex * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius;
+    const innerRadius = horizonIndex * horizonUnit + data.horizonShiftRadius;
+    const radius = randomFromInterval(innerRadius, outerRadius);
 
-    const theta = history.positionAngle * quadAngle + quadrantDelta;
-
-    const r = history.position * horizonWidth;
-    const cart = polarToCartesian(r, theta);
-    const blip: BlipType = {
+    results.push({
       id: i,
-      name: value.name,
-      description: value.description,
-      quadrant: history.quadrant,
-      r,
-      theta,
-      x: cart[0],
-      y: cart[1],
-      dx: null,
-      dy: null,
-    };
-
-    if (history.direction) {
-      const r2 = history.direction * horizonWidth;
-      const theta2 = history.directionAngle * quadAngle + quadrantDelta;
-      const vector = polarToCartesian(r2, theta2);
-
-      blip.dx = vector[0] - cart[0];
-      blip.dy = vector[1] - cart[1];
-    }
-    results.push(blip);
+      name: `${blip[titleKey]} ${blip.Quadrant} ${blip['Level of implementation']}`,
+      description: blip.Description,
+      quadrant: quadrantIndex,
+      x: radius * Math.cos(angle),
+      y: radius * Math.sin(angle),
+    });
   });
 
   return results;
 };
 
+const getNewHorizons = (rawBlipData: RawBlipType[], key: string): string[] => {
+  const newHorizons: string[] = [];
+  rawBlipData.forEach((val) => {
+    if (!newHorizons.includes(val[key])) newHorizons.push(val[key]);
+  });
+  return newHorizons;
+};
+
+const getNewQuadrants = (rawBlipData: RawBlipType[], key = 'Quadrant'): string[] => {
+  const newQuadrants: string[] = [];
+  rawBlipData.forEach((val) => {
+    if (!newQuadrants.includes(val[key])) newQuadrants.push(val[key]);
+  });
+  return newQuadrants;
+};
+
 export const RadarUtilities = {
   blipsSorting,
   processBlips,
+  getNewHorizons,
+  getNewQuadrants,
 };

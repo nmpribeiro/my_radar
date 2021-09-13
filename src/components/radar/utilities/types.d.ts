@@ -8,33 +8,50 @@ type HistoryItem = {
   directionAngle: number;
 };
 
-interface RawBlipType {
-  // id: string;
-  name: string;
-  description: string;
-  links: string[];
-  history: HistoryItem[];
+type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
+
+type BaseCSVType = Record<string, string>;
+interface RawBlipType extends BaseCSVType {
+  Title: string;
+  Summary: string;
+  Description: string;
+  'Level of implementation': string;
+  Quadrant: string;
+  Data: string;
+  Description: string;
+  Developer: string;
+  Implementer: string;
+  'Level of implementation': string;
+  Organization: string;
+  Origin: string;
+  Partner: string;
+  Quadrant: string;
+  'SDG goal': string;
+  Source: string;
+  Summary: string;
+  Technology: string;
+  Title: string;
+  'Use case': string;
 }
 
 interface BlipType {
   id: number;
   name: string;
   description: string;
-  quadrant: string;
-  r: number;
-  theta: number;
+  quadrant: number;
+  // r: number;
+  // theta: number;
   x: number;
-  dx: number | null;
   y: number;
-  dy: number | null;
 }
 
-interface RadarDataType {
+interface RadarOptionsType {
   title: string;
   width?: number;
   height?: number;
   quadrants: string[];
   horizons: string[];
+  horizonShiftRadius: number;
 }
 
 type D3SvgEl = d3.Selection<SVGSVGElement, unknown, null, undefined>;
