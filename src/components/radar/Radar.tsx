@@ -35,6 +35,8 @@ export const Radar: React.FC = () => {
       RADAR_OPTIONS.horizons = newHorizons;
       const newQuadrants = RadarUtilities.getNewQuadrants(radarData);
       RADAR_OPTIONS.quadrants = newQuadrants;
+      const techItems = RadarUtilities.getTechnologies(radarData);
+      RADAR_OPTIONS.tech = techItems;
       RadarRenderUtils.setupFourQuadrants(radarRef.current, RADAR_OPTIONS, radarData);
     }
   }, [radarRef, radarData]);
