@@ -43,6 +43,12 @@ interface BlipType {
   // theta: number;
   x: number;
   y: number;
+  tech: string;
+}
+
+interface TechItemType {
+  color: string;
+  type: string;
 }
 
 interface RadarOptionsType {
@@ -52,6 +58,7 @@ interface RadarOptionsType {
   quadrants: string[];
   horizons: string[];
   horizonShiftRadius: number;
+  tech: TechItemType[];
 }
 
 type D3SvgEl = d3.Selection<SVGSVGElement, unknown, null, undefined>;

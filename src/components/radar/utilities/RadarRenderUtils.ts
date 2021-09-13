@@ -214,7 +214,14 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
       this.setAttribute('opacity', '1');
     });
 
-  svgBlips.append('circle').attr('r', '7px');
+  svgBlips
+    .append('circle')
+    .attr('r', '7px')
+    .attr('fill', (d) => {
+      const tech = data.tech.find((t) => t.type === d.tech);
+      if (tech) return tech.color;
+      return '';
+    });
 
   const title = document.createElement('h5');
   title.innerText = 'List';

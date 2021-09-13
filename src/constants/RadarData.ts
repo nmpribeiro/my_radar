@@ -7,4 +7,5 @@ export const RADAR_OPTIONS: RadarOptionsType = {
   width: 600,
   height: 600,
   horizonShiftRadius: HORIZON_SHIFT_RADIUS,
+  tech: [],
 };

@@ -7,10 +7,13 @@ const blipsSorting = (a: BlipType, b: BlipType): number => {
 
 const randomFromInterval = (min: number, max: number): number => Math.random() * (max - min) + min;
 
+const DEBUG = true;
+
 const processBlips = (
   data: RadarOptionsType,
   rawBlips: RawBlipType[],
   titleKey = 'Title',
+  techKey = 'Technology',
   quadrantKey = 'Quadrant',
   horizonKey = 'Level of implementation'
 ): BlipType[] => {
@@ -36,13 +39,23 @@ const processBlips = (
     const innerRadius = horizonIndex * horizonUnit + data.horizonShiftRadius;
     const radius = randomFromInterval(innerRadius, outerRadius);
 
+    let debug = '';
+    if (DEBUG) {
+      debug = `
+      <p>DEBUG</p>
+      <p>quadrant: ${blip.Quadrant}</p>
+      <p>level: ${blip['Level of implementation']}</p>
+      <p>tech: ${blip.Technology}</p>
+      `;
+    }
     results.push({
       id: i,
-      name: `${blip[titleKey]} ${blip.Quadrant} ${blip['Level of implementation']}`,
+      name: `${blip[titleKey]}${debug}`,
       description: blip.Description,
       quadrant: quadrantIndex,
       x: radius * Math.cos(angle),
       y: radius * Math.sin(angle),
+      tech: blip[techKey],
     });
   });
 
@@ -65,9 +78,24 @@ const getNewQuadrants = (rawBlipData: RawBlipType[], key = 'Quadrant'): string[]
   return newQuadrants;
 };
 
+const getTechnologies = (rawBlipData: RawBlipType[], key = 'Technology'): TechItemType[] => {
+  const newTechItems: Map<string, TechItemType> = new Map();
+
+  rawBlipData.forEach((val) => {
+    if (!newTechItems.has(val[key]))
+      newTechItems.set(val[key], {
+        color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
+        type: val[key],
+      });
+  });
+
+  return Array.from(newTechItems.values());
+};
+
 export const RadarUtilities = {
   blipsSorting,
   processBlips,
   getNewHorizons,
   getNewQuadrants,
+  getTechnologies,
 };
