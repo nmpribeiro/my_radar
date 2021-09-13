@@ -38,7 +38,7 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('text-anchor', 'middle')
     .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius)
     .attr('dy', 10)
-    .text((d) => d.charAt(0).toUpperCase() + d.slice(1));
+    .text((d) => RadarUtilities.capitalize(d));
 }
 
 function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {

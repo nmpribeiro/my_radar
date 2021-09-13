@@ -18,8 +18,17 @@
     flex-wrap: wrap;
     width: 100%;
   }
-  .column {
+
+  .left {
     flex: 1;
+  }
+
+  .center {
+    flex: 2;
+  }
+
+  .right {
+    flex: 2;
   }
 
   .double-column {

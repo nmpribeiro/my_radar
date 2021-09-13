@@ -13,13 +13,20 @@ export const Radar: React.FC = () => {
 
   // On radar ref
   React.useEffect(() => {
-    if (radarRef.current && radarContext) RadarRenderUtils.setupFourQuadrants(radarRef.current, radarContext);
+    if (radarRef.current && radarContext) {
+      const newContext = { ...radarContext };
+      newContext.data.height = radarRef.current.clientHeight;
+      newContext.data.width = radarRef.current.clientWidth;
+      RadarRenderUtils.setupFourQuadrants(radarRef.current, radarContext);
+    }
   }, [radarRef]);
 
   return (
     <>
       <Title label={radarContext.data.title} />
-      <div className={style.techradar} ref={radarRef} />
+      <div style={{ padding: 10 }}>
+        <div className={style.techradar} ref={radarRef} />
+      </div>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { RADAR_OPTIONS } from '../../constants/RadarData';
+import { HORIZONS_KEY, RADAR_OPTIONS } from '../../constants/RadarData';
 import { RadarContextType } from '../../services/RadarContext';
 
 /* eslint-disable no-plusplus */
@@ -67,7 +67,7 @@ const processBlips = (
   return results;
 };
 
-const getNewHorizons = (rawBlipData: RawBlipType[], key: string): string[] => {
+const getNewHorizons = (rawBlipData: RawBlipType[], key = HORIZONS_KEY): string[] => {
   const newHorizons: string[] = [];
   rawBlipData.forEach((val) => {
     if (!newHorizons.includes(val[key])) newHorizons.push(val[key]);
@@ -98,9 +98,21 @@ const getTechnologies = (rawBlipData: RawBlipType[], key = 'Technology'): TechIt
   return Array.from(newTechItems.values());
 };
 
+const getUseCases = (rawBlipData: RawBlipType[], key = 'Use case'): SelectableItem[] => {
+  const newUseCases: Map<string, SelectableItem> = new Map();
+  rawBlipData.forEach((val) => {
+    if (!newUseCases.has(val[key]))
+      newUseCases.set(val[key], {
+        uuid: uuidv4(),
+        name: val[key],
+      } as SelectableItem);
+  });
+  return Array.from(newUseCases.values());
+};
+
 const getRadarData = (blips: RawBlipType[]): RadarContextType => {
   const data = { ...RADAR_OPTIONS };
-  const newHorizons = getNewHorizons(blips, 'Level of implementation');
+  const newHorizons = getNewHorizons(blips, HORIZONS_KEY);
   data.horizons = newHorizons;
   const newQuadrants = getNewQuadrants(blips);
   data.quadrants = newQuadrants;
@@ -109,11 +121,15 @@ const getRadarData = (blips: RawBlipType[]): RadarContextType => {
   return { data, blips };
 };
 
+const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);
+
 export const RadarUtilities = {
   blipsSorting,
   processBlips,
   getNewHorizons,
   getNewQuadrants,
   getTechnologies,
+  getUseCases,
   getRadarData,
+  capitalize,
 };
