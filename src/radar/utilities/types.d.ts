@@ -47,6 +47,7 @@ interface BlipType {
 }
 
 interface TechItemType {
+  uuid: string;
   color: string;
   type: string;
 }

@@ -1,3 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
+
+import { RADAR_OPTIONS } from '../../constants/RadarData';
+import { RadarContextType } from '../../services/RadarContext';
+
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
   if (a.quadrant < b.quadrant) return -1;
@@ -84,6 +89,7 @@ const getTechnologies = (rawBlipData: RawBlipType[], key = 'Technology'): TechIt
   rawBlipData.forEach((val) => {
     if (!newTechItems.has(val[key]))
       newTechItems.set(val[key], {
+        uuid: uuidv4(),
         color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
         type: val[key],
       });
@@ -92,10 +98,22 @@ const getTechnologies = (rawBlipData: RawBlipType[], key = 'Technology'): TechIt
   return Array.from(newTechItems.values());
 };
 
+const getRadarData = (blips: RawBlipType[]): RadarContextType => {
+  const data = { ...RADAR_OPTIONS };
+  const newHorizons = getNewHorizons(blips, 'Level of implementation');
+  data.horizons = newHorizons;
+  const newQuadrants = getNewQuadrants(blips);
+  data.quadrants = newQuadrants;
+  const techItems = getTechnologies(blips);
+  data.tech = techItems;
+  return { data, blips };
+};
+
 export const RadarUtilities = {
   blipsSorting,
   processBlips,
   getNewHorizons,
   getNewQuadrants,
   getTechnologies,
+  getRadarData,
 };

@@ -3,6 +3,8 @@
 /* eslint-disable no-plusplus */
 import * as d3 from 'd3';
 
+import { RadarContextType } from '../../services/RadarContext';
+
 import { RadarUtilities } from './Utilities';
 
 const DEFAULT_WIDTH = 800;
@@ -222,32 +224,9 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
       if (tech) return tech.color;
       return '';
     });
-
-  const title = document.createElement('h5');
-  title.innerText = 'List';
-  rootElement.append(title);
-
-  // add the lists
-  // TODO: remove this list once we hav all layout completed
-  const UL_ID = 'radar-list';
-  let ul: d3.Selection<HTMLUListElement, unknown, null | HTMLElement, any> = d3.select(`#${UL_ID}`);
-  if (ul.empty()) {
-    ul = d3.select(rootElement).append('ul').attr('id', UL_ID);
-  }
-  ul.selectAll('li.quadrant')
-    .data<BlipType>(sortedBlips)
-    .enter()
-    .append('li')
-    .attr('class', 'quadrant')
-    .text((d) => d.name);
 };
 
-function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarOptionsType, blips: RawBlipType[]) {
-  // Title
-  const title = document.createElement('h3');
-  title.innerText = data.title;
-  rootElement.prepend(title);
-
+function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { data, blips }: RadarContextType) {
   // add the horizons
   const base: D3SvgGEL = svg
     .append('g')
@@ -262,7 +241,7 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, data: RadarOptions
   drawBlips(rootElement, base, data, blips);
 }
 
-const setupFourQuadrants = (rootElement: HTMLDivElement, data: RadarOptionsType, blips: RawBlipType[]): void => {
+const setupFourQuadrants = (rootElement: HTMLDivElement, { data, blips }: RadarContextType): void => {
   // reset strategy!
   while (rootElement.firstChild) {
     rootElement.firstChild.remove();
@@ -285,7 +264,7 @@ const setupFourQuadrants = (rootElement: HTMLDivElement, data: RadarOptionsType,
     .append('path')
     .attr('d', 'M0,0 V4 L2,2 Z');
 
-  drawRadar(rootElement, svg, data, blips);
+  drawRadar(rootElement, svg, { data, blips });
 };
 
 export const RadarRenderUtils = { setupFourQuadrants };
