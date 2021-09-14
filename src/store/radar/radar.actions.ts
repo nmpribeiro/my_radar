@@ -4,7 +4,7 @@ import { ThunkAction } from 'redux-thunk';
 import { GlobalState } from '../state';
 import { CSVManager, getCSVFileFromUrl } from '../../services/CSVManager';
 
-import { ActionType, radarModule } from './radar.state';
+import { ActionType, radarModule, RadarState } from './radar.state';
 
 /**
  * Exportable Actions
@@ -59,7 +59,6 @@ const fetchRadarBlips: FetchRadarDataThunk = (content) => async (dispatch) => {
   const rawBlips = csvManager.processCSV<RawBlipType>();
   setRawBlips(csvManager.processCSV<RawBlipType>());
   dispatch(setRawBlips(rawBlips));
-  // RadarUtilities.getRadarData(rawBlips);
 };
 
 export const actions = {
@@ -75,11 +74,6 @@ export const actions = {
 };
 
 /**
- * Reducer
- */
-export const AppReducer = radarModule.getReducer();
-
-/**
  * Exportable Selectors
  */
-export const selectors = radarModule.helper;
+export const selectors = (state: GlobalState): RadarState => radarModule.helper(state);

@@ -1,41 +1,65 @@
-import React, { createRef, useContext, useEffect } from 'react';
+import React, { createRef, useEffect, useState } from 'react';
+import { Connect } from 'redux-auto-actions';
 
+import { GlobalState } from '../store/state';
 import { Title } from '../components/shared/Title';
-import { RadarContext } from '../services/RadarContext';
+import { RADAR_OPTIONS } from '../constants/RadarData';
+import { actions, selectors } from '../store/radar/radar.actions';
 
 import './RadarSvg.scss';
 import style from './Radar.module.scss';
 import { RadarRenderUtils } from './utilities/RadarRenderUtils';
+import { RadarUtilities } from './utilities/Utilities';
 
-export const Radar: React.FC = () => {
-  const radarRef = createRef<HTMLDivElement>();
-  const radarContext = useContext(RadarContext);
-
-  const setupRadar = () => {
-    if (radarRef.current && radarContext) {
-      const newContext = { ...radarContext };
-      newContext.data.height = radarRef.current.clientHeight;
-      newContext.data.width = radarRef.current.clientWidth;
-      RadarRenderUtils.setupFourQuadrants(radarRef.current, radarContext);
+export const Radar = Connect<GlobalState, Record<string, unknown>>()
+  .stateAndDispatch(
+    (state) => ({
+      radarData: selectors(state).radarData,
+      blips: selectors(state).blips,
+      rawBlips: selectors(state).rawBlips,
+    }),
+    {
+      setBlips: actions.setBlips,
+      setRadarData: actions.setRadarData,
     }
-  };
+  )
+  .withComp(({ radarData, setBlips, blips, setRadarData, rawBlips }) => {
+    const radarRef = createRef<HTMLDivElement>();
 
-  useEffect(() => {}, []);
+    const [init, setInit] = useState(false);
 
-  // On radar ref
-  useEffect(() => {
-    setupRadar();
-    if (radarRef.current) {
-      radarRef.current.onresize = setupRadar;
-    }
-  }, [radarRef]);
+    const setupRadar = () => {
+      if (radarRef.current && blips) {
+        RadarRenderUtils.setupFourQuadrants(radarRef.current, { blips, radarData });
+      }
+    };
 
-  return (
-    <>
-      <Title label={radarContext.data.title} />
-      <div style={{ padding: 10 }}>
-        <div className={style.techradar} ref={radarRef} />
-      </div>
-    </>
-  );
-};
+    useEffect(() => {
+      if (rawBlips.length > 0 && radarData) {
+        const newRadarData = { ...RADAR_OPTIONS };
+        if (radarRef.current) {
+          newRadarData.height = radarRef.current.clientHeight;
+          newRadarData.width = radarRef.current.clientWidth;
+        }
+        const { radarData: newRadarData2, blips: newBlips } = RadarUtilities.getRadarData(rawBlips, newRadarData);
+        setBlips(newBlips);
+        setRadarData({ ...newRadarData2 });
+        setTimeout(() => {
+          setInit(true);
+        }, 0);
+      }
+    }, [rawBlips]);
+
+    useEffect(() => {
+      if (init) setupRadar();
+    }, [init]);
+
+    return (
+      <>
+        <Title label={radarData.title} />
+        <div style={{ padding: 10 }}>
+          <div className={style.techradar} ref={radarRef} />
+        </div>
+      </>
+    );
+  });

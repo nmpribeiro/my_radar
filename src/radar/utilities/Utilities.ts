@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { DISASTER_TYPE_KEY, HORIZONS_KEY, QUADRANT_KEY, RADAR_OPTIONS, TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
-import { RadarDataAndBLips } from '../../services/RadarContext';
+import { DISASTER_TYPE_KEY, HORIZONS_KEY, QUADRANT_KEY, TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
@@ -47,7 +46,7 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   return results;
 };
 
-const getHorizons = (rawBlipData: BlipType[]): string[] => {
+const getHorizons = (rawBlipData: (RawBlipType | BlipType)[]): string[] => {
   const newHorizons: string[] = [];
   rawBlipData.forEach((val) => {
     if (!newHorizons.includes(val[HORIZONS_KEY])) newHorizons.push(val[HORIZONS_KEY]);
@@ -55,7 +54,7 @@ const getHorizons = (rawBlipData: BlipType[]): string[] => {
   return newHorizons;
 };
 
-const getQuadrants = (rawBlipData: BlipType[]): string[] => {
+const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): string[] => {
   const newQuadrants: string[] = [];
   rawBlipData.forEach((val) => {
     if (!newQuadrants.includes(val[QUADRANT_KEY])) newQuadrants.push(val[QUADRANT_KEY]);
@@ -63,7 +62,7 @@ const getQuadrants = (rawBlipData: BlipType[]): string[] => {
   return newQuadrants;
 };
 
-const getTechnologies = (rawBlipData: BlipType[]): TechItemType[] => {
+const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[] => {
   const newTechItems: Map<string, TechItemType> = new Map();
 
   rawBlipData.forEach((val) => {
@@ -102,16 +101,16 @@ const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   return Array.from(newDisterTypes.values());
 };
 
-const getRadarData = (rawBlips: RawBlipType[]): RadarDataAndBLips => {
-  const data = { ...RADAR_OPTIONS };
-  const blips: BlipType[] = processBlips(data, rawBlips);
-  const newHorizons = getHorizons(blips);
-  data.horizons = newHorizons;
-  const newQuadrants = getQuadrants(blips);
-  data.quadrants = newQuadrants;
-  const techItems = getTechnologies(blips);
-  data.tech = techItems;
-  return { data, blips };
+const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataAndBLips => {
+  const radarData = { ...passedRadarData };
+  const newHorizons = getHorizons(rawBlips);
+  radarData.horizons = newHorizons;
+  const newQuadrants = getQuadrants(rawBlips);
+  radarData.quadrants = newQuadrants;
+  const techItems = getTechnologies(rawBlips);
+  radarData.tech = techItems;
+  const blips: BlipType[] = processBlips(radarData, rawBlips);
+  return { radarData, blips };
 };
 
 const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);

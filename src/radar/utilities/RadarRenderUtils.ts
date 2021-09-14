@@ -3,7 +3,6 @@
 /* eslint-disable no-plusplus */
 import * as d3 from 'd3';
 
-import { RadarContextType } from '../../services/RadarContext';
 import { TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import { RadarUtilities } from './Utilities';
@@ -184,6 +183,8 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
 const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: BlipType[]): void => {
   // process and sort the blips
   const sortedBlips = blips.sort(RadarUtilities.blipsSorting);
+  // eslint-disable-next-line no-console
+  console.log('BLIP.X = ', sortedBlips[0].x);
 
   // Add a div
   const RADAR_TOOLTIP_ID = 'radar-tooltip';
@@ -226,28 +227,28 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
     });
 };
 
-function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { data, blips }: RadarContextType) {
+function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { radarData, blips }: RadarDataAndBLips) {
   // add the horizons
   const base: D3SvgGEL = svg
     .append('g')
-    .attr('transform', `translate(${(data.width || DEFAULT_WIDTH) / 2},${(data.height || DEFAULT_HEIGHT) / 2})`);
+    .attr('transform', `translate(${(radarData.width || DEFAULT_WIDTH) / 2},${(radarData.height || DEFAULT_HEIGHT) / 2})`);
 
-  addHorizons(base, data);
+  addHorizons(base, radarData);
 
   // add the quadrants
-  addQuadrants(base, data);
+  addQuadrants(base, radarData);
 
   // add the blips (filtered if they're filtered)
-  drawBlips(rootElement, base, data, blips);
+  drawBlips(rootElement, base, radarData, blips);
 }
 
-const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarContextType): void => {
+const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarDataAndBLips): void => {
   // reset strategy!
   while (rootElement.firstChild) {
     rootElement.firstChild.remove();
   }
 
-  const { width, height } = radarContext.data;
+  const { width, height } = radarContext.radarData;
   const svg = d3
     .select(rootElement)
     .append('svg')
