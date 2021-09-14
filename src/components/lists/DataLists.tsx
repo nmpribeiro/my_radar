@@ -41,13 +41,13 @@ export const DataLists: React.FC = () => {
   useEffect(() => {
     if (radarContext && radarContext.blips.length > 0) {
       const newHeaders: ListMatrixItem[] = [];
-      RadarUtilities.getNewQuadrants(radarContext.blips).forEach((header) => {
+      RadarUtilities.getQuadrants(radarContext.blips).forEach((header) => {
         newHeaders.push({ uuid: uuidv4(), name: header });
       });
       setHeaders(newHeaders);
 
       const newHorizons: ListMatrixItem[] = [];
-      RadarUtilities.getNewHorizons(radarContext.blips).forEach((horizon) => {
+      RadarUtilities.getHorizons(radarContext.blips).forEach((horizon) => {
         newHorizons.push({ uuid: uuidv4(), name: horizon });
       });
       setHorizons(newHorizons);

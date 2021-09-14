@@ -11,7 +11,8 @@ type HistoryItem = {
 type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
 
 type BaseCSVType = Record<string, string>;
-interface RawBlipType extends BaseCSVType {
+
+type RawCSVItem = {
   Title: string;
   Summary: string;
   Description: string;
@@ -32,18 +33,14 @@ interface RawBlipType extends BaseCSVType {
   Technology: string;
   Title: string;
   'Use case': string;
-}
+};
+interface RawBlipType extends BaseCSVType, RawCSVItem {}
 
-interface BlipType {
-  id: number;
-  name: string;
-  description: string;
-  quadrant: number;
-  // r: number;
-  // theta: number;
+interface BlipType extends RawCSVItem {
+  id: string;
+  quadrantIndex: number;
   x: number;
   y: number;
-  tech: string;
 }
 
 interface SelectableItem {

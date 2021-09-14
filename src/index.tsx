@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
 
 import './index.css';
 import { Main } from './Main';
+import { appStore } from './store/store';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Main />
+    <Provider store={appStore}>
+      <Main />
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

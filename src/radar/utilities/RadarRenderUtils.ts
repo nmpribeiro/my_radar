@@ -4,6 +4,7 @@
 import * as d3 from 'd3';
 
 import { RadarContextType } from '../../services/RadarContext';
+import { TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import { RadarUtilities } from './Utilities';
 
@@ -180,10 +181,9 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('class', quadrantClass);
 }
 
-const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: RawBlipType[]): void => {
+const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: BlipType[]): void => {
   // process and sort the blips
-  const processedBlips = RadarUtilities.processBlips(data, blips);
-  const sortedBlips = processedBlips.sort(RadarUtilities.blipsSorting);
+  const sortedBlips = blips.sort(RadarUtilities.blipsSorting);
 
   // Add a div
   const RADAR_TOOLTIP_ID = 'radar-tooltip';
@@ -205,7 +205,7 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
     .on('mouseover', function (event, d) {
       tooltip.transition().duration(200).style('opacity', 0.9);
       tooltip
-        .html(`<h4>${d.name}</h4>`)
+        .html(`<h4>${d[TITLE_KEY]}</h4>`)
         .style('left', `${event.pageX + 15}px`)
         .style('top', `${event.pageY - 10}px`);
       this.setAttribute('opacity', '0.5');
@@ -220,7 +220,7 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
     .append('circle')
     .attr('r', '7px')
     .attr('fill', (d) => {
-      const tech = data.tech.find((t) => t.type === d.tech);
+      const tech = data.tech.find((t) => t.type === d[TECH_KEY]);
       if (tech) return tech.color;
       return '';
     });
@@ -237,21 +237,22 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { data, blips }: R
   // add the quadrants
   addQuadrants(base, data);
 
-  // add the blips
+  // add the blips (filtered if they're filtered)
   drawBlips(rootElement, base, data, blips);
 }
 
-const setupFourQuadrants = (rootElement: HTMLDivElement, { data, blips }: RadarContextType): void => {
+const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarContextType): void => {
   // reset strategy!
   while (rootElement.firstChild) {
     rootElement.firstChild.remove();
   }
 
+  const { width, height } = radarContext.data;
   const svg = d3
     .select(rootElement)
     .append('svg')
-    .attr('width', data.width || DEFAULT_WIDTH)
-    .attr('height', data.height || DEFAULT_HEIGHT);
+    .attr('width', width || DEFAULT_WIDTH)
+    .attr('height', height || DEFAULT_HEIGHT);
 
   svg
     .append('marker')
@@ -264,7 +265,7 @@ const setupFourQuadrants = (rootElement: HTMLDivElement, { data, blips }: RadarC
     .append('path')
     .attr('d', 'M0,0 V4 L2,2 Z');
 
-  drawRadar(rootElement, svg, { data, blips });
+  drawRadar(rootElement, svg, radarContext);
 };
 
 export const RadarRenderUtils = { setupFourQuadrants };

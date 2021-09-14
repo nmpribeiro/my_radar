@@ -1,27 +1,18 @@
 import { v4 as uuidv4 } from 'uuid';
 
-import { HORIZONS_KEY, RADAR_OPTIONS } from '../../constants/RadarData';
-import { RadarContextType } from '../../services/RadarContext';
+import { DISASTER_TYPE_KEY, HORIZONS_KEY, QUADRANT_KEY, RADAR_OPTIONS, TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
+import { RadarDataAndBLips } from '../../services/RadarContext';
 
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
-  if (a.quadrant < b.quadrant) return -1;
-  if (a.quadrant > b.quadrant) return 1;
+  if (a.quadrantIndex < b.quadrantIndex) return -1;
+  if (a.quadrantIndex > b.quadrantIndex) return 1;
   return 0;
 };
 
 const randomFromInterval = (min: number, max: number): number => Math.random() * (max - min) + min;
 
-const DEBUG = true;
-
-const processBlips = (
-  data: RadarOptionsType,
-  rawBlips: RawBlipType[],
-  titleKey = 'Title',
-  techKey = 'Technology',
-  quadrantKey = 'Quadrant',
-  horizonKey = 'Level of implementation'
-): BlipType[] => {
+const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType[] => {
   // go through the data
   const results: BlipType[] = [];
 
@@ -30,91 +21,93 @@ const processBlips = (
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - data.horizonShiftRadius) / data.horizons.length;
 
-  rawBlips.forEach((blip, i) => {
+  rawBlips.forEach((blip) => {
     // TODO: get them a bit more appart
     // for instance: (quantize the area and assign to each square)
 
     // get angle
-    const quadrantIndex = data.quadrants.indexOf(blip[quadrantKey]) - 1;
+    const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY]) - 1;
     const angle = randomFromInterval(quadrantIndex * (Math.PI / 2), quadrantIndex * (Math.PI / 2) + Math.PI / 2);
 
     // get radius
-    const horizonIndex = data.horizons.indexOf(blip[horizonKey]) + 1;
+    const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY]) + 1;
     const outerRadius = horizonIndex * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius;
     const innerRadius = horizonIndex * horizonUnit + data.horizonShiftRadius;
     const radius = randomFromInterval(innerRadius, outerRadius);
 
-    let debug = '';
-    if (DEBUG) {
-      debug = `
-      <p>DEBUG</p>
-      <p>quadrant: ${blip.Quadrant}</p>
-      <p>level: ${blip['Level of implementation']}</p>
-      <p>tech: ${blip.Technology}</p>
-      `;
-    }
     results.push({
-      id: i,
-      name: `${blip[titleKey]}${debug}`,
-      description: blip.Description,
-      quadrant: quadrantIndex,
+      ...blip,
+      id: uuidv4(),
+      quadrantIndex,
       x: radius * Math.cos(angle),
       y: radius * Math.sin(angle),
-      tech: blip[techKey],
     });
   });
 
   return results;
 };
 
-const getNewHorizons = (rawBlipData: RawBlipType[], key = HORIZONS_KEY): string[] => {
+const getHorizons = (rawBlipData: BlipType[]): string[] => {
   const newHorizons: string[] = [];
   rawBlipData.forEach((val) => {
-    if (!newHorizons.includes(val[key])) newHorizons.push(val[key]);
+    if (!newHorizons.includes(val[HORIZONS_KEY])) newHorizons.push(val[HORIZONS_KEY]);
   });
   return newHorizons;
 };
 
-const getNewQuadrants = (rawBlipData: RawBlipType[], key = 'Quadrant'): string[] => {
+const getQuadrants = (rawBlipData: BlipType[]): string[] => {
   const newQuadrants: string[] = [];
   rawBlipData.forEach((val) => {
-    if (!newQuadrants.includes(val[key])) newQuadrants.push(val[key]);
+    if (!newQuadrants.includes(val[QUADRANT_KEY])) newQuadrants.push(val[QUADRANT_KEY]);
   });
   return newQuadrants;
 };
 
-const getTechnologies = (rawBlipData: RawBlipType[], key = 'Technology'): TechItemType[] => {
+const getTechnologies = (rawBlipData: BlipType[]): TechItemType[] => {
   const newTechItems: Map<string, TechItemType> = new Map();
 
   rawBlipData.forEach((val) => {
-    if (!newTechItems.has(val[key]))
-      newTechItems.set(val[key], {
+    if (!newTechItems.has(val[TECH_KEY]))
+      newTechItems.set(val[TECH_KEY], {
         uuid: uuidv4(),
         color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
-        type: val[key],
+        type: val[TECH_KEY],
       });
   });
 
   return Array.from(newTechItems.values());
 };
 
-const getUseCases = (rawBlipData: RawBlipType[], key = 'Use case'): SelectableItem[] => {
+const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
   const newUseCases: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
-    if (!newUseCases.has(val[key]))
-      newUseCases.set(val[key], {
+    if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY]))
+      newUseCases.set(val[USE_CASE_KEY], {
         uuid: uuidv4(),
-        name: val[key],
+        name: val[USE_CASE_KEY],
       } as SelectableItem);
   });
   return Array.from(newUseCases.values());
 };
 
-const getRadarData = (blips: RawBlipType[]): RadarContextType => {
+const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
+  const newDisterTypes: Map<string, SelectableItem> = new Map();
+  rawBlipData.forEach((val) => {
+    if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY]))
+      newDisterTypes.set(val[DISASTER_TYPE_KEY], {
+        uuid: uuidv4(),
+        name: val[DISASTER_TYPE_KEY],
+      } as SelectableItem);
+  });
+  return Array.from(newDisterTypes.values());
+};
+
+const getRadarData = (rawBlips: RawBlipType[]): RadarDataAndBLips => {
   const data = { ...RADAR_OPTIONS };
-  const newHorizons = getNewHorizons(blips, HORIZONS_KEY);
+  const blips: BlipType[] = processBlips(data, rawBlips);
+  const newHorizons = getHorizons(blips);
   data.horizons = newHorizons;
-  const newQuadrants = getNewQuadrants(blips);
+  const newQuadrants = getQuadrants(blips);
   data.quadrants = newQuadrants;
   const techItems = getTechnologies(blips);
   data.tech = techItems;
@@ -124,12 +117,13 @@ const getRadarData = (blips: RawBlipType[]): RadarContextType => {
 const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);
 
 export const RadarUtilities = {
-  blipsSorting,
   processBlips,
-  getNewHorizons,
-  getNewQuadrants,
+  blipsSorting,
+  getHorizons,
+  getQuadrants,
   getTechnologies,
   getUseCases,
+  getDisasterTypes,
   getRadarData,
   capitalize,
 };

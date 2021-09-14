@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef, useContext, useEffect } from 'react';
 
 import { Title } from '../components/shared/Title';
 import { RadarContext } from '../services/RadarContext';
@@ -8,16 +8,25 @@ import style from './Radar.module.scss';
 import { RadarRenderUtils } from './utilities/RadarRenderUtils';
 
 export const Radar: React.FC = () => {
-  const radarRef = React.createRef<HTMLDivElement>();
-  const radarContext = React.useContext(RadarContext);
+  const radarRef = createRef<HTMLDivElement>();
+  const radarContext = useContext(RadarContext);
 
-  // On radar ref
-  React.useEffect(() => {
+  const setupRadar = () => {
     if (radarRef.current && radarContext) {
       const newContext = { ...radarContext };
       newContext.data.height = radarRef.current.clientHeight;
       newContext.data.width = radarRef.current.clientWidth;
       RadarRenderUtils.setupFourQuadrants(radarRef.current, radarContext);
+    }
+  };
+
+  useEffect(() => {}, []);
+
+  // On radar ref
+  useEffect(() => {
+    setupRadar();
+    if (radarRef.current) {
+      radarRef.current.onresize = setupRadar;
     }
   }, [radarRef]);
 

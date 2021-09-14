@@ -21,7 +21,7 @@ export class CSVManager {
       const values = row.split(delim);
       const eachObject = headers.reduce((obj: Record<string, string>, header, i) => {
         const newObj = { ...obj } as T;
-        if (header && values[i]) newObj[header as keyof T] = values[i] as T[typeof header];
+        if (header) newObj[header as keyof T] = values[i] as T[typeof header];
         return newObj;
       }, {});
       return eachObject as T;
