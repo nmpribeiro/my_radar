@@ -41,7 +41,7 @@ export const RadarFilter = Connect<GlobalState, Record<string, unknown>>()
     const onFilterHnalder = () => {
       // selected?
       setUseCaseFilter(selectedUserCase);
-      setDisasterTypeFilter(disasterTypeFilter);
+      setDisasterTypeFilter(selectedDisasterType);
     };
 
     return (

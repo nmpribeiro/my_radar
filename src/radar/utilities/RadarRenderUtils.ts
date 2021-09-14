@@ -183,8 +183,6 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
 const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: BlipType[]): void => {
   // process and sort the blips
   const sortedBlips = blips.sort(RadarUtilities.blipsSorting);
-  // eslint-disable-next-line no-console
-  console.log('BLIP.X = ', sortedBlips[0].x);
 
   // Add a div
   const RADAR_TOOLTIP_ID = 'radar-tooltip';

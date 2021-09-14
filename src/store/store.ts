@@ -1,7 +1,6 @@
 import { createStore, applyMiddleware, Store, Middleware } from 'redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import reduxImmutableStateInvariant from 'redux-immutable-state-invariant';
 
 import { defaultState } from './state';
 import { combinedReducers } from './reducer';
@@ -11,7 +10,6 @@ const SHOW_REDUX_LOG = false;
 const middleware: Middleware[] = [thunk];
 
 if (process.env.NODE_ENV === 'development') {
-  middleware.push(reduxImmutableStateInvariant());
   if (SHOW_REDUX_LOG) {
     const logger = createLogger({ collapsed: true, diff: false });
     if (logger) {
