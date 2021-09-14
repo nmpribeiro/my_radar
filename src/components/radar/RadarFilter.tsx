@@ -61,7 +61,7 @@ export const RadarFilter = Connect<GlobalState, Record<string, unknown>>()
         <div>Customize Radar</div>
 
         <div style={{ paddingTop: 20 }}>
-          <select id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
+          <select disabled id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
             <option value="all">Show all disaster types</option>
             {disasterTypes.map((item) => (
               <option key={item.uuid} value={item.name}>
