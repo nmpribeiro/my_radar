@@ -8959,10 +8959,10 @@ redent@^3.0.0:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
 
-redux-auto-actions@0.2.7:
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/redux-auto-actions/-/redux-auto-actions-0.2.7.tgz#ff1f5a47e2a245499eef0d11ccd25d2954d109ed"
-  integrity sha512-zhvncbHZos/UPeZ4tn+ukR+u9JFtsj/saSPd8l9WhAQrXFviiZ7b6X14rTmlnFPGTScXbKFq7lmRZfVDXZ0UVQ==
+redux-auto-actions@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/redux-auto-actions/-/redux-auto-actions-1.0.2.tgz#052dab1ba12bc9092555e9dd43e076c3e791f933"
+  integrity sha512-8tsfsw6ion/c8vWm41QBpRXDPHyFSfSLk788y2weHgPwEGcRy8KaTTG8tWwZm7NkqBA4nfdqT8cOK8yDoQr9aA==
 
 redux-immutable-state-invariant@^2.1.0:
   version "2.1.0"
