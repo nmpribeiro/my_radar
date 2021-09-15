@@ -1,79 +1,104 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { ChangeEventHandler, useEffect, useState } from 'react';
+import { Connect } from 'redux-auto-actions';
 
-import { RadarContext } from '../../services/RadarContext';
 import { RadarUtilities } from '../../radar/utilities/Utilities';
+import { actions, selectors } from '../../store/radar/radar.actions';
+import { GlobalState } from '../../store/state';
 
-export const RadarFilter: React.FC = () => {
-  const radarContext = useContext(RadarContext);
-  const [disasterTypes] = useState<SelectableItem[]>([{ uuid: '1', name: "don't know where to get disaster types" }]);
-
-  const [useCases, setUseCases] = useState<SelectableItem[]>([]);
-
-  useEffect(() => {
-    if (radarContext && radarContext.blips?.length > 0) {
-      const newUseCases = RadarUtilities.getUseCases(radarContext.blips);
-      setUseCases(newUseCases);
+export const RadarFilter = Connect<GlobalState, Record<string, unknown>>()
+  .stateAndDispatch(
+    (state) => ({
+      blips: selectors(state).blips,
+      disasterTypeFilter: selectors(state).disasterTypeFilter,
+      useCaseFilter: selectors(state).useCaseFilter,
+    }),
+    {
+      setUseCaseFilter: actions.setUseCaseFilter,
+      setDisasterTypeFilter: actions.setDisasterTypeFilter,
     }
-  }, [radarContext]);
+  )
+  .withComp(({ blips, disasterTypeFilter, useCaseFilter, setUseCaseFilter, setDisasterTypeFilter }) => {
+    const [disasterTypes, setDisasterTypes] = useState<SelectableItem[]>([]);
+    const [useCases, setUseCases] = useState<SelectableItem[]>([]);
 
-  // eslint-disable-next-line no-console
-  const onFilterHnalder = () => console.log('will filter!');
+    useEffect(() => {
+      if (blips && blips?.length > 0) {
+        const newUseCases = RadarUtilities.getUseCases(blips);
+        setUseCases(newUseCases);
 
-  return (
-    <div
-      style={{
-        margin: 10,
-        marginTop: 30,
-        borderStyle: 'solid',
-        borderColor: 'black',
-        borderWidth: 1,
-        padding: 20,
-        paddingTop: 20,
-        borderRadius: 5,
-        maxWidth: 300,
-      }}
-    >
-      <div>Customize Radar</div>
+        const newDisasterTyes = RadarUtilities.getDisasterTypes(blips);
+        setDisasterTypes(newDisasterTyes);
+      }
+    }, [blips]);
 
-      <div style={{ paddingTop: 20 }}>
-        <select id="Select1">
-          <option>Select a disaster type</option>
-          {disasterTypes.map((item) => (
-            <option key={item.uuid} value={item.uuid}>
-              {item.name}
-            </option>
-          ))}
-        </select>
+    const [selectedDisasterType, setSelectedDisasterType] = useState<string>(
+      disasterTypeFilter === null ? 'all' : disasterTypeFilter
+    );
+    const [selectedUserCase, setSelectedUserCase] = useState<string>(useCaseFilter === null ? 'all' : useCaseFilter);
+    const onDisasterTypeChange: ChangeEventHandler<HTMLSelectElement> = (e) => setSelectedDisasterType(e.target.value);
+    const onUseCaseChange: ChangeEventHandler<HTMLSelectElement> = (e) => setSelectedUserCase(e.target.value);
+
+    const onFilterHnalder = () => {
+      // selected?
+      setUseCaseFilter(selectedUserCase);
+      setDisasterTypeFilter(selectedDisasterType);
+    };
+
+    return (
+      <div
+        style={{
+          margin: 10,
+          marginTop: 30,
+          borderStyle: 'solid',
+          borderColor: 'black',
+          borderWidth: 1,
+          padding: 20,
+          paddingTop: 20,
+          borderRadius: 5,
+          maxWidth: 300,
+        }}
+      >
+        <div>Customize Radar</div>
+
+        <div style={{ paddingTop: 20 }}>
+          <select disabled id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
+            <option value="all">Show all disaster types</option>
+            {disasterTypes.map((item) => (
+              <option key={item.uuid} value={item.name}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ paddingTop: 20 }}>
+          <select id="Select2" style={{ width: '100%' }} onChange={onUseCaseChange} value={selectedUserCase}>
+            <option value="all">Show all Use Cases</option>
+            {useCases.map((item) => (
+              <option key={item.uuid} value={item.name}>
+                {item.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ paddingTop: 20 }}>
+          <button
+            type="button"
+            style={{
+              borderColor: 'black',
+              borderWidth: 1,
+              borderStyle: 'solid',
+              padding: '10px 20px',
+              backgroundColor: 'whitesmoke',
+              cursor: 'pointer',
+              borderRadius: 5,
+            }}
+            onClick={onFilterHnalder}
+          >
+            Filter
+          </button>
+        </div>
       </div>
-
-      <div style={{ paddingTop: 20 }}>
-        <select id="Select2">
-          <option>Select a Use Case</option>
-          {useCases.map((item) => (
-            <option key={item.uuid} value={item.uuid}>
-              {item.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div style={{ paddingTop: 20 }}>
-        <button
-          type="button"
-          style={{
-            borderColor: 'black',
-            borderWidth: 1,
-            borderStyle: 'solid',
-            padding: '10px 20px',
-            backgroundColor: 'whitesmoke',
-            cursor: 'pointer',
-            borderRadius: 5,
-          }}
-          onClick={onFilterHnalder}
-        >
-          Filter
-        </button>
-      </div>
-    </div>
-  );
-};
+    );
+  });

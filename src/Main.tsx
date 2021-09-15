@@ -1,34 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { Connect } from 'redux-auto-actions';
 
 import { App } from './app/App';
+import { GlobalState } from './store/state';
 import csvData from './assets/techradar_dataset.csv';
-import { CSVManager, getCSVFileFromUrl } from './services/CSVManager';
-import { RadarUtilities } from './radar/utilities/Utilities';
-import { InitialRadarContextValue, RadarContext } from './services/RadarContext';
+import { actions } from './store/radar/radar.actions';
 
-export const Main: React.FC = () => {
-  const [contextValue, setContextValue] = useState(InitialRadarContextValue);
+export const MyMain = Connect<GlobalState, Record<string, unknown>>()
+  .stateAndDispatch(() => ({}), {
+    fetchRadarBlips: actions.fetchRadarBlips,
+  })
+  .withComp(({ fetchRadarBlips }) => {
+    // on mount
+    useEffect(() => {
+      fetchRadarBlips(csvData);
+    }, []);
 
-  const fetchRadarBlips = async (): Promise<RawBlipType[]> => {
-    const radarCSV = await getCSVFileFromUrl(csvData);
-    const csvManager = new CSVManager(radarCSV);
-    return csvManager.processCSV<RawBlipType>();
-  };
+    return <App />;
+  });
 
-  // work out data
-  const init = async () => {
-    const blips = await fetchRadarBlips();
-    setContextValue(RadarUtilities.getRadarData(blips));
-  };
-
-  // on mount
-  useEffect(() => {
-    init();
-  }, []);
-
-  return (
-    <RadarContext.Provider value={contextValue}>
-      <App />
-    </RadarContext.Provider>
-  );
-};
+export const Main: React.FC = () => <MyMain />;
