@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
 import { v4 as uuidv4 } from 'uuid';
 
-import { DISASTER_TYPE_KEY, HORIZONS_KEY, USE_CASE_KEY } from '../../constants/RadarData';
-import { RadarUtilities } from '../../radar/utilities/Utilities';
-import { selectors } from '../../store/radar/radar.actions';
-import { GlobalState } from '../../store/state';
 import { Title } from '../shared/Title';
+import { GlobalState } from '../../store/state';
+import { HORIZONS_KEY } from '../../constants/RadarData';
+import { selectors } from '../../store/radar/radar.actions';
+import { RadarUtilities } from '../../radar/utilities/Utilities';
 
 import './DataLists.scss';
 
@@ -19,18 +19,9 @@ interface Props {
 }
 
 const ItemList: React.FC<Props> = ({ quadrant, horizon, blips }) => (
-  <ul
-    style={{
-      listStyle: 'none',
-      margin: 0,
-      padding: 0,
-      textAlign: 'left',
-      fontSize: 14,
-    }}
-  >
+  <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
     {blips.map((blip) => {
       if (blip.Quadrant === quadrant.name && blip[HORIZONS_KEY] === horizon.name)
-        // TODO: fix this kex!
         return <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`}>{blip.Title}</li>;
       return null;
     })}
@@ -53,24 +44,16 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
     const [myBlips, setMyBlips] = useState<BlipType[]>([]);
 
     useEffect(() => {
-      let filtered = blips;
-      if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
-      if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
-      setMyBlips(filtered);
+      setMyBlips(RadarUtilities.filterBlips(blips, useCaseFilter, disasterTypeFilter));
     }, [blips, useCaseFilter, disasterTypeFilter]);
 
     useEffect(() => {
       if (blips && blips.length > 0) {
         const newHeaders: ListMatrixItem[] = [];
-        RadarUtilities.getQuadrants(blips).forEach((header) => {
-          newHeaders.push({ uuid: uuidv4(), name: header });
-        });
-        setHeaders(newHeaders);
-
+        RadarUtilities.getQuadrants(blips).forEach((header) => newHeaders.push({ uuid: uuidv4(), name: header }));
         const newHorizons: ListMatrixItem[] = [];
-        RadarUtilities.getHorizons(blips).forEach((horizon) => {
-          newHorizons.push({ uuid: uuidv4(), name: horizon });
-        });
+        RadarUtilities.getHorizons(blips).forEach((horizon) => newHorizons.push({ uuid: uuidv4(), name: horizon }));
+        setHeaders(newHeaders);
         setHorizons(newHorizons);
       }
     }, [blips]);

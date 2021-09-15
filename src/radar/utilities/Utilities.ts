@@ -115,6 +115,13 @@ const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType
 
 const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);
 
+const filterBlips = (blips: BlipType[], useCaseFilter = 'all', disasterTypeFilter = 'all'): BlipType[] => {
+  let filtered = blips;
+  if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
+  if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
+  return filtered;
+};
+
 export const RadarUtilities = {
   processBlips,
   blipsSorting,
@@ -125,4 +132,5 @@ export const RadarUtilities = {
   getDisasterTypes,
   getRadarData,
   capitalize,
+  filterBlips,
 };
