@@ -5,7 +5,7 @@ import { TechList } from '../components/tech/TechList';
 import { RadarFilter } from '../components/radar/RadarFilter';
 import { DataLists } from '../components/lists/DataLists';
 
-import './App.css';
+import './App.scss';
 import { CenterColumn } from './layout/CenterColumn';
 import { Layout } from './layout/Layout';
 import { LeftColumn } from './layout/LeftColumn';
