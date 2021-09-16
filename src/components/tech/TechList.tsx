@@ -24,8 +24,11 @@ export const TechList = Connect<GlobalState, unknown>()
   )
   .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter }) => {
     const { technologySlug } = useParams<TParams>();
+    const history = useHistory();
 
     const [tech, setTech] = useState<TechItemType[]>([]);
+
+    const resetTech = () => history.push('/'); // TODO: we should only reset tech right and not all?
 
     useEffect(() => {
       if (blips.length > 0) {
@@ -45,10 +48,6 @@ export const TechList = Connect<GlobalState, unknown>()
         setTech(Array.from(newTechMap.values()));
       }
     }, [blips, useCaseFilter, disasterTypeFilter]);
-
-    const history = useHistory();
-
-    const resetTech = () => history.push('/');
 
     return (
       <div>

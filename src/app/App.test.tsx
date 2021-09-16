@@ -1,6 +1,7 @@
 import React from 'react';
 import { Store } from 'redux';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
 import { appStore } from '../store/store';
@@ -16,9 +17,11 @@ describe('App test', () => {
 
   test('renders learn react link', () => {
     render(
-      <Provider store={store}>
-        <App />
-      </Provider>
+      <BrowserRouter>
+        <Provider store={store}>
+          <App />
+        </Provider>
+      </BrowserRouter>
     );
     setTimeout(() => {
       const el = screen.getByText(new RegExp(RADAR_OPTIONS.title, 'i'));
