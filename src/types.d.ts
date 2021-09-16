@@ -52,6 +52,7 @@ interface TechItemType {
   uuid: string;
   color: string;
   type: string;
+  slug: string;
 }
 
 interface RadarOptionsType {

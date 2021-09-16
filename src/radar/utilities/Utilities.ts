@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 
+import { Utilities } from '../../helpers/Utilities';
 import { DISASTER_TYPE_KEY, HORIZONS_KEY, QUADRANT_KEY, TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 
 /* eslint-disable no-plusplus */
@@ -71,6 +72,7 @@ const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[
         uuid: uuidv4(),
         color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
         type: val[TECH_KEY],
+        slug: Utilities.createSlug(val[TECH_KEY]),
       });
   });
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
+import { useParams } from 'react-router-dom';
 
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
@@ -9,7 +10,9 @@ import { TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 
 import { TechItem } from './TechItem';
 
-export const TechList = Connect<GlobalState, Record<string, unknown>>()
+type TParams = { technologySlug: string };
+
+export const TechList = Connect<GlobalState, unknown>()
   .stateAndDispatch(
     (state) => ({
       blips: selectors(state).blips,
@@ -20,6 +23,8 @@ export const TechList = Connect<GlobalState, Record<string, unknown>>()
     {}
   )
   .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter }) => {
+    const { technologySlug } = useParams<TParams>();
+
     const [tech, setTech] = useState<TechItemType[]>([]);
 
     useEffect(() => {
@@ -45,7 +50,7 @@ export const TechList = Connect<GlobalState, Record<string, unknown>>()
       <div>
         <Title label="Technologies" />
         {tech.map((t) => (
-          <TechItem key={t.uuid} tech={t} />
+          <TechItem key={t.uuid} tech={t} selected={t.slug === technologySlug} />
         ))}
       </div>
     );
