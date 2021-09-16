@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
-import { useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
@@ -46,12 +46,19 @@ export const TechList = Connect<GlobalState, unknown>()
       }
     }, [blips, useCaseFilter, disasterTypeFilter]);
 
+    const history = useHistory();
+
+    const resetTech = () => history.push('/');
+
     return (
       <div>
         <Title label="Technologies" />
         {tech.map((t) => (
           <TechItem key={t.uuid} tech={t} selected={t.slug === technologySlug} />
         ))}
+        <button onClick={resetTech} type="button">
+          Reset
+        </button>
       </div>
     );
   });

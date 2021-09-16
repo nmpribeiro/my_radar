@@ -16,18 +16,19 @@ const MockupOne: React.FC = () => (
   <Layout>
     <LeftColumn>
       <Switch>
-        <Route path="/technologies/:technologySlug" component={TechList} />
-        <Route path="/" component={TechList} />
+        <Route exact path="/technologies/:technologySlug" component={TechList} />
+        <Route exact path="/" component={TechList} />
       </Switch>
 
       <Switch>
-        <Route path="/technologies/:technologySlug" component={RadarFilter} />
-        <Route path="/" component={RadarFilter} />
+        <Route exact path="/technologies/:technologySlug" component={RadarFilter} />
+        <Route exact path="/" component={RadarFilter} />
       </Switch>
     </LeftColumn>
 
     <CenterColumn>
-      <Radar />
+      <Route exact path="/technologies/:technologySlug" component={Radar} />
+      <Route exact path="/" component={Radar} />
     </CenterColumn>
 
     <RightColumn>
