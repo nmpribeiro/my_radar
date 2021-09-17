@@ -4,9 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
-import { HORIZONS_KEY } from '../../constants/RadarData';
+import { Utilities } from '../../helpers/Utilities';
 import { selectors } from '../../store/radar/radar.actions';
 import { RadarUtilities } from '../../radar/utilities/Utilities';
+import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY } from '../../constants/RadarData';
 
 import './DataLists.scss';
 
@@ -34,10 +35,11 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
       blips: selectors(state).blips,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
+      techFilter: selectors(state).techFilter,
     }),
     {}
   )
-  .withComp(({ blips, useCaseFilter, disasterTypeFilter }) => {
+  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter }) => {
     const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
     const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
 
@@ -60,52 +62,74 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
 
     return (
       <section>
-        <header>
-          {headers.map((header) => (
-            <div key={header.uuid} className="col">
-              <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
+        {techFilter && (
+          <>
+            <header style={{ display: 'flex', flexDirection: 'column' }}>
+              {headers.map((header) => (
+                <div key={header.uuid} className="column" style={{ justifyContent: 'center' }}>
+                  <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'center', fontSize: 14 }}>
+                    {blips
+                      .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
+                      .map((blip) => (
+                        <li key={`${blip.Title}-${header.uuid}`}>{blip.Title}</li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
+            </header>
+          </>
+        )}
+        {techFilter === null && (
+          <>
+            <header>
+              {headers.map((header) => (
+                <div key={header.uuid} className="col">
+                  <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
+                </div>
+              ))}
+            </header>
+            <div className="row">
+              {headers.map((header) => (
+                <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
+                  <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
+
+                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[0]} />
+                </div>
+              ))}
             </div>
-          ))}
-        </header>
-        <div className="row">
-          {headers.map((header) => (
-            <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
-              <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
 
-              <ItemList blips={myBlips} quadrant={header} horizon={horizons[0]} />
+            <div className="row">
+              {headers.map((header) => (
+                <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
+                  <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
+
+                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[1]} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="row">
-          {headers.map((header) => (
-            <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
-              <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
+            <div className="row">
+              {headers.map((header) => (
+                <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
+                  <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
 
-              <ItemList blips={myBlips} quadrant={header} horizon={horizons[1]} />
+                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[2]} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="row">
-          {headers.map((header) => (
-            <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
-              <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
+            <div className="row">
+              {headers.map((header) => (
+                <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
+                  <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
 
-              <ItemList blips={myBlips} quadrant={header} horizon={horizons[2]} />
+                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[3]} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <div className="row">
-          {headers.map((header) => (
-            <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
-              <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
-
-              <ItemList blips={myBlips} quadrant={header} horizon={horizons[3]} />
-            </div>
-          ))}
-        </div>
+          </>
+        )}
       </section>
     );
   });
