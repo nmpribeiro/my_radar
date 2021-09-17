@@ -1,7 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
 
 import { Utilities } from '../../helpers/Utilities';
-import { DISASTER_TYPE_KEY, HORIZONS_KEY, QUADRANT_KEY, TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
+import {
+  DISASTER_TYPE_KEY,
+  horizonPriorityOrder,
+  HORIZONS_KEY,
+  quadrantPriorityOrder,
+  QUADRANT_KEY,
+  TECH_KEY,
+  USE_CASE_KEY,
+} from '../../constants/RadarData';
 
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
@@ -103,20 +111,7 @@ const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   return Array.from(newDisterTypes.values());
 };
 
-const horizonPriorityOrder: Record<HorizonKey, number> = {
-  production: 1,
-  validation: 2,
-  idea: 3,
-  prototype: 4,
-};
 const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityOrder[a] - horizonPriorityOrder[b];
-
-const quadrantPriorityOrder: Record<QuadrantKey, number> = {
-  response: 1,
-  recovery: 2,
-  resilience: 3,
-  preparedness: 4,
-};
 const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
 
 const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataAndBLips => {
