@@ -21,7 +21,11 @@ export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLab
     height: 0,
     quadrants: [],
     horizons: [],
-    horizonShiftRadius: 0,
+    radarOptions: {
+      horizonShiftRadius: 0,
+      radiusPadding: 0,
+      circlePadding: 0,
+    },
     tech: [],
   },
   rawBlips: [],

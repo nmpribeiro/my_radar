@@ -1,4 +1,4 @@
-type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
+type QuadsType = { quadrant: number; horizon: number; label: string };
 
 type BaseCSVType = Record<string, string>;
 
@@ -46,6 +46,7 @@ interface TechItemType {
   color: string;
   type: string;
   slug: string;
+  description: string[];
 }
 
 interface RadarOptionsType {
@@ -54,7 +55,11 @@ interface RadarOptionsType {
   height?: number;
   quadrants: QuadrantKey[];
   horizons: HorizonKey[];
-  horizonShiftRadius: number;
+  radarOptions: {
+    horizonShiftRadius: number;
+    radiusPadding: number;
+    circlePadding: number;
+  };
   tech: TechItemType[];
 }
 

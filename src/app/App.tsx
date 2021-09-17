@@ -3,14 +3,15 @@ import { Switch, Route } from 'react-router-dom';
 
 import { Radar } from '../radar/Radar';
 import { TechList } from '../components/tech/TechList';
-import { RadarFilter } from '../components/radar/RadarFilter';
 import { DataLists } from '../components/lists/DataLists';
+import { RadarFilter } from '../components/radar/RadarFilter';
+import { TechDescription } from '../components/tech/TechDescription';
 
 import './App.scss';
-import { CenterColumn } from './layout/CenterColumn';
 import { Layout } from './layout/Layout';
 import { LeftColumn } from './layout/LeftColumn';
 import { RightColumn } from './layout/RightColumn';
+import { CenterColumn } from './layout/CenterColumn';
 
 export const App: React.FC = () => (
   <div className="App">
@@ -26,7 +27,8 @@ export const App: React.FC = () => (
       </LeftColumn>
 
       <CenterColumn>
-        <Route exact path="/" component={Radar} />
+        <Radar />
+        <TechDescription />
       </CenterColumn>
 
       <RightColumn>
