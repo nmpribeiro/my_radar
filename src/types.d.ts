@@ -1,13 +1,3 @@
-type HistoryItem = {
-  start: Date;
-  end: Date | null;
-  quadrant: string;
-  position: number;
-  positionAngle: number;
-  direction: number;
-  directionAngle: number;
-};
-
 type QuadsType = { quadrant: number; horizon: number; label: string; outerRadius: number; innerRadius: number };
 
 type BaseCSVType = Record<string, string>;
@@ -48,6 +38,9 @@ interface SelectableItem {
   name: string;
 }
 
+type HorizonKey = 'production' | 'validation' | 'prototype' | 'idea';
+type QuadrantKey = 'response' | 'recovery' | 'resilience' | 'preparedness';
+
 interface TechItemType {
   uuid: string;
   color: string;
@@ -59,8 +52,8 @@ interface RadarOptionsType {
   title: string;
   width?: number;
   height?: number;
-  quadrants: string[];
-  horizons: string[];
+  quadrants: QuadrantKey[];
+  horizons: HorizonKey[];
   horizonShiftRadius: number;
   tech: TechItemType[];
 }

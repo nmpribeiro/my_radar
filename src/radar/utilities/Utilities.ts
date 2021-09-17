@@ -26,11 +26,11 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
     // for instance: (quantize the area and assign to each square)
 
     // get angle
-    const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY]) - 1;
+    const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY] as QuadrantKey) - 1;
     const angle = randomFromInterval(quadrantIndex * (Math.PI / 2), quadrantIndex * (Math.PI / 2) + Math.PI / 2);
 
     // get radius
-    const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY]) + 1;
+    const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY] as HorizonKey) + 1;
     const outerRadius = horizonIndex * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius;
     const innerRadius = horizonIndex * horizonUnit + data.horizonShiftRadius;
     const radius = randomFromInterval(innerRadius, outerRadius);
@@ -47,18 +47,18 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   return results;
 };
 
-const getHorizons = (rawBlipData: (RawBlipType | BlipType)[]): string[] => {
-  const newHorizons: string[] = [];
+const getHorizons = (rawBlipData: (RawBlipType | BlipType)[]): HorizonKey[] => {
+  const newHorizons: HorizonKey[] = [];
   rawBlipData.forEach((val) => {
-    if (!newHorizons.includes(val[HORIZONS_KEY])) newHorizons.push(val[HORIZONS_KEY]);
+    if (!newHorizons.includes(val[HORIZONS_KEY] as HorizonKey)) newHorizons.push(val[HORIZONS_KEY] as HorizonKey);
   });
   return newHorizons;
 };
 
-const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): string[] => {
-  const newQuadrants: string[] = [];
+const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): QuadrantKey[] => {
+  const newQuadrants: QuadrantKey[] = [];
   rawBlipData.forEach((val) => {
-    if (!newQuadrants.includes(val[QUADRANT_KEY])) newQuadrants.push(val[QUADRANT_KEY]);
+    if (!newQuadrants.includes(val[QUADRANT_KEY] as QuadrantKey)) newQuadrants.push(val[QUADRANT_KEY] as QuadrantKey);
   });
   return newQuadrants;
 };
@@ -103,14 +103,34 @@ const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   return Array.from(newDisterTypes.values());
 };
 
+const horizonPriorityOrder: Record<HorizonKey, number> = {
+  production: 1,
+  validation: 2,
+  idea: 3,
+  prototype: 4,
+};
+const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityOrder[a] - horizonPriorityOrder[b];
+
+const quadrantPriorityOrder: Record<QuadrantKey, number> = {
+  response: 1,
+  recovery: 2,
+  resilience: 3,
+  preparedness: 4,
+};
+const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
+
 const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataAndBLips => {
   const radarData = { ...passedRadarData };
+
   const newHorizons = getHorizons(rawBlips);
-  radarData.horizons = newHorizons;
+  radarData.horizons = newHorizons.sort(orderHorizons);
+
   const newQuadrants = getQuadrants(rawBlips);
-  radarData.quadrants = newQuadrants;
+  radarData.quadrants = newQuadrants.sort(orderQuadrants);
+
   const techItems = getTechnologies(rawBlips);
   radarData.tech = techItems;
+
   const blips: BlipType[] = processBlips(radarData, rawBlips);
   return { radarData, blips };
 };
