@@ -1,3 +1,4 @@
+// taken from https://gist.github.com/codeguy/6684588
 const createSlug = (str: string, separator = '-'): string =>
   str
     .toString()

@@ -1,10 +1,11 @@
 import React from 'react';
-import { useHistory } from 'react-router-dom';
 
-export const TechItem: React.FC<{ tech: TechItemType; selected: boolean }> = ({ tech, selected }) => {
-  const history = useHistory();
-
-  const selectTech = () => history.push(`/technologies/${tech.slug}`);
+export const TechItem: React.FC<{ tech: TechItemType; selected: boolean; setTechFilter: (techSlug: string | null) => void }> = ({
+  tech,
+  selected,
+  setTechFilter,
+}) => {
+  const selectTech = () => setTechFilter(tech.slug);
 
   return (
     <button

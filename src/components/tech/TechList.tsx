@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
-import { useHistory, useParams } from 'react-router-dom';
 
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
-import { selectors } from '../../store/radar/radar.actions';
+import { actions, selectors } from '../../store/radar/radar.actions';
 import { RadarUtilities } from '../../radar/utilities/Utilities';
 import { TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 
 import { TechItem } from './TechItem';
-
-type TParams = { technologySlug: string };
 
 export const TechList = Connect<GlobalState, unknown>()
   .stateAndDispatch(
@@ -19,16 +16,16 @@ export const TechList = Connect<GlobalState, unknown>()
       radarData: selectors(state).radarData,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
+      techFilter: selectors(state).techFilter,
     }),
-    {}
+    {
+      setTechFilter: actions.setTechFilter,
+    }
   )
-  .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter }) => {
-    const { technologySlug } = useParams<TParams>();
-    const history = useHistory();
-
+  .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter, setTechFilter, techFilter }) => {
     const [tech, setTech] = useState<TechItemType[]>([]);
 
-    const resetTech = () => history.push('/'); // TODO: we should only reset tech right and not all?
+    const resetTech = () => setTechFilter(null);
 
     useEffect(() => {
       if (blips.length > 0) {
@@ -53,7 +50,7 @@ export const TechList = Connect<GlobalState, unknown>()
       <div>
         <Title label="Technologies" />
         {tech.map((t) => (
-          <TechItem key={t.uuid} tech={t} selected={t.slug === technologySlug} />
+          <TechItem key={t.uuid} tech={t} selected={t.slug === techFilter} setTechFilter={setTechFilter} />
         ))}
         <button onClick={resetTech} type="button">
           Reset

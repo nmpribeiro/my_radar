@@ -1,6 +1,5 @@
 import React, { createRef, useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
-import { useParams } from 'react-router-dom';
 
 import { GlobalState } from '../store/state';
 import { Title } from '../components/shared/Title';
@@ -12,8 +11,6 @@ import style from './Radar.module.scss';
 import { RadarRenderUtils } from './utilities/RadarRenderUtils';
 import { RadarUtilities } from './utilities/Utilities';
 
-type TParams = { technologySlug: string };
-
 export const Radar = Connect<GlobalState, unknown>()
   .stateAndDispatch(
     (state) => ({
@@ -22,18 +19,18 @@ export const Radar = Connect<GlobalState, unknown>()
       rawBlips: selectors(state).rawBlips,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
+      techFilter: selectors(state).techFilter,
     }),
     {
       setBlips: actions.setBlips,
       setRadarData: actions.setRadarData,
     }
   )
-  .withComp(({ radarData, setBlips, blips, setRadarData, rawBlips, useCaseFilter, disasterTypeFilter }) => {
+  .withComp(({ radarData, setBlips, blips, setRadarData, rawBlips, useCaseFilter, disasterTypeFilter, techFilter }) => {
     const radarRef = createRef<HTMLDivElement>();
 
-    const { technologySlug } = useParams<TParams>();
-
     const [init, setInit] = useState(false);
+    const [title, setTitle] = useState(radarData.title);
 
     const setupRadar = () => {
       if (radarRef.current && blips) {
@@ -42,8 +39,13 @@ export const Radar = Connect<GlobalState, unknown>()
         if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
         if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
 
-        const tech = radarData.tech.find((t) => t.slug === technologySlug);
-        if (technologySlug && tech) filtered = filtered.filter((i) => i[TECH_KEY] === tech.type);
+        const tech = radarData.tech.find((t) => t.slug === techFilter);
+        if (techFilter && tech) {
+          filtered = filtered.filter((i) => i[TECH_KEY] === tech.type);
+          setTitle(tech.type);
+        } else {
+          setTitle(radarData.title);
+        }
 
         RadarRenderUtils.setupFourQuadrants(radarRef.current, { blips: filtered, radarData });
       }
@@ -67,11 +69,11 @@ export const Radar = Connect<GlobalState, unknown>()
 
     useEffect(() => {
       if (init) setupRadar();
-    }, [init, useCaseFilter, disasterTypeFilter, technologySlug]);
+    }, [init, useCaseFilter, disasterTypeFilter, techFilter]);
 
     return (
       <>
-        <Title label={radarData.title} />
+        <Title label={title} />
         <div style={{ padding: 10 }}>
           <div className={style.techradar} ref={radarRef} />
         </div>

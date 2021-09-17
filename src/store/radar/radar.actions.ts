@@ -39,6 +39,11 @@ const setDisasterTypeFilter = radarModule.setPayloadAction<string>(ActionType.SE
   disasterTypeFilter: action.payload,
 }));
 
+const setTechFilter = radarModule.setPayloadAction<string | null>(ActionType.SET_TECH_FILTER, (state, action) => ({
+  ...state,
+  techFilter: action.payload,
+}));
+
 const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.initialState);
 
 /**
@@ -62,6 +67,7 @@ export const actions = {
   setIsFilter,
   setUseCaseFilter,
   setDisasterTypeFilter,
+  setTechFilter,
   reset,
   // testAsync,
   fetchRadarBlips,
