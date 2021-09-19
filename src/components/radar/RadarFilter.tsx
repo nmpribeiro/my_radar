@@ -5,7 +5,7 @@ import { RadarUtilities } from '../../radar/utilities/Utilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
 import { GlobalState } from '../../store/state';
 
-export const RadarFilter = Connect<GlobalState, Record<string, unknown>>()
+export const RadarFilter = Connect<GlobalState, unknown>()
   .stateAndDispatch(
     (state) => ({
       blips: selectors(state).blips,
@@ -61,7 +61,7 @@ export const RadarFilter = Connect<GlobalState, Record<string, unknown>>()
         <div>Customize Radar</div>
 
         <div style={{ paddingTop: 20 }}>
-          <select disabled id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
+          <select id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
             <option value="all">Show all disaster types</option>
             {disasterTypes.map((item) => (
               <option key={item.uuid} value={item.name}>

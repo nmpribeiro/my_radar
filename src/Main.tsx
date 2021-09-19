@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Connect } from 'redux-auto-actions';
+import { BrowserRouter } from 'react-router-dom';
 
 import { App } from './app/App';
 import { GlobalState } from './store/state';
@@ -19,4 +20,8 @@ export const MyMain = Connect<GlobalState, Record<string, unknown>>()
     return <App />;
   });
 
-export const Main: React.FC = () => <MyMain />;
+export const Main: React.FC = () => (
+  <BrowserRouter>
+    <MyMain />
+  </BrowserRouter>
+);

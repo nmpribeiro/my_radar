@@ -9,43 +9,42 @@ import { ActionType, radarModule, RadarState } from './radar.state';
 /**
  * Exportable Actions
  */
-const setBlips = radarModule.setPayloadAction<BlipType[]>(
-  ActionType.SET_BLIPS,
-  (blips) => blips,
-  (state, action) => ({ ...state, blips: action.payload })
-).action;
+const setBlips = radarModule.setPayloadAction<BlipType[]>(ActionType.SET_BLIPS, (state, action) => ({
+  ...state,
+  blips: action.payload,
+}));
 
-const setRawBlips = radarModule.setPayloadAction<RawBlipType[]>(
-  ActionType.SET_RAW_BLIPS,
-  (blips) => blips,
-  (state, action) => ({ ...state, rawBlips: action.payload })
-).action;
+const setRawBlips = radarModule.setPayloadAction<RawBlipType[]>(ActionType.SET_RAW_BLIPS, (state, action) => ({
+  ...state,
+  rawBlips: action.payload,
+}));
 
-const setRadarData = radarModule.setPayloadAction<RadarOptionsType>(
-  ActionType.SET_RADAR_DATA,
-  (data) => data,
-  (state, action) => ({ ...state, radarData: action.payload })
-).action;
+const setRadarData = radarModule.setPayloadAction<RadarOptionsType>(ActionType.SET_RADAR_DATA, (state, action) => ({
+  ...state,
+  radarData: action.payload,
+}));
 
-const setIsFilter = radarModule.setPayloadAction<boolean>(
-  ActionType.SET_IS_FILTER,
-  (flag) => flag,
-  (state, action) => ({ ...state, isFiltered: action.payload })
-).action;
+const setIsFilter = radarModule.setPayloadAction<boolean>(ActionType.SET_IS_FILTER, (state, action) => ({
+  ...state,
+  isFiltered: action.payload,
+}));
 
-const setUseCaseFilter = radarModule.setPayloadAction<string>(
-  ActionType.SET_USE_CASE_FILTER,
-  (useCase) => useCase,
-  (state, action) => ({ ...state, useCaseFilter: action.payload })
-).action;
+const setUseCaseFilter = radarModule.setPayloadAction<string>(ActionType.SET_USE_CASE_FILTER, (state, action) => ({
+  ...state,
+  useCaseFilter: action.payload,
+}));
 
-const setDisasterTypeFilter = radarModule.setPayloadAction<string>(
-  ActionType.SET_DISASTER_TYPE_FILTER,
-  (disasterType) => disasterType,
-  (state, action) => ({ ...state, disasterTypeFilter: action.payload })
-).action;
+const setDisasterTypeFilter = radarModule.setPayloadAction<string>(ActionType.SET_DISASTER_TYPE_FILTER, (state, action) => ({
+  ...state,
+  disasterTypeFilter: action.payload,
+}));
 
-const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.initialState).action;
+const setTechFilter = radarModule.setPayloadAction<string | null>(ActionType.SET_TECH_FILTER, (state, action) => ({
+  ...state,
+  techFilter: action.payload,
+}));
+
+const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.initialState);
 
 /**
  * Thunks
@@ -68,6 +67,7 @@ export const actions = {
   setIsFilter,
   setUseCaseFilter,
   setDisasterTypeFilter,
+  setTechFilter,
   reset,
   // testAsync,
   fetchRadarBlips,

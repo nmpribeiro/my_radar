@@ -11,6 +11,7 @@ export interface RadarState {
   isFiltered: boolean;
   useCaseFilter: string;
   disasterTypeFilter: string;
+  techFilter: string | null;
 }
 
 export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLabel.STATE, {
@@ -20,7 +21,11 @@ export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLab
     height: 0,
     quadrants: [],
     horizons: [],
-    horizonShiftRadius: 0,
+    radarOptions: {
+      horizonShiftRadius: 0,
+      radiusPadding: 0,
+      circlePadding: 0,
+    },
     tech: [],
   },
   rawBlips: [],
@@ -28,6 +33,7 @@ export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLab
   isFiltered: false,
   useCaseFilter: 'all',
   disasterTypeFilter: 'all',
+  techFilter: null,
 });
 
 export enum ActionType {
@@ -37,5 +43,6 @@ export enum ActionType {
   SET_IS_FILTER = 'RADAR/SET_IS_FILTER',
   SET_USE_CASE_FILTER = 'RADAR/SET_USE_CASE_FILTER',
   SET_DISASTER_TYPE_FILTER = 'RADAR/SET_DISASTER_TYPE_FILTER',
+  SET_TECH_FILTER = 'SET_TECH_FILTER',
   RESET = 'RADAR/RESET',
 }

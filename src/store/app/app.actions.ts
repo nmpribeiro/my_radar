@@ -8,17 +8,15 @@ import { ActionType, appS } from './app.state';
 /**
  * Exportable Actions
  */
-const increment = appS.setPayloadAction<number>(
-  ActionType.INCREMENT,
-  (amount) => amount,
-  (state, action) => ({ ...state, counter: state.counter + action.payload })
-).action;
-const decrement = appS.setPayloadAction<number>(
-  ActionType.DECREMENT,
-  (amount) => -amount,
-  (state, action) => ({ ...state, counter: state.counter + action.payload })
-).action;
-const reset = appS.setSimpleAction(ActionType.RESET, () => appS.initialState).action;
+const increment = appS.setPayloadAction<number>(ActionType.INCREMENT, (state, action) => ({
+  ...state,
+  counter: state.counter + action.payload,
+}));
+const decrement = appS.setPayloadAction<number>(ActionType.DECREMENT, (state, action) => ({
+  ...state,
+  counter: state.counter - action.payload,
+}));
+const reset = appS.setSimpleAction(ActionType.RESET, () => appS.initialState);
 
 /**
  * Thunks

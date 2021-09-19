@@ -10,11 +10,13 @@ import { RadarUtilities } from './Utilities';
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 600;
 
+type RgbOut = string | number | boolean | null;
+
 function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
   const width = data.width || DEFAULT_WIDTH;
   const height = data.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = (horizonWidth - data.horizonShiftRadius) / data.horizons.length;
+  const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
   const horizons = base.append('g').attr('class', 'horizons').selectAll('.horizon');
 
@@ -22,21 +24,20 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .data(data.horizons)
     .enter()
     .append('circle')
-    .attr('r', (d, i) => (i + 1) * horizonUnit + data.horizonShiftRadius)
+    .attr('r', (d, i) => (i + 1) * horizonUnit + data.radarOptions.horizonShiftRadius)
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('fill', 'none')
     .attr('stroke', 'gray')
     .attr('class', 'horizon');
 
-  // TODO: add horizons labels
   horizons
     .data(data.horizons)
     .enter()
     .append('text')
     .attr('class', (d) => `horizon-text horizon-${d}`)
     .attr('text-anchor', 'middle')
-    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + data.horizonShiftRadius)
+    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + data.radarOptions.horizonShiftRadius)
     .attr('dy', 10)
     .text((d) => RadarUtilities.capitalize(d));
 }
@@ -48,26 +49,9 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
   const width = data.width || DEFAULT_WIDTH;
   const height = data.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-
+  const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
   const quadAngle = (2 * Math.PI) / data.quadrants.length;
-  // const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
-
-  const quadrantStroke = (d: string, i: number) => {
-    return 'rgba(0,0,0,1)';
-    switch (d) {
-      case 'frameworks':
-        return 'rgba(255,0,0,1)';
-      case 'languages':
-        return 'rgba(0,255,0,1)';
-      case 'tools':
-        return 'rgba(0,0,255,1)';
-      case 'big data':
-        return 'rgba(255,0,255,1)';
-      default:
-        return 'rgba(0,0,0,1)';
-    }
-    // colorScale(i.toString());
-  };
+  const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
 
   quadrants
     .selectAll('line.quadrant')
@@ -79,19 +63,19 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('x2', (d, i) => Math.cos(quadAngle * i) * horizonWidth)
     .attr('y2', (d, i) => Math.sin(quadAngle * i) * horizonWidth)
     .attr('class', (d) => `quadrant quadarant-${d.toLowerCase().replace(/ /, '-')}`)
-    .attr('stroke', quadrantStroke)
+    .attr('stroke', 'rgba(0,0,0,1)')
     .attr('stroke-width', '5px');
 
   const getY = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
-        return width / 2.25;
+        return width / 2.5;
       case 2:
-        return width / 2.25;
+        return width / 2.5;
       case 3:
-        return -width / 2.25;
+        return -width / 2.5;
       case 0:
-        return -width / 2.25;
+        return -width / 2.5;
       default:
         return 0;
     }
@@ -100,13 +84,13 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
   const getX = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
-        return height / 2.25;
+        return height / 2;
       case 2:
-        return -height / 2.25;
+        return -height / 2;
       case 3:
-        return -height / 2.25;
+        return -height / 2;
       case 0:
-        return height / 2.25;
+        return height / 2;
       default:
         return 0;
     }
@@ -130,15 +114,12 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
   for (let i = 0, ilen = data.quadrants.length; i < ilen; i++) {
     for (let j = 0, jlen = data.horizons.length; j < jlen; j++) {
       quads.push({
-        outerRadius: (j + 1) / jlen,
-        innerRadius: j / jlen,
         quadrant: i,
         horizon: j,
         label: data.quadrants[i],
       });
     }
   }
-
   quadrants
     .selectAll('text.quadrant')
     .data(quads.filter((d) => d.horizon === 0))
@@ -150,24 +131,20 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('text-anchor', getLabelAnchor)
     .text((d) => d.label.charAt(0).toUpperCase() + d.label.slice(1));
 
-  type RgbOut = string | number | boolean | null;
   const fillQuadrant = (d: QuadsType, i: number): RgbOut => {
-    const result = 'rgba(0,0,0,0)';
-    // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length) * 3);
-    // const result = d3.rgb(colorScale(d.quadrant.toString())).brighter((d.horizon / data.horizons.length + 0.5) * 4);
-    // const thisColorScale = d3.scaleOrdinal(d3.schemeGreens);
-    // const result = d3.rgb(thisColorScale()).brighter((d.horizon / data.horizons.length + 0.5) * 4);
+    const quadrantInput = d.quadrant * 0.4;
+    const brighter = (d.horizon / data.horizons.length) * 0.7 + 0.2;
+    const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
+    // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
     return result as unknown as RgbOut;
   };
 
   const arcFunction = d3
     .arc<QuadsType>()
-    .outerRadius((d) => d.outerRadius * horizonWidth)
-    .innerRadius((d) => d.innerRadius * horizonWidth)
+    .outerRadius((d) => (d.horizon + 1) * horizonUnit + data.radarOptions.horizonShiftRadius)
+    .innerRadius((d) => d.horizon * horizonUnit + (d.horizon === 0 ? 0 : data.radarOptions.horizonShiftRadius))
     .startAngle((d) => d.quadrant * (Math.PI / 2))
     .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2);
-
-  const quadrantClass = (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`;
 
   // Create quadrant arcs
   quadrants
@@ -177,7 +154,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .append('path')
     .attr('d', arcFunction)
     .attr('fill', fillQuadrant)
-    .attr('class', quadrantClass);
+    .attr('class', (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`);
 }
 
 const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: BlipType[]): void => {
