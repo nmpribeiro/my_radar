@@ -64,11 +64,21 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
       <section>
         {techFilter && (
           <>
-            <header style={{ display: 'flex', flexDirection: 'column' }}>
+            <header
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              }}
+            >
               {headers.map((header) => (
-                <div key={header.uuid} className="column" style={{ justifyContent: 'center' }}>
+                <div
+                  key={header.uuid}
+                  className="column"
+                  style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', maxWidth: 200 }}
+                >
                   <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'center', fontSize: 14 }}>
+                  <ul style={{ margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
                     {blips
                       .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
                       .map((blip) => (
