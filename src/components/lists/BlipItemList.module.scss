@@ -1,0 +1,15 @@
+.blipItemWrapper {
+  margin: 2px;
+}
+.blipItem {
+  border: none;
+  background-color: whitesmoke;
+  cursor: pointer;
+
+  width: 100%;
+
+  &:hover {
+    background-color: darkgrey;
+    color: white;
+  }
+}

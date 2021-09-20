@@ -5,11 +5,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
 import { Utilities } from '../../helpers/Utilities';
-import { selectors } from '../../store/radar/radar.actions';
+import { actions, selectors } from '../../store/radar/radar.actions';
 import { RadarUtilities } from '../../radar/utilities/Utilities';
 import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY } from '../../constants/RadarData';
 
 import './DataLists.scss';
+import styles from './BlipItemList.module.scss';
 
 type ListMatrixItem = { uuid: string; name: string };
 
@@ -17,13 +18,20 @@ interface Props {
   quadrant: ListMatrixItem;
   horizon: ListMatrixItem;
   blips: BlipType[];
+  setSelectedItem: (item: BlipType) => void;
 }
 
-const ItemList: React.FC<Props> = ({ quadrant, horizon, blips }) => (
+const ItemList: React.FC<Props> = ({ quadrant, horizon, blips, setSelectedItem }) => (
   <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
     {blips.map((blip) => {
       if (blip.Quadrant === quadrant.name && blip[HORIZONS_KEY] === horizon.name)
-        return <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`}>{blip.Title}</li>;
+        return (
+          <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`} className={styles.blipItemWrapper}>
+            <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
+              {blip.Title}
+            </button>
+          </li>
+        );
       return null;
     })}
   </ul>
@@ -37,9 +45,11 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
     }),
-    {}
+    {
+      setSelectedItem: actions.setSelectedItem,
+    }
   )
-  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter }) => {
+  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter, setSelectedItem }) => {
     const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
     const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
 
@@ -78,11 +88,15 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                   style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', maxWidth: 200 }}
                 >
                   <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
-                  <ul style={{ margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
+                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
                     {blips
                       .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
                       .map((blip) => (
-                        <li key={`${blip.Title}-${header.uuid}`}>{blip.Title}</li>
+                        <li key={`${blip.Title}-${header.uuid}`} className={styles.blipItemWrapper}>
+                          <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
+                            {blip.Title}
+                          </button>
+                        </li>
                       ))}
                   </ul>
                 </div>
@@ -104,7 +118,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
 
-                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[0]} />
+                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[0]} />
                 </div>
               ))}
             </div>
@@ -114,7 +128,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
 
-                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[1]} />
+                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[1]} />
                 </div>
               ))}
             </div>
@@ -124,7 +138,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
 
-                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[2]} />
+                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[2]} />
                 </div>
               ))}
             </div>
@@ -134,7 +148,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
 
-                  <ItemList blips={myBlips} quadrant={header} horizon={horizons[3]} />
+                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[3]} />
                 </div>
               ))}
             </div>
