@@ -157,7 +157,8 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('class', (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`);
 }
 
-const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOptionsType, blips: BlipType[]): void => {
+const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataBlipsAndLogic): void => {
+  const { radarData, blips, logic } = data;
   // process and sort the blips
   const sortedBlips = blips.sort(RadarUtilities.blipsSorting);
 
@@ -196,13 +197,15 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarOption
     .append('circle')
     .attr('r', '7px')
     .attr('fill', (d) => {
-      const tech = data.tech.find((t) => t.type === d[TECH_KEY]);
+      const tech = radarData.tech.find((t) => t.type === d[TECH_KEY]);
       if (tech) return tech.color;
       return '';
-    });
+    })
+    .on('mouseup', (event, d) => logic.selectItem(d));
 };
 
-function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { radarData, blips }: RadarDataAndBLips) {
+function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, radarBlipsAndLogic: RadarDataBlipsAndLogic) {
+  const { radarData, blips } = radarBlipsAndLogic;
   // add the horizons
   const base: D3SvgGEL = svg
     .append('g')
@@ -214,10 +217,10 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, { radarData, blips
   addQuadrants(base, radarData);
 
   // add the blips (filtered if they're filtered)
-  drawBlips(rootElement, base, radarData, blips);
+  drawBlips(rootElement, base, radarBlipsAndLogic);
 }
 
-const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarDataAndBLips): void => {
+const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarDataBlipsAndLogic): void => {
   // reset strategy!
   while (rootElement.firstChild) {
     rootElement.firstChild.remove();

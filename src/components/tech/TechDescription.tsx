@@ -7,7 +7,7 @@ import { selectors } from '../../store/radar/radar.actions';
 
 import styles from './TechDescription.module.scss';
 
-export const TechDescription = Connect<GlobalState>()
+export const TechOrBlipDescription = Connect<GlobalState>()
   .stateAndDispatch(
     (state) => ({
       radarData: selectors(state).radarData,

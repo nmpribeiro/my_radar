@@ -7,7 +7,7 @@ import { GlobalState } from './store/state';
 import csvData from './assets/techradar_dataset.csv';
 import { actions } from './store/radar/radar.actions';
 
-export const MyMain = Connect<GlobalState, Record<string, unknown>>()
+export const Main = Connect<GlobalState, Record<string, unknown>>()
   .stateAndDispatch(() => ({}), {
     fetchRadarBlips: actions.fetchRadarBlips,
   })
@@ -17,11 +17,9 @@ export const MyMain = Connect<GlobalState, Record<string, unknown>>()
       fetchRadarBlips(csvData);
     }, []);
 
-    return <App />;
+    return (
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    );
   });
-
-export const Main: React.FC = () => (
-  <BrowserRouter>
-    <MyMain />
-  </BrowserRouter>
-);

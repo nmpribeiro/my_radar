@@ -62,7 +62,7 @@ export const RadarFilter = Connect<GlobalState, unknown>()
 
         <div style={{ paddingTop: 20 }}>
           <select id="Select1" style={{ width: '100%' }} onChange={onDisasterTypeChange} value={selectedDisasterType}>
-            <option value="all">Show all disaster types</option>
+            <option value="all">Show all countries</option>
             {disasterTypes.map((item) => (
               <option key={item.uuid} value={item.name}>
                 {item.name}
