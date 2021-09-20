@@ -44,6 +44,11 @@ const setTechFilter = radarModule.setPayloadAction<string | null>(ActionType.SET
   techFilter: action.payload,
 }));
 
+const setSelectedItem = radarModule.setPayloadAction<string | null>(ActionType.SET_SELECTED_ITEM, (state, action) => ({
+  ...state,
+  selectedItem: action.payload,
+}));
+
 const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.initialState);
 
 /**
@@ -68,6 +73,7 @@ export const actions = {
   setUseCaseFilter,
   setDisasterTypeFilter,
   setTechFilter,
+  setSelectedItem,
   reset,
   // testAsync,
   fetchRadarBlips,

@@ -24,6 +24,7 @@ export const Radar = Connect<GlobalState, unknown>()
     {
       setBlips: actions.setBlips,
       setRadarData: actions.setRadarData,
+      setSelectedItem: actions.setSelectedItem,
     }
   )
   .withComp(({ radarData, setBlips, blips, setRadarData, rawBlips, useCaseFilter, disasterTypeFilter, techFilter }) => {
