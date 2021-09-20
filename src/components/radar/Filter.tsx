@@ -82,6 +82,10 @@ export const Filter = Connect<GlobalState, unknown>()
           </select>
         </div>
 
+        <small style={{ padding: 10, fontSize: 10, textAlign: 'left', float: 'left', width: '100%' }}>
+          todo: create filter generalization
+        </small>
+
         <div style={{ paddingTop: 20 }}>
           <button
             type="button"
