@@ -5,7 +5,7 @@ import { RadarUtilities } from '../../radar/utilities/Utilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
 import { GlobalState } from '../../store/state';
 
-export const RadarFilter = Connect<GlobalState, unknown>()
+export const Filter = Connect<GlobalState, unknown>()
   .stateAndDispatch(
     (state) => ({
       blips: selectors(state).blips,

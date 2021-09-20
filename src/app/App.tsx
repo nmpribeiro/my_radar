@@ -8,7 +8,7 @@ import { TechList } from '../components/tech/TechList';
 import { BlipPage } from '../components/blip/BlipPage';
 import { selectors } from '../store/radar/radar.actions';
 import { DataLists } from '../components/lists/DataLists';
-import { RadarFilter } from '../components/radar/RadarFilter';
+import { Filter } from '../components/radar/Filter';
 import { TechOrBlipDescription } from '../components/tech/TechDescription';
 
 import './App.scss';
@@ -29,7 +29,7 @@ export const App = Connect<GlobalState>()
             </Switch>
 
             <Switch>
-              <Route exact path="/" component={RadarFilter} />
+              <Route exact path="/" component={Filter} />
             </Switch>
           </LeftColumn>
 
