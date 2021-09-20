@@ -26,6 +26,7 @@ export const Radar = Connect<GlobalState, unknown>()
       setRadarData: actions.setRadarData,
       setHoveredItem: actions.setHoveredItem,
       setSelectedItem: actions.setSelectedItem,
+      setSelectedQuadrant: actions.setSelectedQuadrant,
     }
   )
   .withComp(
@@ -40,6 +41,7 @@ export const Radar = Connect<GlobalState, unknown>()
       techFilter,
       setSelectedItem,
       setHoveredItem,
+      setSelectedQuadrant,
     }) => {
       const radarRef = createRef<HTMLDivElement>();
 
@@ -67,6 +69,7 @@ export const Radar = Connect<GlobalState, unknown>()
             logic: {
               setSelectedItem,
               setHoveredItem,
+              setSelectedQuadrant,
             },
           });
         }

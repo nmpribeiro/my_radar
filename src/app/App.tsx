@@ -4,11 +4,12 @@ import { Switch, Route } from 'react-router-dom';
 
 import { Radar } from '../radar/Radar';
 import { GlobalState } from '../store/state';
+import { Filter } from '../components/radar/Filter';
 import { TechList } from '../components/tech/TechList';
 import { BlipPage } from '../components/blip/BlipPage';
 import { selectors } from '../store/radar/radar.actions';
 import { DataLists } from '../components/lists/DataLists';
-import { Filter } from '../components/radar/Filter';
+import { QuadrantPage } from '../components/quadrant/QuadrantPage';
 import { TechOrBlipDescription } from '../components/tech/TechDescription';
 
 import './App.scss';
@@ -18,10 +19,16 @@ import { RightColumn } from './layout/RightColumn';
 import { CenterColumn } from './layout/CenterColumn';
 
 export const App = Connect<GlobalState>()
-  .stateAndDispatch((state) => ({ selectedItem: selectors(state).selectedItem }), {})
-  .withComp(({ selectedItem }) => (
+  .stateAndDispatch(
+    (state) => ({
+      selectedItem: selectors(state).selectedItem,
+      selectedQuadrant: selectors(state).selectedQuadrant,
+    }),
+    {}
+  )
+  .withComp(({ selectedItem, selectedQuadrant }) => (
     <div className="App">
-      {!selectedItem && (
+      {!selectedQuadrant && !selectedItem && (
         <Layout>
           <LeftColumn>
             <Switch>
@@ -43,6 +50,7 @@ export const App = Connect<GlobalState>()
           </RightColumn>
         </Layout>
       )}
-      {selectedItem && <BlipPage />}
+      {!selectedQuadrant && selectedItem && <BlipPage />}
+      {selectedQuadrant && !selectedItem && <QuadrantPage />}
     </div>
   ));
