@@ -18,16 +18,26 @@ interface Props {
   quadrant: ListMatrixItem;
   horizon: ListMatrixItem;
   blips: BlipType[];
+  hoveredItem: BlipType | null;
+  setHoveredItem: (payload: BlipType | null) => void;
   setSelectedItem: (item: BlipType) => void;
 }
 
-const ItemList: React.FC<Props> = ({ quadrant, horizon, blips, setSelectedItem }) => (
+const ItemList: React.FC<Props> = ({ quadrant, horizon, blips, hoveredItem, setHoveredItem, setSelectedItem }) => (
   <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
     {blips.map((blip) => {
+      const onMouseEnter = () => setHoveredItem(blip);
+      const onMouseLeave = () => setHoveredItem(null);
       if (blip.Quadrant === quadrant.name && blip[HORIZONS_KEY] === horizon.name)
         return (
           <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`} className={styles.blipItemWrapper}>
-            <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
+            <button
+              className={`${styles.blipItem} ${hoveredItem?.id === blip.id ? styles.blipItemHovered : ''}`}
+              onClick={() => setSelectedItem(blip)}
+              type="button"
+              onMouseEnter={onMouseEnter}
+              onMouseLeave={onMouseLeave}
+            >
               {blip.Title}
             </button>
           </li>
@@ -44,12 +54,14 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
+      hoveredItem: selectors(state).hoveredItem,
     }),
     {
+      setHoveredItem: actions.setHoveredItem,
       setSelectedItem: actions.setSelectedItem,
     }
   )
-  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter, setSelectedItem }) => {
+  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter, hoveredItem, setHoveredItem, setSelectedItem }) => {
     const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
     const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
 
@@ -118,7 +130,14 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
 
-                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[0]} />
+                  <ItemList
+                    setHoveredItem={setHoveredItem}
+                    hoveredItem={hoveredItem}
+                    setSelectedItem={setSelectedItem}
+                    blips={myBlips}
+                    quadrant={header}
+                    horizon={horizons[0]}
+                  />
                 </div>
               ))}
             </div>
@@ -128,7 +147,14 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
 
-                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[1]} />
+                  <ItemList
+                    setHoveredItem={setHoveredItem}
+                    hoveredItem={hoveredItem}
+                    setSelectedItem={setSelectedItem}
+                    blips={myBlips}
+                    quadrant={header}
+                    horizon={horizons[1]}
+                  />
                 </div>
               ))}
             </div>
@@ -138,7 +164,14 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
 
-                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[2]} />
+                  <ItemList
+                    setHoveredItem={setHoveredItem}
+                    hoveredItem={hoveredItem}
+                    setSelectedItem={setSelectedItem}
+                    blips={myBlips}
+                    quadrant={header}
+                    horizon={horizons[2]}
+                  />
                 </div>
               ))}
             </div>
@@ -148,7 +181,14 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                 <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
                   <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
 
-                  <ItemList setSelectedItem={setSelectedItem} blips={myBlips} quadrant={header} horizon={horizons[3]} />
+                  <ItemList
+                    setHoveredItem={setHoveredItem}
+                    hoveredItem={hoveredItem}
+                    setSelectedItem={setSelectedItem}
+                    blips={myBlips}
+                    quadrant={header}
+                    horizon={horizons[3]}
+                  />
                 </div>
               ))}
             </div>

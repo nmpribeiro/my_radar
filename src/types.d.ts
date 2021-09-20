@@ -70,6 +70,7 @@ type RadarDataBlipsAndLogic = {
   radarData: RadarOptionsType;
   blips: BlipType[];
   logic: {
-    selectItem: (itemId: BlipType) => void;
+    setSelectedItem: (itemId: BlipType | null) => void;
+    setHoveredItem: (itemId: BlipType | null) => void;
   };
 };

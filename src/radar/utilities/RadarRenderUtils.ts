@@ -201,7 +201,9 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataBl
       if (tech) return tech.color;
       return '';
     })
-    .on('mouseup', (event, d) => logic.selectItem(d));
+    .on('mouseover', (event, d) => logic.setHoveredItem(d))
+    .on('mouseleave', () => logic.setHoveredItem(null))
+    .on('mouseup', (event, d) => logic.setSelectedItem(d));
 };
 
 function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, radarBlipsAndLogic: RadarDataBlipsAndLogic) {
