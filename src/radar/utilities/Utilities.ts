@@ -126,7 +126,7 @@ const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
 const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityOrder[a] - horizonPriorityOrder[b];
 const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
 
-const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataAndBLips => {
+const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataBlipsAndLogic => {
   const radarData = { ...passedRadarData };
 
   const newHorizons = getHorizons(rawBlips);
@@ -139,7 +139,13 @@ const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType
   radarData.tech = techItems;
 
   const blips: BlipType[] = processBlips(radarData, rawBlips);
-  return { radarData, blips };
+  return {
+    radarData,
+    blips,
+    logic: {
+      selectItem: () => {},
+    },
+  };
 };
 
 const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);

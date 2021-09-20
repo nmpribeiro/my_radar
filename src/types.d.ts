@@ -66,7 +66,10 @@ interface RadarOptionsType {
 type D3SvgEl = d3.Selection<SVGSVGElement, unknown, null, undefined>;
 type D3SvgGEL = d3.Selection<SVGGElement, unknown, null, undefined>;
 
-type RadarDataAndBLips = {
+type RadarDataBlipsAndLogic = {
   radarData: RadarOptionsType;
   blips: BlipType[];
+  logic: {
+    selectItem: (itemId: BlipType) => void;
+  };
 };

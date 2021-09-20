@@ -44,7 +44,7 @@ const setTechFilter = radarModule.setPayloadAction<string | null>(ActionType.SET
   techFilter: action.payload,
 }));
 
-const setSelectedItem = radarModule.setPayloadAction<string | null>(ActionType.SET_SELECTED_ITEM, (state, action) => ({
+const setSelectedItem = radarModule.setPayloadAction<BlipType | null>(ActionType.SET_SELECTED_ITEM, (state, action) => ({
   ...state,
   selectedItem: action.payload,
 }));

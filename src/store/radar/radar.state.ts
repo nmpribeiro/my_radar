@@ -12,7 +12,7 @@ export interface RadarState {
   useCaseFilter: string;
   disasterTypeFilter: string;
   techFilter: string | null;
-  selectedItem: string | null;
+  selectedItem: BlipType | null;
 }
 
 export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLabel.STATE, {
