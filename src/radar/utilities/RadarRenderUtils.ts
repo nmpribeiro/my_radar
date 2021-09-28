@@ -42,20 +42,20 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .text((d) => RadarUtilities.capitalize(d));
 }
 
-function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
+function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
 
-  const width = data.width || DEFAULT_WIDTH;
-  const height = data.height || DEFAULT_HEIGHT;
+  const width = data.radarData.width || DEFAULT_WIDTH;
+  const height = data.radarData.height || DEFAULT_HEIGHT;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
-  const quadAngle = (2 * Math.PI) / data.quadrants.length;
+  const horizonUnit = (horizonWidth - data.radarData.radarOptions.horizonShiftRadius) / data.radarData.horizons.length;
+  const quadAngle = (2 * Math.PI) / data.radarData.quadrants.length;
   const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
 
   quadrants
     .selectAll('line.quadrant')
-    .data(data.quadrants)
+    .data(data.radarData.quadrants)
     .enter()
     .append('line')
     .attr('x1', 0)
@@ -111,12 +111,12 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
   };
 
   const quads: QuadsType[] = [];
-  for (let i = 0, ilen = data.quadrants.length; i < ilen; i++) {
-    for (let j = 0, jlen = data.horizons.length; j < jlen; j++) {
+  for (let i = 0, ilen = data.radarData.quadrants.length; i < ilen; i++) {
+    for (let j = 0, jlen = data.radarData.horizons.length; j < jlen; j++) {
       quads.push({
         quadrant: i,
         horizon: j,
-        label: data.quadrants[i],
+        label: data.radarData.quadrants[i],
       });
     }
   }
@@ -129,11 +129,12 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
     .attr('dx', getX)
     .attr('dy', getY)
     .attr('text-anchor', getLabelAnchor)
-    .text((d) => d.label.charAt(0).toUpperCase() + d.label.slice(1));
+    .text((d) => d.label.charAt(0).toUpperCase() + d.label.slice(1))
+    .on('mouseup', (event, d) => data.logic.setSelectedQuadrant(d.label));
 
   const fillQuadrant = (d: QuadsType, i: number): RgbOut => {
     const quadrantInput = d.quadrant * 0.4;
-    const brighter = (d.horizon / data.horizons.length) * 0.7 + 0.2;
+    const brighter = (d.horizon / data.radarData.horizons.length) * 0.7 + 0.2;
     const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
     // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
     return result as unknown as RgbOut;
@@ -141,8 +142,8 @@ function addQuadrants(base: D3SvgGEL, data: RadarOptionsType) {
 
   const arcFunction = d3
     .arc<QuadsType>()
-    .outerRadius((d) => (d.horizon + 1) * horizonUnit + data.radarOptions.horizonShiftRadius)
-    .innerRadius((d) => d.horizon * horizonUnit + (d.horizon === 0 ? 0 : data.radarOptions.horizonShiftRadius))
+    .outerRadius((d) => (d.horizon + 1) * horizonUnit + data.radarData.radarOptions.horizonShiftRadius)
+    .innerRadius((d) => d.horizon * horizonUnit + (d.horizon === 0 ? 0 : data.radarData.radarOptions.horizonShiftRadius))
     .startAngle((d) => d.quadrant * (Math.PI / 2))
     .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2);
 
@@ -201,7 +202,9 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataBl
       if (tech) return tech.color;
       return '';
     })
-    .on('mouseup', (event, d) => logic.selectItem(d));
+    .on('mouseover', (event, d) => logic.setHoveredItem(d))
+    .on('mouseleave', () => logic.setHoveredItem(null))
+    .on('mouseup', (event, d) => logic.setSelectedItem(d));
 };
 
 function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, radarBlipsAndLogic: RadarDataBlipsAndLogic) {
@@ -214,7 +217,7 @@ function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, radarBlipsAndLogic
   addHorizons(base, radarData);
 
   // add the quadrants
-  addQuadrants(base, radarData);
+  addQuadrants(base, radarBlipsAndLogic);
 
   // add the blips (filtered if they're filtered)
   drawBlips(rootElement, base, radarBlipsAndLogic);

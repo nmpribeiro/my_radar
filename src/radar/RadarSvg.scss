@@ -40,6 +40,13 @@ svg {
     // opacity: 0.3;
     // font-size: 40px;
     text-align: right;
+    cursor: pointer;
+    font-weight: 600;
+
+    &:hover {
+      /* TODO: Doesn't work? */
+      fill: rgba(0, 0, 0, 0.7);
+    }
   }
 }
 

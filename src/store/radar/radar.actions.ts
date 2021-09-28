@@ -49,6 +49,16 @@ const setSelectedItem = radarModule.setPayloadAction<BlipType | null>(ActionType
   selectedItem: action.payload,
 }));
 
+const setHoveredItem = radarModule.setPayloadAction<BlipType | null>(ActionType.SET_HOVERED_ITEM, (state, action) => ({
+  ...state,
+  hoveredItem: action.payload,
+}));
+
+const setSelectedQuadrant = radarModule.setPayloadAction<QuadrantKey | null>(
+  ActionType.SET_SELECTED_QUADRANT,
+  (state, action) => ({ ...state, selectedQuadrant: action.payload })
+);
+
 const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.initialState);
 
 /**
@@ -74,6 +84,8 @@ export const actions = {
   setDisasterTypeFilter,
   setTechFilter,
   setSelectedItem,
+  setHoveredItem,
+  setSelectedQuadrant,
   reset,
   // testAsync,
   fetchRadarBlips,

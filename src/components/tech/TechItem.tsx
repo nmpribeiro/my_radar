@@ -1,11 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-export const TechItem: React.FC<{ tech: TechItemType; selected: boolean; setTechFilter: (techSlug: string | null) => void }> = ({
-  tech,
-  selected,
-  setTechFilter,
-}) => {
+import style from './TechItem.module.scss';
+
+export const TechItem: React.FC<{
+  tech: TechItemType;
+  selected: boolean;
+  setTechFilter: (techSlug: string | null) => void;
+  hoveredItem: BlipType | null;
+}> = ({ tech, selected, setTechFilter, hoveredItem }) => {
   const selectTech = () => setTechFilter(tech.slug);
+
+  const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setBackgroundColor(selected || hoveredItem?.Technology === tech.type ? tech.color : undefined);
+  }, [tech, selected, hoveredItem]);
+
+  const changeBackgroundEnter = () => setBackgroundColor(selected ? tech.color : tech.color);
+  const changeBackgroundLeave = () => setBackgroundColor(selected ? tech.color : undefined);
 
   return (
     <button
@@ -21,12 +33,16 @@ export const TechItem: React.FC<{ tech: TechItemType; selected: boolean; setTech
       }}
       type="button"
       onClick={selectTech}
+      onMouseEnter={changeBackgroundEnter}
+      onMouseLeave={changeBackgroundLeave}
+      onFocus={changeBackgroundEnter}
+      onBlur={changeBackgroundLeave}
     >
-      <div style={{ backgroundColor: tech.color, height: 20, width: 25, borderRadius: 20 }} />
+      <div style={{ backgroundColor: tech.color }} className={style.techItem} />
       <div style={{ paddingLeft: 20, width: '100%' }}>
         <div
           style={{
-            backgroundColor: selected ? tech.color : undefined,
+            backgroundColor: selected ? tech.color : backgroundColor,
             color: selected ? 'white' : undefined,
             padding: 10,
             border: 1,

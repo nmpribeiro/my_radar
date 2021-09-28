@@ -17,12 +17,13 @@ export const TechList = Connect<GlobalState, unknown>()
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
+      hoveredItem: selectors(state).hoveredItem,
     }),
     {
       setTechFilter: actions.setTechFilter,
     }
   )
-  .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter, setTechFilter, techFilter }) => {
+  .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter, setTechFilter, techFilter, hoveredItem }) => {
     const [tech, setTech] = useState<TechItemType[]>([]);
 
     const resetTech = () => setTechFilter(null);
@@ -50,7 +51,13 @@ export const TechList = Connect<GlobalState, unknown>()
       <div>
         <Title label="Technologies" />
         {tech.map((t) => (
-          <TechItem key={t.uuid} tech={t} selected={t.slug === techFilter} setTechFilter={setTechFilter} />
+          <TechItem
+            key={t.uuid}
+            hoveredItem={hoveredItem}
+            tech={t}
+            selected={t.slug === techFilter}
+            setTechFilter={setTechFilter}
+          />
         ))}
         <button onClick={resetTech} type="button">
           Reset

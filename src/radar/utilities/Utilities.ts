@@ -143,7 +143,9 @@ const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType
     radarData,
     blips,
     logic: {
-      selectItem: () => {},
+      setHoveredItem: () => {},
+      setSelectedItem: () => {},
+      setSelectedQuadrant: () => {},
     },
   };
 };

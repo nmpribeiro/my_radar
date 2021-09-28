@@ -13,6 +13,8 @@ export interface RadarState {
   disasterTypeFilter: string;
   techFilter: string | null;
   selectedItem: BlipType | null;
+  hoveredItem: BlipType | null;
+  selectedQuadrant: QuadrantKey | null;
 }
 
 export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLabel.STATE, {
@@ -36,6 +38,8 @@ export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLab
   disasterTypeFilter: 'all',
   techFilter: null,
   selectedItem: null,
+  hoveredItem: null,
+  selectedQuadrant: null,
 });
 
 export enum ActionType {
@@ -47,5 +51,7 @@ export enum ActionType {
   SET_DISASTER_TYPE_FILTER = 'RADAR/SET_DISASTER_TYPE_FILTER',
   SET_TECH_FILTER = 'RADAR/SET_TECH_FILTER',
   SET_SELECTED_ITEM = 'RADAR/SET_SELECTED_ITEM',
+  SET_HOVERED_ITEM = 'RADAR/SET_HOVERED_ITEM',
+  SET_SELECTED_QUADRANT = 'RADAR/SET_SELECTED_QUADRANT',
   RESET = 'RADAR/RESET',
 }

@@ -24,11 +24,25 @@ export const Radar = Connect<GlobalState, unknown>()
     {
       setBlips: actions.setBlips,
       setRadarData: actions.setRadarData,
+      setHoveredItem: actions.setHoveredItem,
       setSelectedItem: actions.setSelectedItem,
+      setSelectedQuadrant: actions.setSelectedQuadrant,
     }
   )
   .withComp(
-    ({ radarData, setBlips, blips, setRadarData, rawBlips, useCaseFilter, disasterTypeFilter, techFilter, setSelectedItem }) => {
+    ({
+      radarData,
+      setBlips,
+      blips,
+      setRadarData,
+      rawBlips,
+      useCaseFilter,
+      disasterTypeFilter,
+      techFilter,
+      setSelectedItem,
+      setHoveredItem,
+      setSelectedQuadrant,
+    }) => {
       const radarRef = createRef<HTMLDivElement>();
 
       const [init, setInit] = useState(false);
@@ -53,7 +67,9 @@ export const Radar = Connect<GlobalState, unknown>()
             blips: filtered,
             radarData,
             logic: {
-              selectItem: setSelectedItem,
+              setSelectedItem,
+              setHoveredItem,
+              setSelectedQuadrant,
             },
           });
         }

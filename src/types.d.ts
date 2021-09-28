@@ -1,4 +1,4 @@
-type QuadsType = { quadrant: number; horizon: number; label: string };
+type QuadsType = { quadrant: number; horizon: number; label: QuadrantKey };
 
 type BaseCSVType = Record<string, string>;
 
@@ -70,6 +70,8 @@ type RadarDataBlipsAndLogic = {
   radarData: RadarOptionsType;
   blips: BlipType[];
   logic: {
-    selectItem: (itemId: BlipType) => void;
+    setSelectedItem: (itemId: BlipType | null) => void;
+    setHoveredItem: (itemId: BlipType | null) => void;
+    setSelectedQuadrant: (quadrantKey: QuadrantKey | null) => void;
   };
 };
