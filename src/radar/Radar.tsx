@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
 
 import { GlobalState } from '../store/state';
@@ -43,7 +43,34 @@ export const Radar = Connect<GlobalState, unknown>()
       setHoveredItem,
       setSelectedQuadrant,
     }) => {
-      const radarRef = createRef<HTMLDivElement>();
+      const radarRef = React.useRef<HTMLDivElement>(null);
+
+      const [svgWidth, setSvgWidth] = useState(radarData.width);
+      const [svgHeight, setSvgHeight] = useState(radarData.height);
+
+      const [dimensions, setDimensions] = React.useState({
+        height: window.innerHeight,
+        width: window.innerWidth,
+      });
+      React.useEffect(() => {
+        function handleResize() {
+          setDimensions({
+            height: window.innerHeight,
+            width: window.innerWidth,
+          });
+        }
+        window.addEventListener('resize', handleResize);
+        return () => {
+          window.removeEventListener('resize', handleResize);
+        };
+      });
+
+      useEffect(() => {
+        if (radarRef.current) {
+          setSvgWidth(radarRef.current.clientWidth - 20);
+          setSvgHeight(radarRef.current.clientHeight);
+        }
+      }, [radarRef.current, dimensions]);
 
       const [init, setInit] = useState(false);
       const [title, setTitle] = useState(radarData.title);
@@ -77,14 +104,9 @@ export const Radar = Connect<GlobalState, unknown>()
 
       useEffect(() => {
         if (rawBlips.length > 0 && radarData) {
-          const newRadarData = { ...RADAR_OPTIONS };
-          if (radarRef.current) {
-            newRadarData.height = radarRef.current.clientHeight;
-            newRadarData.width = radarRef.current.clientWidth;
-          }
-          const { radarData: newRadarData2, blips: newBlips } = RadarUtilities.getRadarData(rawBlips, newRadarData);
+          const { radarData: newRadarData, blips: newBlips } = RadarUtilities.getRadarData(rawBlips, { ...RADAR_OPTIONS });
           setBlips(newBlips);
-          setRadarData({ ...newRadarData2 });
+          setRadarData({ ...newRadarData });
           setTimeout(() => {
             setInit(true);
           }, 0);
@@ -92,8 +114,17 @@ export const Radar = Connect<GlobalState, unknown>()
       }, [rawBlips]);
 
       useEffect(() => {
+        const newRadarData = { ...radarData };
+        if (radarRef.current) {
+          if (svgWidth) newRadarData.width = svgWidth;
+          if (svgHeight) newRadarData.height = svgHeight;
+          setRadarData(newRadarData);
+        }
+      }, [svgHeight, svgWidth]);
+
+      useEffect(() => {
         if (init) setupRadar();
-      }, [init, useCaseFilter, disasterTypeFilter, techFilter]);
+      }, [init, useCaseFilter, disasterTypeFilter, techFilter, svgWidth, svgHeight, radarData]);
 
       return (
         <>

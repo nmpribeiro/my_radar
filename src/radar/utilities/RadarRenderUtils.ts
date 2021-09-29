@@ -7,14 +7,10 @@ import { TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import { RadarUtilities } from './Utilities';
 
-const DEFAULT_WIDTH = 800;
-const DEFAULT_HEIGHT = 600;
-
 type RgbOut = string | number | boolean | null;
 
 function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
-  const width = data.width || DEFAULT_WIDTH;
-  const height = data.height || DEFAULT_HEIGHT;
+  const { width, height } = data;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
@@ -46,8 +42,7 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
   // add the quadrants
   const quadrants = base.append('g').attr('class', 'quadrants');
 
-  const width = data.radarData.width || DEFAULT_WIDTH;
-  const height = data.radarData.height || DEFAULT_HEIGHT;
+  const { width, height } = data.radarData;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - data.radarData.radarOptions.horizonShiftRadius) / data.radarData.horizons.length;
   const quadAngle = (2 * Math.PI) / data.radarData.quadrants.length;
@@ -69,13 +64,13 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
   const getY = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
-        return width / 2.5;
+        return width / 2.6;
       case 2:
-        return width / 2.5;
+        return width / 2.6;
       case 3:
-        return -width / 2.5;
+        return -width / 2.6;
       case 0:
-        return -width / 2.5;
+        return -width / 2.6;
       default:
         return 0;
     }
@@ -84,13 +79,13 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
   const getX = (d: QuadsType) => {
     switch (d.quadrant) {
       case 1:
-        return height / 2;
+        return height / 2.2;
       case 2:
-        return -height / 2;
+        return -height / 2.2;
       case 3:
-        return -height / 2;
+        return -height / 2.2;
       case 0:
-        return height / 2;
+        return height / 2.2;
       default:
         return 0;
     }
@@ -208,11 +203,11 @@ const drawBlips = (rootElement: HTMLDivElement, svg: D3SvgGEL, data: RadarDataBl
 };
 
 function drawRadar(rootElement: HTMLDivElement, svg: D3SvgEl, radarBlipsAndLogic: RadarDataBlipsAndLogic) {
-  const { radarData, blips } = radarBlipsAndLogic;
+  const { radarData } = radarBlipsAndLogic;
+  const { width, height } = radarBlipsAndLogic.radarData;
+
   // add the horizons
-  const base: D3SvgGEL = svg
-    .append('g')
-    .attr('transform', `translate(${(radarData.width || DEFAULT_WIDTH) / 2},${(radarData.height || DEFAULT_HEIGHT) / 2})`);
+  const base: D3SvgGEL = svg.append('g').attr('transform', `translate(${width / 2},${height / 2})`);
 
   addHorizons(base, radarData);
 
@@ -230,11 +225,7 @@ const setupFourQuadrants = (rootElement: HTMLDivElement, radarContext: RadarData
   }
 
   const { width, height } = radarContext.radarData;
-  const svg = d3
-    .select(rootElement)
-    .append('svg')
-    .attr('width', width || DEFAULT_WIDTH)
-    .attr('height', height || DEFAULT_HEIGHT);
+  const svg = d3.select(rootElement).append('svg').attr('width', width).attr('height', height);
 
   svg
     .append('marker')

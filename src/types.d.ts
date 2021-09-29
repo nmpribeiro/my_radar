@@ -51,8 +51,8 @@ interface TechItemType {
 
 interface RadarOptionsType {
   title: string;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   quadrants: QuadrantKey[];
   horizons: HorizonKey[];
   radarOptions: {

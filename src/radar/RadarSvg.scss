@@ -50,6 +50,16 @@ svg {
   }
 }
 
+svg:not(:root),
+symbol,
+image,
+marker,
+pattern,
+foreignObject {
+  overflow-x: visible;
+  overflow-y: visible;
+}
+
 div#radar-tooltip {
   position: absolute;
   text-align: center;
