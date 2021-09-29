@@ -17,7 +17,7 @@ export const RADAR_OPTIONS: RadarOptionsType = {
   tech: [],
 };
 
-export const horizonPriorityOrder: Record<HorizonKey, number> = { production: 1, validation: 2, idea: 3, prototype: 4 };
+export const horizonPriorityOrder: Record<HorizonKey, number> = { production: 1, validation: 2, prototype: 3, idea: 4 };
 export const quadrantPriorityOrder: Record<QuadrantKey, number> = { response: 1, recovery: 2, resilience: 3, preparedness: 4 };
 
 export const HORIZONS_KEY = 'Level of implementation';
