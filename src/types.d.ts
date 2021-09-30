@@ -1,5 +1,7 @@
 type QuadsType = { quadrant: number; horizon: number; label: QuadrantKey };
 
+type RgbOut = string | number | boolean | null;
+
 type BaseCSVType = Record<string, string>;
 
 type RawCSVItem = {
@@ -51,8 +53,8 @@ interface TechItemType {
 
 interface RadarOptionsType {
   title: string;
-  width?: number;
-  height?: number;
+  width: number;
+  height: number;
   quadrants: QuadrantKey[];
   horizons: HorizonKey[];
   radarOptions: {

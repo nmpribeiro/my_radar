@@ -1,15 +1,15 @@
-import React, { createRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
 
 import { GlobalState } from '../store/state';
 import { Title } from '../components/shared/Title';
-import { DISASTER_TYPE_KEY, RADAR_OPTIONS, TECH_KEY, USE_CASE_KEY } from '../constants/RadarData';
+import { DEFAULT_TITLE, DISASTER_TYPE_KEY, RADAR_OPTIONS, TECH_KEY, USE_CASE_KEY } from '../constants/RadarData';
 import { actions, selectors } from '../store/radar/radar.actions';
 
-import './RadarSvg.scss';
-import style from './Radar.module.scss';
-import { RadarRenderUtils } from './utilities/RadarRenderUtils';
+import { RadarSVG } from './RadarSVG';
 import { RadarUtilities } from './utilities/Utilities';
+// SCSS
+import './RadarSvg.scss';
 
 export const Radar = Connect<GlobalState, unknown>()
   .stateAndDispatch(
@@ -43,14 +43,23 @@ export const Radar = Connect<GlobalState, unknown>()
       setHoveredItem,
       setSelectedQuadrant,
     }) => {
-      const radarRef = createRef<HTMLDivElement>();
-
       const [init, setInit] = useState(false);
-      const [title, setTitle] = useState(radarData.title);
+      const [title, setTitle] = useState(DEFAULT_TITLE);
+      const [displayBlips, setDisplayBlips] = useState<BlipType[]>([]);
 
-      const setupRadar = () => {
-        if (radarRef.current && blips) {
-          radarRef.current.innerHTML = '';
+      useEffect(() => {
+        if (rawBlips.length > 0 && radarData) {
+          const { radarData: newRadarData, blips: newBlips } = RadarUtilities.getRadarData(rawBlips, { ...RADAR_OPTIONS });
+          setBlips(newBlips);
+          setRadarData({ ...newRadarData });
+          setTimeout(() => {
+            setInit(true);
+          }, 0);
+        }
+      }, [rawBlips]);
+
+      useEffect(() => {
+        if (init && blips) {
           let filtered = blips;
           if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
           if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
@@ -60,46 +69,20 @@ export const Radar = Connect<GlobalState, unknown>()
             filtered = filtered.filter((i) => i[TECH_KEY] === tech.type);
             setTitle(tech.type);
           } else {
-            setTitle(radarData.title);
+            setTitle(DEFAULT_TITLE);
           }
-
-          RadarRenderUtils.setupFourQuadrants(radarRef.current, {
-            blips: filtered,
-            radarData,
-            logic: {
-              setSelectedItem,
-              setHoveredItem,
-              setSelectedQuadrant,
-            },
-          });
+          setDisplayBlips(filtered);
         }
-      };
-
-      useEffect(() => {
-        if (rawBlips.length > 0 && radarData) {
-          const newRadarData = { ...RADAR_OPTIONS };
-          if (radarRef.current) {
-            newRadarData.height = radarRef.current.clientHeight;
-            newRadarData.width = radarRef.current.clientWidth;
-          }
-          const { radarData: newRadarData2, blips: newBlips } = RadarUtilities.getRadarData(rawBlips, newRadarData);
-          setBlips(newBlips);
-          setRadarData({ ...newRadarData2 });
-          setTimeout(() => {
-            setInit(true);
-          }, 0);
-        }
-      }, [rawBlips]);
-
-      useEffect(() => {
-        if (init) setupRadar();
-      }, [init, useCaseFilter, disasterTypeFilter, techFilter]);
+      }, [init, useCaseFilter, disasterTypeFilter, techFilter, radarData]);
 
       return (
         <>
           <Title label={title} />
           <div style={{ padding: 10 }}>
-            <div className={style.techradar} ref={radarRef} />
+            <RadarSVG
+              minHeight={600}
+              context={{ radarData, blips: displayBlips, logic: { setSelectedItem, setHoveredItem, setSelectedQuadrant } }}
+            />
           </div>
         </>
       );

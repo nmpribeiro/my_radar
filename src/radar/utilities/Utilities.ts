@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { v4 as uuidv4 } from 'uuid';
+import * as d3 from 'd3';
 // Lorem Ipsum from https://fatihtelis.github.io/react-lorem-ipsum/
 import { loremIpsum } from 'react-lorem-ipsum';
 
@@ -159,6 +160,75 @@ const filterBlips = (blips: BlipType[], useCaseFilter = 'all', disasterTypeFilte
   return filtered;
 };
 
+// QUADRANTS
+const drawArcs: (h: QuadsType, horizonUnit: number, horizonShiftRadius?: number, scaleFactor?: number) => string | null = (
+  h,
+  horizonUnit,
+  horizonShiftRadius = 0,
+  scaleFactor = 1
+) =>
+  d3
+    .arc<QuadsType>()
+    .outerRadius((d) => ((d.horizon + 1) * horizonUnit + horizonShiftRadius) * scaleFactor)
+    .innerRadius((d) => (d.horizon * horizonUnit + (d.horizon === 0 ? 0 : horizonShiftRadius)) * scaleFactor)
+    .startAngle((d) => d.quadrant * (Math.PI / 2))
+    .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2)(h) || null;
+
+const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
+
+const fillArcs = (d: QuadsType, horizons: unknown[]): RgbOut => {
+  const quadrantInput = d.quadrant * 0.4;
+  const brighter = (d.horizon / horizons.length) * 0.7 + 0.2;
+  const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
+  // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
+  return result as unknown as RgbOut;
+};
+
+const getY = (d: QuadsType, width: number): number => {
+  switch (d.quadrant) {
+    case 1:
+      return width / 3;
+    case 2:
+      return width / 3;
+    case 3:
+      return -width / 3;
+    case 0:
+      return -width / 3;
+    default:
+      return 0;
+  }
+};
+
+const getX = (d: QuadsType, height: number): number => {
+  switch (d.quadrant) {
+    case 1:
+      return height / 2.2;
+    case 2:
+      return -height / 2.2;
+    case 3:
+      return -height / 2.2;
+    case 0:
+      return height / 2.2;
+    default:
+      return 0;
+  }
+};
+const getLabelAnchor = (d: QuadsType): string => {
+  switch (d.quadrant) {
+    case 1:
+      return 'end';
+    case 2:
+      return 'start';
+    case 3:
+      return 'start';
+    case 0:
+      return 'end';
+    default:
+      return '';
+  }
+};
+// END QUADRANTS
+
 export const RadarUtilities = {
   processBlips,
   blipsSorting,
@@ -170,4 +240,11 @@ export const RadarUtilities = {
   getRadarData,
   capitalize,
   filterBlips,
+  quadrants: {
+    drawArcs,
+    fillArcs,
+    getY,
+    getX,
+    getLabelAnchor,
+  },
 };

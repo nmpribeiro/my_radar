@@ -1,14 +1,18 @@
 // Radar constants
+const DEFAULT_WIDTH = 800;
+const DEFAULT_HEIGHT = 600;
 const HORIZON_SHIFT_RADIUS = 30;
 const RADIUS_PADDING = 10;
 const CIRCLE_PADDING = Math.PI / 18;
 
+export const DEFAULT_TITLE = 'Technology Radar';
+
 export const RADAR_OPTIONS: RadarOptionsType = {
-  title: 'Technology Radar',
+  title: DEFAULT_TITLE,
   horizons: [],
   quadrants: [],
-  width: 600,
-  height: 600,
+  width: DEFAULT_WIDTH,
+  height: DEFAULT_HEIGHT,
   radarOptions: {
     horizonShiftRadius: HORIZON_SHIFT_RADIUS,
     radiusPadding: RADIUS_PADDING,
@@ -17,7 +21,7 @@ export const RADAR_OPTIONS: RadarOptionsType = {
   tech: [],
 };
 
-export const horizonPriorityOrder: Record<HorizonKey, number> = { production: 1, validation: 2, idea: 3, prototype: 4 };
+export const horizonPriorityOrder: Record<HorizonKey, number> = { production: 1, validation: 2, prototype: 3, idea: 4 };
 export const quadrantPriorityOrder: Record<QuadrantKey, number> = { response: 1, recovery: 2, resilience: 3, preparedness: 4 };
 
 export const HORIZONS_KEY = 'Level of implementation';
