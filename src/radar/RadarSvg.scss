@@ -34,6 +34,11 @@ svg {
   path.quadrant {
     fill-opacity: 0.5;
   }
+
+  line.quadrant {
+    stroke-width: 0.5;
+  }
+
   text.quadrant-text {
     font-family: Arial, Sans-serif;
     // font-weight: bold;

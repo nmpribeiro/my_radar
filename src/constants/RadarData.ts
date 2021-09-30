@@ -5,8 +5,10 @@ const HORIZON_SHIFT_RADIUS = 30;
 const RADIUS_PADDING = 10;
 const CIRCLE_PADDING = Math.PI / 18;
 
+export const DEFAULT_TITLE = 'Technology Radar';
+
 export const RADAR_OPTIONS: RadarOptionsType = {
-  title: 'Technology Radar',
+  title: DEFAULT_TITLE,
   horizons: [],
   quadrants: [],
   width: DEFAULT_WIDTH,

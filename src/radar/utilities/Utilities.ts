@@ -187,13 +187,13 @@ const fillArcs = (d: QuadsType, horizons: unknown[]): RgbOut => {
 const getY = (d: QuadsType, width: number): number => {
   switch (d.quadrant) {
     case 1:
-      return width / 2.6;
+      return width / 3;
     case 2:
-      return width / 2.6;
+      return width / 3;
     case 3:
-      return -width / 2.6;
+      return -width / 3;
     case 0:
-      return -width / 2.6;
+      return -width / 3;
     default:
       return 0;
   }
