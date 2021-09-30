@@ -1,5 +1,7 @@
 type QuadsType = { quadrant: number; horizon: number; label: QuadrantKey };
 
+type RgbOut = string | number | boolean | null;
+
 type BaseCSVType = Record<string, string>;
 
 type RawCSVItem = {

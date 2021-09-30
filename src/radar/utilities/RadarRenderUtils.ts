@@ -7,12 +7,11 @@ import { TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import { RadarUtilities } from './Utilities';
 
-type RgbOut = string | number | boolean | null;
-
 function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
-  const { width, height } = data;
+  const { width, height, radarOptions } = data;
+  const { horizonShiftRadius } = radarOptions;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
+  const horizonUnit = (horizonWidth - horizonShiftRadius) / data.horizons.length;
 
   const horizons = base.append('g').attr('class', 'horizons').selectAll('.horizon');
 
@@ -20,7 +19,7 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .data(data.horizons)
     .enter()
     .append('circle')
-    .attr('r', (d, i) => (i + 1) * horizonUnit + data.radarOptions.horizonShiftRadius)
+    .attr('r', (d, i) => (i + 1) * horizonUnit + horizonShiftRadius)
     .attr('cx', 0)
     .attr('cy', 0)
     .attr('fill', 'none')
@@ -33,24 +32,24 @@ function addHorizons(base: D3SvgGEL, data: RadarOptionsType) {
     .append('text')
     .attr('class', (d) => `horizon-text horizon-${d}`)
     .attr('text-anchor', 'middle')
-    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + data.radarOptions.horizonShiftRadius)
+    .attr('dx', (d, i) => (i + 1) * horizonUnit - horizonUnit / 2 + (i === 0 ? horizonShiftRadius / 2 : horizonShiftRadius))
     .attr('dy', 10)
     .text((d) => RadarUtilities.capitalize(d));
 }
 
 function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
   // add the quadrants
-  const quadrants = base.append('g').attr('class', 'quadrants');
+  const quadrantsEl = base.append('g').attr('class', 'quadrants');
 
-  const { width, height } = data.radarData;
+  const { width, height, radarOptions, horizons, quadrants } = data.radarData;
+  const { horizonShiftRadius } = radarOptions;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
-  const horizonUnit = (horizonWidth - data.radarData.radarOptions.horizonShiftRadius) / data.radarData.horizons.length;
-  const quadAngle = (2 * Math.PI) / data.radarData.quadrants.length;
-  const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
+  const horizonUnit = (horizonWidth - horizonShiftRadius) / horizons.length;
+  const quadAngle = (2 * Math.PI) / quadrants.length;
 
-  quadrants
+  quadrantsEl
     .selectAll('line.quadrant')
-    .data(data.radarData.quadrants)
+    .data(quadrants)
     .enter()
     .append('line')
     .attr('x1', 0)
@@ -61,95 +60,37 @@ function addQuadrants(base: D3SvgGEL, data: RadarDataBlipsAndLogic) {
     .attr('stroke', 'rgba(0,0,0,1)')
     .attr('stroke-width', '5px');
 
-  const getY = (d: QuadsType) => {
-    switch (d.quadrant) {
-      case 1:
-        return width / 2.6;
-      case 2:
-        return width / 2.6;
-      case 3:
-        return -width / 2.6;
-      case 0:
-        return -width / 2.6;
-      default:
-        return 0;
-    }
-  };
-
-  const getX = (d: QuadsType) => {
-    switch (d.quadrant) {
-      case 1:
-        return height / 2.2;
-      case 2:
-        return -height / 2.2;
-      case 3:
-        return -height / 2.2;
-      case 0:
-        return height / 2.2;
-      default:
-        return 0;
-    }
-  };
-  const getLabelAnchor = (d: QuadsType) => {
-    switch (d.quadrant) {
-      case 1:
-        return 'end';
-      case 2:
-        return 'start';
-      case 3:
-        return 'start';
-      case 0:
-        return 'end';
-      default:
-        return 0;
-    }
-  };
-
   const quads: QuadsType[] = [];
-  for (let i = 0, ilen = data.radarData.quadrants.length; i < ilen; i++) {
-    for (let j = 0, jlen = data.radarData.horizons.length; j < jlen; j++) {
+  for (let i = 0, ilen = quadrants.length; i < ilen; i++) {
+    for (let j = 0, jlen = horizons.length; j < jlen; j++) {
       quads.push({
         quadrant: i,
         horizon: j,
-        label: data.radarData.quadrants[i],
+        label: quadrants[i],
       });
     }
   }
-  quadrants
+
+  quadrantsEl
     .selectAll('text.quadrant')
     .data(quads.filter((d) => d.horizon === 0))
     .enter()
     .append('text')
     .attr('class', (d) => `quadrant-text quadrant-${d.label}`)
-    .attr('dx', getX)
-    .attr('dy', getY)
-    .attr('text-anchor', getLabelAnchor)
+    .attr('dx', (d) => RadarUtilities.quadrants.getX(d, height))
+    .attr('dy', (d) => RadarUtilities.quadrants.getY(d, width))
+    .attr('text-anchor', RadarUtilities.quadrants.getLabelAnchor)
     .text((d) => d.label.charAt(0).toUpperCase() + d.label.slice(1))
     .on('mouseup', (event, d) => data.logic.setSelectedQuadrant(d.label));
 
-  const fillQuadrant = (d: QuadsType, i: number): RgbOut => {
-    const quadrantInput = d.quadrant * 0.4;
-    const brighter = (d.horizon / data.radarData.horizons.length) * 0.7 + 0.2;
-    const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
-    // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
-    return result as unknown as RgbOut;
-  };
-
-  const arcFunction = d3
-    .arc<QuadsType>()
-    .outerRadius((d) => (d.horizon + 1) * horizonUnit + data.radarData.radarOptions.horizonShiftRadius)
-    .innerRadius((d) => d.horizon * horizonUnit + (d.horizon === 0 ? 0 : data.radarData.radarOptions.horizonShiftRadius))
-    .startAngle((d) => d.quadrant * (Math.PI / 2))
-    .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2);
-
   // Create quadrant arcs
-  quadrants
+  quadrantsEl
     .selectAll('path.quadrant')
     .data(quads)
     .enter()
     .append('path')
-    .attr('d', arcFunction)
-    .attr('fill', fillQuadrant)
+    .attr('d', (d) => RadarUtilities.quadrants.drawArcs(d, horizonUnit, horizonShiftRadius))
+    .attr('fill', (d) => RadarUtilities.quadrants.fillArcs(d, quadrants))
     .attr('class', (d: { label: string }) => `quadrant quadarant-${d.label.toLowerCase().replace(/ /, '-')}`);
 }
 

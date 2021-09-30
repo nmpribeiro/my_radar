@@ -73,8 +73,7 @@ export const QuadrantPage = Connect<GlobalState>()
               </LeftColumn>
 
               <CenterColumn>
-                <h1>{RadarUtilities.capitalize(selectedQuadrant)}</h1>
-                <p>Todo: insert quarter radar (this quadrant)</p>
+                <h3>{RadarUtilities.capitalize(selectedQuadrant)}</h3>
                 <RadarSVG
                   quadrant={selectedQuadrant}
                   context={{
