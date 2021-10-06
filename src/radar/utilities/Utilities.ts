@@ -174,11 +174,11 @@ const drawArcs: (h: QuadsType, horizonUnit: number, horizonShiftRadius?: number,
     .startAngle((d) => d.quadrant * (Math.PI / 2))
     .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2)(h) || null;
 
-const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
+const thisColorScale = d3.scaleOrdinal(d3.schemePastel2);
 
 const fillArcs = (d: QuadsType, horizons: unknown[]): RgbOut => {
-  const quadrantInput = d.quadrant * 0.4;
-  const brighter = (d.horizon / horizons.length) * 0.7 + 0.2;
+  const quadrantInput = d.label;
+  const brighter = (d.horizon / horizons.length) * 0.7;
   const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
   // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
   return result as unknown as RgbOut;

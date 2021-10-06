@@ -14,6 +14,7 @@ export interface RadarState {
   techFilter: string | null;
   selectedItem: BlipType | null;
   hoveredItem: BlipType | null;
+  hoveredTech: string | null;
   selectedQuadrant: QuadrantKey | null;
 }
 
@@ -39,6 +40,7 @@ export const radarModule = new StoreModule<ActionType, RadarState>(RadarStateLab
   techFilter: null,
   selectedItem: null,
   hoveredItem: null,
+  hoveredTech: null,
   selectedQuadrant: null,
 });
 
@@ -52,6 +54,7 @@ export enum ActionType {
   SET_TECH_FILTER = 'RADAR/SET_TECH_FILTER',
   SET_SELECTED_ITEM = 'RADAR/SET_SELECTED_ITEM',
   SET_HOVERED_ITEM = 'RADAR/SET_HOVERED_ITEM',
+  SET_HOVERED_TECH = 'RADAR/SET_HOVERED_TECH',
   SET_SELECTED_QUADRANT = 'RADAR/SET_SELECTED_QUADRANT',
   RESET = 'RADAR/RESET',
 }

@@ -18,9 +18,6 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
   const { horizonShiftRadius } = radarOptions;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - horizonShiftRadius) / horizons.length;
-  // const quadAngle = (2 * Math.PI) / quadrants.length;
-  // const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
-  // const data = radarData;
 
   const quads: QuadsType[] = [];
   for (let i = 0, ilen = quadrants.length; i < ilen; i++) {
@@ -168,6 +165,7 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
             y2={Math.sin(quadAngle * i) * horizonWidth}
             stroke="rgba(0,0,0,1)"
             strokeWidth={5}
+            fill="none"
           />
         ))}
 
@@ -189,7 +187,10 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
           <path
             className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
             d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
-            fill={RadarUtilities.quadrants.fillArcs(q, quadrants)?.toString()}
+            fill={RadarUtilities.quadrants.fillArcs(q, horizons)?.toString()}
+            strokeWidth={0.2}
+            stroke="grey"
+            // fill="none"
           />
         ))}
         <Blips quadrant={quadrant} />

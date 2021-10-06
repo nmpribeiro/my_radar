@@ -15,24 +15,44 @@ import styles from './BlipItemList.module.scss';
 type ListMatrixItem = { uuid: string; name: string };
 
 interface Props {
+  radarData: RadarOptionsType;
   quadrant: ListMatrixItem;
   horizon: ListMatrixItem;
   blips: BlipType[];
   hoveredItem: BlipType | null;
+  techFilter: string | null;
+  hoveredTech: string | null;
   setHoveredItem: (payload: BlipType | null) => void;
   setSelectedItem: (item: BlipType) => void;
 }
 
-const ItemList: React.FC<Props> = ({ quadrant, horizon, blips, hoveredItem, setHoveredItem, setSelectedItem }) => (
+const ItemList: React.FC<Props> = ({
+  radarData,
+  quadrant,
+  horizon,
+  blips,
+  hoveredItem,
+  techFilter,
+  hoveredTech,
+  setHoveredItem,
+  setSelectedItem,
+}) => (
   <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
     {blips.map((blip) => {
       const onMouseEnter = () => setHoveredItem(blip);
       const onMouseLeave = () => setHoveredItem(null);
+      const getHoveredStyle = () => {
+        const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
+        if ((!hoveredItem && techFilter !== 'all') || hoveredItem?.id === blip.id) {
+          if (hoveredTech === null || hoveredTech === tech?.slug) return styles.blipItemHovered;
+        }
+        return '';
+      };
       if (blip.Quadrant === quadrant.name && blip[HORIZONS_KEY] === horizon.name)
         return (
           <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`} className={styles.blipItemWrapper}>
             <button
-              className={`${styles.blipItem} ${hoveredItem?.id === blip.id ? styles.blipItemHovered : ''}`}
+              className={`${styles.blipItem} ${getHoveredStyle()}`}
               onClick={() => setSelectedItem(blip)}
               type="button"
               onMouseEnter={onMouseEnter}
@@ -51,149 +71,175 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
   .stateAndDispatch(
     (state) => ({
       blips: selectors(state).blips,
+      radarData: selectors(state).radarData,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
       hoveredItem: selectors(state).hoveredItem,
+      hoveredTech: selectors(state).hoveredTech,
     }),
     {
       setHoveredItem: actions.setHoveredItem,
       setSelectedItem: actions.setSelectedItem,
     }
   )
-  .withComp(({ blips, useCaseFilter, disasterTypeFilter, techFilter, hoveredItem, setHoveredItem, setSelectedItem }) => {
-    const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
-    const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
+  .withComp(
+    ({
+      blips,
+      radarData,
+      useCaseFilter,
+      disasterTypeFilter,
+      techFilter,
+      hoveredItem,
+      hoveredTech,
+      setHoveredItem,
+      setSelectedItem,
+    }) => {
+      const [headers, setHeaders] = useState<ListMatrixItem[]>([]);
+      const [horizons, setHorizons] = useState<ListMatrixItem[]>([]);
 
-    const [myBlips, setMyBlips] = useState<BlipType[]>([]);
+      const [myBlips, setMyBlips] = useState<BlipType[]>([]);
 
-    useEffect(() => {
-      setMyBlips(RadarUtilities.filterBlips(blips, useCaseFilter, disasterTypeFilter));
-    }, [blips, useCaseFilter, disasterTypeFilter]);
+      useEffect(() => {
+        setMyBlips(RadarUtilities.filterBlips(blips, useCaseFilter, disasterTypeFilter));
+      }, [blips, useCaseFilter, disasterTypeFilter]);
 
-    useEffect(() => {
-      if (blips && blips.length > 0) {
-        const newHeaders: ListMatrixItem[] = [];
-        RadarUtilities.getQuadrants(blips).forEach((header) => newHeaders.push({ uuid: uuidv4(), name: header }));
-        const newHorizons: ListMatrixItem[] = [];
-        RadarUtilities.getHorizons(blips).forEach((horizon) => newHorizons.push({ uuid: uuidv4(), name: horizon }));
-        setHeaders(newHeaders);
-        setHorizons(newHorizons);
-      }
-    }, [blips]);
+      useEffect(() => {
+        if (blips && blips.length > 0) {
+          const newHeaders: ListMatrixItem[] = [];
+          RadarUtilities.getQuadrants(blips).forEach((header) => newHeaders.push({ uuid: uuidv4(), name: header }));
+          const newHorizons: ListMatrixItem[] = [];
+          RadarUtilities.getHorizons(blips).forEach((horizon) => newHorizons.push({ uuid: uuidv4(), name: horizon }));
+          setHeaders(newHeaders);
+          setHorizons(newHorizons);
+        }
+      }, [blips]);
 
-    return (
-      <section>
-        {techFilter && (
-          <>
-            <header
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              }}
-            >
-              {headers.map((header) => (
-                <div
-                  key={header.uuid}
-                  className="column"
-                  style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', maxWidth: 200 }}
-                >
-                  <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
-                    {blips
-                      .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
-                      .map((blip) => (
-                        <li key={`${blip.Title}-${header.uuid}`} className={styles.blipItemWrapper}>
-                          <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
-                            {blip.Title}
-                          </button>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              ))}
-            </header>
-          </>
-        )}
-        {techFilter === null && (
-          <>
-            <header>
-              {headers.map((header) => (
-                <div key={header.uuid} className="col">
-                  <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
-                </div>
-              ))}
-            </header>
-            <div className="row">
-              {headers.map((header) => (
-                <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
-                  <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
+      return (
+        <section>
+          {techFilter && (
+            <>
+              <header
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+              >
+                {headers.map((header) => (
+                  <div
+                    key={header.uuid}
+                    className="column"
+                    style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', maxWidth: 200 }}
+                  >
+                    <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
+                      {blips
+                        .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
+                        .map((blip) => (
+                          <li key={`${blip.Title}-${header.uuid}`} className={styles.blipItemWrapper}>
+                            <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
+                              {blip.Title}
+                            </button>
+                          </li>
+                        ))}
+                    </ul>
+                  </div>
+                ))}
+              </header>
+            </>
+          )}
+          {techFilter === null && (
+            <>
+              <header>
+                {headers.map((header) => (
+                  <div key={header.uuid} className="col">
+                    <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
+                  </div>
+                ))}
+              </header>
+              <div className="row">
+                {headers.map((header) => (
+                  <div key={`${header.uuid}-${horizons[0].uuid}`} className="col">
+                    <Title label={RadarUtilities.capitalize(horizons[0].name)} type="h5" />
 
-                  <ItemList
-                    setHoveredItem={setHoveredItem}
-                    hoveredItem={hoveredItem}
-                    setSelectedItem={setSelectedItem}
-                    blips={myBlips}
-                    quadrant={header}
-                    horizon={horizons[0]}
-                  />
-                </div>
-              ))}
-            </div>
+                    <ItemList
+                      radarData={radarData}
+                      techFilter={techFilter}
+                      hoveredTech={hoveredTech}
+                      setHoveredItem={setHoveredItem}
+                      hoveredItem={hoveredItem}
+                      setSelectedItem={setSelectedItem}
+                      blips={myBlips}
+                      quadrant={header}
+                      horizon={horizons[0]}
+                    />
+                  </div>
+                ))}
+              </div>
 
-            <div className="row">
-              {headers.map((header) => (
-                <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
-                  <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
+              <div className="row">
+                {headers.map((header) => (
+                  <div key={`${header.uuid}-${horizons[1].uuid}`} className="col">
+                    <Title label={RadarUtilities.capitalize(horizons[1].name)} type="h5" />
 
-                  <ItemList
-                    setHoveredItem={setHoveredItem}
-                    hoveredItem={hoveredItem}
-                    setSelectedItem={setSelectedItem}
-                    blips={myBlips}
-                    quadrant={header}
-                    horizon={horizons[1]}
-                  />
-                </div>
-              ))}
-            </div>
+                    <ItemList
+                      radarData={radarData}
+                      techFilter={techFilter}
+                      hoveredTech={hoveredTech}
+                      setHoveredItem={setHoveredItem}
+                      hoveredItem={hoveredItem}
+                      setSelectedItem={setSelectedItem}
+                      blips={myBlips}
+                      quadrant={header}
+                      horizon={horizons[1]}
+                    />
+                  </div>
+                ))}
+              </div>
 
-            <div className="row">
-              {headers.map((header) => (
-                <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
-                  <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
+              <div className="row">
+                {headers.map((header) => (
+                  <div key={`${header.uuid}-${horizons[2].uuid}`} className="col">
+                    <Title label={RadarUtilities.capitalize(horizons[2].name)} type="h5" />
 
-                  <ItemList
-                    setHoveredItem={setHoveredItem}
-                    hoveredItem={hoveredItem}
-                    setSelectedItem={setSelectedItem}
-                    blips={myBlips}
-                    quadrant={header}
-                    horizon={horizons[2]}
-                  />
-                </div>
-              ))}
-            </div>
+                    <ItemList
+                      radarData={radarData}
+                      techFilter={techFilter}
+                      hoveredTech={hoveredTech}
+                      setHoveredItem={setHoveredItem}
+                      hoveredItem={hoveredItem}
+                      setSelectedItem={setSelectedItem}
+                      blips={myBlips}
+                      quadrant={header}
+                      horizon={horizons[2]}
+                    />
+                  </div>
+                ))}
+              </div>
 
-            <div className="row">
-              {headers.map((header) => (
-                <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
-                  <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
+              <div className="row">
+                {headers.map((header) => (
+                  <div key={`${header.uuid}-${horizons[3].uuid}`} className="col">
+                    <Title label={RadarUtilities.capitalize(horizons[3].name)} type="h5" />
 
-                  <ItemList
-                    setHoveredItem={setHoveredItem}
-                    hoveredItem={hoveredItem}
-                    setSelectedItem={setSelectedItem}
-                    blips={myBlips}
-                    quadrant={header}
-                    horizon={horizons[3]}
-                  />
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-    );
-  });
+                    <ItemList
+                      radarData={radarData}
+                      techFilter={techFilter}
+                      hoveredTech={hoveredTech}
+                      setHoveredItem={setHoveredItem}
+                      hoveredItem={hoveredItem}
+                      setSelectedItem={setSelectedItem}
+                      blips={myBlips}
+                      quadrant={header}
+                      horizon={horizons[3]}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </section>
+      );
+    }
+  );
