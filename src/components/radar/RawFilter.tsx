@@ -48,12 +48,17 @@ export const RawFilter = Connect<GlobalState, unknown>()
       <div
         style={{
           borderStyle: 'solid',
-          borderColor: 'black',
+          borderTop: 'none',
+          borderColor: 'lightgrey',
+          borderBottomLeftRadius: 5,
+          borderBottomRightRadius: 5,
           borderWidth: 1,
+          marginLeft: 2,
+          marginRight: 2,
           padding: 20,
           paddingTop: 20,
-          borderRadius: 5,
           maxWidth: 300,
+          backgroundColor: 'whitesmoke',
         }}
       >
         <div>Customize Radar</div>
@@ -88,7 +93,7 @@ export const RawFilter = Connect<GlobalState, unknown>()
           <button
             type="button"
             style={{
-              borderColor: 'black',
+              borderColor: 'lightgrey',
               borderWidth: 1,
               borderStyle: 'solid',
               padding: '10px 20px',

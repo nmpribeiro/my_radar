@@ -53,7 +53,7 @@ export const TechItem: React.FC<{
             color: selected ? 'white' : undefined,
             padding: 10,
             border: 1,
-            borderColor: 'black',
+            borderColor: 'lightgrey',
             borderStyle: 'solid',
             borderRadius: 5,
             fontSize: 14,
