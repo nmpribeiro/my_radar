@@ -13,10 +13,12 @@ const RawBlip: React.FC<{
   blip: BlipType;
   scaleFactor?: number;
   hoveredItem: BlipType | null;
+  selectedItem: BlipType | null;
   fillLogic: (blip: BlipType) => string;
   setHoveredItem: (blip: BlipType | null) => void;
+  setSelectedItem: (blip: BlipType | null) => void;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, d3.BaseType>;
-}> = ({ blip, scaleFactor = 1, hoveredItem, fillLogic, setHoveredItem, tooltip }) => (
+}> = ({ blip, scaleFactor = 1, hoveredItem, selectedItem, fillLogic, setHoveredItem, setSelectedItem, tooltip }) => (
   <g
     key={blip.id}
     className="blip"
@@ -38,6 +40,11 @@ const RawBlip: React.FC<{
       event.currentTarget.setAttribute('opacity', '1');
     }}
     onMouseEnter={() => setHoveredItem(blip)}
+    onMouseUp={() => {
+      if (selectedItem && selectedItem.id === blip.id) setSelectedItem(null);
+      else setSelectedItem(blip);
+      setHoveredItem(null);
+    }}
   >
     <circle className="circle" r={6} fill={fillLogic(blip)} />
     <circle
@@ -72,9 +79,11 @@ export const Blips = Connect<GlobalState, Props>()
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
+      selectedItem: selectors(state).selectedItem,
     }),
     {
       setHoveredItem: actions.setHoveredItem,
+      setSelectedItem: actions.setSelectedItem,
     }
   )
   .withComp(
@@ -86,7 +95,9 @@ export const Blips = Connect<GlobalState, Props>()
       useCaseFilter,
       disasterTypeFilter,
       techFilter,
+      selectedItem,
       setHoveredItem,
+      setSelectedItem,
       scaleFactor = 1,
       quadrant = null,
     }) => {
@@ -109,6 +120,11 @@ export const Blips = Connect<GlobalState, Props>()
 
       const fillLogic = (blip: BlipType) => {
         const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
+        if (selectedItem !== null) {
+          if (selectedItem.id === blip.id && tech) return tech.color;
+          return 'rgba(100,100,100,.5)';
+        }
+
         if ((!hoveredItem && techFilter !== 'all') || hoveredItem?.id === blip.id) {
           if (tech) {
             if (hoveredTech === null || hoveredTech === tech?.slug) return tech.color;
@@ -128,12 +144,15 @@ export const Blips = Connect<GlobalState, Props>()
         <>
           {displayBlips.map((blip) => (
             <RawBlip
+              key={blip.id}
               blip={blip}
               tooltip={tooltip}
               fillLogic={fillLogic}
               scaleFactor={scaleFactor}
+              selectedItem={selectedItem}
               hoveredItem={hoveredItem}
               setHoveredItem={setHoveredItem}
+              setSelectedItem={setSelectedItem}
             />
           ))}
         </>

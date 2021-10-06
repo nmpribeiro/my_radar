@@ -113,6 +113,11 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
         }
       }, [blips]);
 
+      const setSelectedItemLogic = (item: BlipType) => {
+        setSelectedItem(item);
+        setHoveredItem(null);
+      };
+
       return (
         <section>
           {techFilter && (
@@ -136,7 +141,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
-                      setSelectedItem={setSelectedItem}
+                      setSelectedItem={setSelectedItemLogic}
                       blips={myBlips.filter(
                         (b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name
                       )}
@@ -166,7 +171,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
-                      setSelectedItem={setSelectedItem}
+                      setSelectedItem={setSelectedItemLogic}
                       blips={myBlips}
                       quadrant={header}
                       horizon={horizons[0]}
@@ -185,7 +190,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
-                      setSelectedItem={setSelectedItem}
+                      setSelectedItem={setSelectedItemLogic}
                       blips={myBlips}
                       quadrant={header}
                       horizon={horizons[1]}
@@ -204,7 +209,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
-                      setSelectedItem={setSelectedItem}
+                      setSelectedItem={setSelectedItemLogic}
                       blips={myBlips}
                       quadrant={header}
                       horizon={horizons[2]}
@@ -223,7 +228,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
-                      setSelectedItem={setSelectedItem}
+                      setSelectedItem={setSelectedItemLogic}
                       blips={myBlips}
                       quadrant={header}
                       horizon={horizons[3]}

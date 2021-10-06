@@ -173,6 +173,7 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
           .filter((q) => q.horizon === 0)
           .map((q) => (
             <text
+              key={`quadrant-text-${q.label}`}
               className={`quadrant-text quadrant-${q.label}`}
               dx={RadarUtilities.quadrants.getX(q, height)}
               dy={RadarUtilities.quadrants.getY(q, width)}
@@ -185,6 +186,7 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
 
         {quads.map((q) => (
           <path
+            key={`quadrant-path-${q.label}-${q.horizon}-${q.quadrant}`}
             className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
             d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
             fill={RadarUtilities.quadrants.fillArcs(q, horizons)?.toString()}

@@ -1,0 +1,35 @@
+.wrapper {
+  position: relative;
+  margin: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.button {
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  background-color: grey;
+  padding: 10px;
+  user-select: none;
+  transition: all 0.4s;
+
+  &:hover {
+    opacity: 0.6;
+  }
+}
+
+.filterBoxCollapsed,
+.filterBoxUncollapsed {
+  overflow: hidden;
+  margin: 0px;
+  margin-top: 2px;
+  transition: all 0.2s;
+}
+
+.filterBoxCollapsed {
+  height: 0;
+}

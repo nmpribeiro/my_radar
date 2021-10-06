@@ -46,7 +46,7 @@ export const TechList = Connect<GlobalState, unknown>()
         });
         setTech(Array.from(newTechMap.values()));
       }
-    }, [blips, useCaseFilter, disasterTypeFilter]);
+    }, [blips, radarData, useCaseFilter, disasterTypeFilter]);
 
     return (
       <div>
