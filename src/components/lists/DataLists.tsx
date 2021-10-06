@@ -17,10 +17,9 @@ type ListMatrixItem = { uuid: string; name: string };
 interface Props {
   radarData: RadarOptionsType;
   quadrant: ListMatrixItem;
-  horizon: ListMatrixItem;
+  horizon?: ListMatrixItem | null;
   blips: BlipType[];
   hoveredItem: BlipType | null;
-  techFilter: string | null;
   hoveredTech: string | null;
   setHoveredItem: (payload: BlipType | null) => void;
   setSelectedItem: (item: BlipType) => void;
@@ -29,10 +28,9 @@ interface Props {
 const ItemList: React.FC<Props> = ({
   radarData,
   quadrant,
-  horizon,
+  horizon = null,
   blips,
   hoveredItem,
-  techFilter,
   hoveredTech,
   setHoveredItem,
   setSelectedItem,
@@ -43,14 +41,14 @@ const ItemList: React.FC<Props> = ({
       const onMouseLeave = () => setHoveredItem(null);
       const getHoveredStyle = () => {
         const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
-        if ((!hoveredItem && techFilter !== 'all') || hoveredItem?.id === blip.id) {
+        if (hoveredItem?.id === blip.id) {
           if (hoveredTech === null || hoveredTech === tech?.slug) return styles.blipItemHovered;
         }
         return '';
       };
-      if (blip.Quadrant === quadrant.name && blip[HORIZONS_KEY] === horizon.name)
+      if (blip[QUADRANT_KEY] === quadrant.name && (horizon === null || blip[HORIZONS_KEY] === horizon.name))
         return (
-          <li key={`${blip.Title}-${quadrant.uuid}-${horizon.uuid}`} className={styles.blipItemWrapper}>
+          <li key={`${blip.Title}-${quadrant.uuid}-${horizon && horizon.uuid}`} className={styles.blipItemWrapper}>
             <button
               className={`${styles.blipItem} ${getHoveredStyle()}`}
               onClick={() => setSelectedItem(blip)}
@@ -133,17 +131,17 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                     style={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', maxWidth: 200 }}
                   >
                     <Title label={RadarUtilities.capitalize(header.name)} type="h4" />
-                    <ul style={{ listStyle: 'none', margin: 0, padding: 0, fontSize: 14, textAlign: 'left' }}>
-                      {blips
-                        .filter((b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name)
-                        .map((blip) => (
-                          <li key={`${blip.Title}-${header.uuid}`} className={styles.blipItemWrapper}>
-                            <button className={styles.blipItem} onClick={() => setSelectedItem(blip)} type="button">
-                              {blip.Title}
-                            </button>
-                          </li>
-                        ))}
-                    </ul>
+                    <ItemList
+                      radarData={radarData}
+                      hoveredTech={hoveredTech}
+                      setHoveredItem={setHoveredItem}
+                      hoveredItem={hoveredItem}
+                      setSelectedItem={setSelectedItem}
+                      blips={myBlips.filter(
+                        (b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name
+                      )}
+                      quadrant={header}
+                    />
                   </div>
                 ))}
               </header>
@@ -165,7 +163,6 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
 
                     <ItemList
                       radarData={radarData}
-                      techFilter={techFilter}
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
@@ -185,7 +182,6 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
 
                     <ItemList
                       radarData={radarData}
-                      techFilter={techFilter}
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
@@ -205,7 +201,6 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
 
                     <ItemList
                       radarData={radarData}
-                      techFilter={techFilter}
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
@@ -225,7 +220,6 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
 
                     <ItemList
                       radarData={radarData}
-                      techFilter={techFilter}
                       hoveredTech={hoveredTech}
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}

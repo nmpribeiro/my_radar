@@ -6,6 +6,7 @@ import { App } from './app/App';
 import { GlobalState } from './store/state';
 import csvData from './assets/techradar_dataset.csv';
 import { actions } from './store/radar/radar.actions';
+import { RadarDataGenerator } from './radar/RadarDataGenerator';
 
 export const Main = Connect<GlobalState, Record<string, unknown>>()
   .stateAndDispatch(() => ({}), {
@@ -19,7 +20,9 @@ export const Main = Connect<GlobalState, Record<string, unknown>>()
 
     return (
       <BrowserRouter>
-        <App />
+        <RadarDataGenerator>
+          <App />
+        </RadarDataGenerator>
       </BrowserRouter>
     );
   });
