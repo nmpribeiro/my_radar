@@ -2,6 +2,7 @@ import React from 'react';
 import { Connect } from 'redux-auto-actions';
 
 import { GlobalState } from '../../store/state';
+import { HORIZONS_KEY, TITLE_KEY } from '../../constants/RadarData';
 import { actions, selectors } from '../../store/radar/radar.actions';
 
 import styles from './BlipPage.module.scss';
@@ -26,7 +27,7 @@ export const BlipPage = Connect<GlobalState>()
           </div>
           <div style={{ display: 'flex' }}>
             <div style={{ justifyContent: 'center', flex: 1 }}>
-              <h1 className={styles.title}>{selectedItem.Title}</h1>
+              <h1 className={styles.title}>{selectedItem[TITLE_KEY]}</h1>
             </div>
           </div>
 
@@ -34,12 +35,12 @@ export const BlipPage = Connect<GlobalState>()
             <div style={{ flexDirection: 'column', flex: 1 }}>
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Title</h4>
-                <div className={styles.paragraph}>{selectedItem.Title}</div>
+                <div className={styles.paragraph}>{selectedItem[TITLE_KEY]}</div>
               </div>
-              <div style={{ flexDirection: 'row', flex: 1 }}>
+              {/* <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Summary</h4>
                 <div className={styles.paragraph}>{selectedItem.Summary}</div>
-              </div>
+              </div> */}
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Description</h4>
@@ -47,7 +48,7 @@ export const BlipPage = Connect<GlobalState>()
               </div>
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Level of implementation</h4>
-                <div className={styles.paragraph}>{selectedItem['Level of implementation']}</div>
+                <div className={styles.paragraph}>{selectedItem[HORIZONS_KEY]}</div>
               </div>
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
@@ -55,8 +56,8 @@ export const BlipPage = Connect<GlobalState>()
                 <div className={styles.paragraph}>{selectedItem.Description}</div>
               </div>
               <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>Origin</h4>
-                <div className={styles.paragraph}>{selectedItem.Origin}</div>
+                <h4>Un Host Organisation</h4>
+                <div className={styles.paragraph}>{selectedItem['Un Host Organisation']}</div>
               </div>
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
@@ -72,7 +73,7 @@ export const BlipPage = Connect<GlobalState>()
             <div style={{ flexDirection: 'column', flex: 1 }}>
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Use case</h4>
-                <div className={styles.paragraph}>{selectedItem['Use case']}</div>
+                <div className={styles.paragraph}>{selectedItem['Use Case']}</div>
               </div>
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
@@ -80,10 +81,10 @@ export const BlipPage = Connect<GlobalState>()
                 <div className={styles.paragraph}>{selectedItem.Source}</div>
               </div>
               <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>SDG goal</h4>
-                <div className={styles.paragraph}>{selectedItem['SDG goal']}</div>
+                <h4>SDG goal(s)</h4>
+                <div className={styles.paragraph}>{selectedItem.SDG.concat()}</div>
               </div>
-              <div style={{ flexDirection: 'row', flex: 1 }}>
+              {/* <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Organization</h4>
                 <div className={styles.paragraph}>{selectedItem.Organization}</div>
               </div>
@@ -91,16 +92,16 @@ export const BlipPage = Connect<GlobalState>()
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Developer</h4>
                 <div className={styles.paragraph}>{selectedItem.Developer}</div>
-              </div>
+              </div> */}
 
-              <div style={{ flexDirection: 'row', flex: 1 }}>
+              {/* <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Implementer</h4>
                 <div className={styles.paragraph}>{selectedItem.Implementer}</div>
-              </div>
+              </div> */}
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Partner</h4>
-                <div className={styles.paragraph}>{selectedItem.Partner}</div>
+                <div className={styles.paragraph}>{selectedItem['Supporting Partners']}</div>
               </div>
             </div>
           </div>

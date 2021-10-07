@@ -29,14 +29,18 @@ const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[
   const newTechItems: Map<string, TechItemType> = new Map();
 
   rawBlipData.forEach((val) => {
-    if (!newTechItems.has(val[TECH_KEY]))
-      newTechItems.set(val[TECH_KEY], {
-        uuid: uuidv4(),
-        color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
-        type: val[TECH_KEY],
-        slug: Utilities.createSlug(val[TECH_KEY]),
-        description: loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 }),
-      });
+    const valTechs: string[] = val[TECH_KEY] as string[];
+
+    valTechs.forEach((tech) => {
+      if (!newTechItems.has(tech))
+        newTechItems.set(tech, {
+          uuid: uuidv4(),
+          color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
+          type: tech,
+          slug: Utilities.createSlug(tech),
+          description: loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 }),
+        });
+    });
   });
 
   return Array.from(newTechItems.values());
@@ -122,11 +126,14 @@ const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): QuadrantKey[] =>
 const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
   const newUseCases: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
-    if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY]))
-      newUseCases.set(val[USE_CASE_KEY], {
-        uuid: uuidv4(),
-        name: val[USE_CASE_KEY],
-      } as SelectableItem);
+    if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY] as string))
+      newUseCases.set(
+        val[USE_CASE_KEY] as string,
+        {
+          uuid: uuidv4(),
+          name: val[USE_CASE_KEY],
+        } as SelectableItem
+      );
   });
   return Array.from(newUseCases.values());
 };
@@ -134,11 +141,14 @@ const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
 const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   const newDisterTypes: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
-    if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY]))
-      newDisterTypes.set(val[DISASTER_TYPE_KEY], {
-        uuid: uuidv4(),
-        name: val[DISASTER_TYPE_KEY],
-      } as SelectableItem);
+    if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY] as string))
+      newDisterTypes.set(
+        val[DISASTER_TYPE_KEY] as string,
+        {
+          uuid: uuidv4(),
+          name: val[DISASTER_TYPE_KEY],
+        } as SelectableItem
+      );
   });
   return Array.from(newDisterTypes.values());
 };

@@ -7,7 +7,7 @@ import { GlobalState } from '../../store/state';
 import { Utilities } from '../../helpers/Utilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
 import { RadarUtilities } from '../../radar/utilities/Utilities';
-import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY } from '../../constants/RadarData';
+import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import './DataLists.scss';
 import styles from './BlipItemList.module.scss';
@@ -48,7 +48,7 @@ const ItemList: React.FC<Props> = ({
       };
       if (blip[QUADRANT_KEY] === quadrant.name && (horizon === null || blip[HORIZONS_KEY] === horizon.name))
         return (
-          <li key={`${blip.Title}-${quadrant.uuid}-${horizon && horizon.uuid}`} className={styles.blipItemWrapper}>
+          <li key={`${blip[TITLE_KEY]}-${quadrant.uuid}-${horizon && horizon.uuid}`} className={styles.blipItemWrapper}>
             <button
               className={`${styles.blipItem} ${getHoveredStyle()}`}
               onClick={() => setSelectedItem(blip)}
@@ -56,7 +56,7 @@ const ItemList: React.FC<Props> = ({
               onMouseEnter={onMouseEnter}
               onMouseLeave={onMouseLeave}
             >
-              {blip.Title}
+              {blip[TITLE_KEY]}
             </button>
           </li>
         );
@@ -142,9 +142,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
                       setSelectedItem={setSelectedItemLogic}
-                      blips={myBlips.filter(
-                        (b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name
-                      )}
+                      blips={myBlips.filter((b) => Utilities.checkItemHasTech(b, techFilter) && b[QUADRANT_KEY] === header.name)}
                       quadrant={header}
                     />
                   </div>
