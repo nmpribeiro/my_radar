@@ -6,8 +6,9 @@ export const TechItem: React.FC<{
   tech: TechItemType;
   selected: boolean;
   setTechFilter: (techSlug: string | null) => void;
+  setHoveredTech: (techSlug: string | null) => void;
   hoveredItem: BlipType | null;
-}> = ({ tech, selected, setTechFilter, hoveredItem }) => {
+}> = ({ tech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
   const selectTech = () => setTechFilter(tech.slug);
 
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
@@ -16,8 +17,14 @@ export const TechItem: React.FC<{
     setBackgroundColor(selected || hoveredItem?.Technology === tech.type ? tech.color : undefined);
   }, [tech, selected, hoveredItem]);
 
-  const changeBackgroundEnter = () => setBackgroundColor(selected ? tech.color : tech.color);
-  const changeBackgroundLeave = () => setBackgroundColor(selected ? tech.color : undefined);
+  const changeBackgroundEnter = () => {
+    setHoveredTech(tech.slug);
+    setBackgroundColor(selected ? tech.color : tech.color);
+  };
+  const changeBackgroundLeave = () => {
+    setHoveredTech(null);
+    setBackgroundColor(selected ? tech.color : undefined);
+  };
 
   return (
     <button
@@ -46,7 +53,7 @@ export const TechItem: React.FC<{
             color: selected ? 'white' : undefined,
             padding: 10,
             border: 1,
-            borderColor: 'black',
+            borderColor: 'lightgrey',
             borderStyle: 'solid',
             borderRadius: 5,
             fontSize: 14,

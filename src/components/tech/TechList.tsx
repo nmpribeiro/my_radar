@@ -14,16 +14,17 @@ export const TechList = Connect<GlobalState, unknown>()
     (state) => ({
       blips: selectors(state).blips,
       radarData: selectors(state).radarData,
-      useCaseFilter: selectors(state).useCaseFilter,
-      disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
       hoveredItem: selectors(state).hoveredItem,
+      useCaseFilter: selectors(state).useCaseFilter,
+      disasterTypeFilter: selectors(state).disasterTypeFilter,
     }),
     {
       setTechFilter: actions.setTechFilter,
+      setHoveredTech: actions.setHoveredTech,
     }
   )
-  .withComp(({ blips, radarData, useCaseFilter, disasterTypeFilter, setTechFilter, techFilter, hoveredItem }) => {
+  .withComp(({ blips, radarData, techFilter, hoveredItem, useCaseFilter, disasterTypeFilter, setTechFilter, setHoveredTech }) => {
     const [tech, setTech] = useState<TechItemType[]>([]);
 
     const resetTech = () => setTechFilter(null);
@@ -45,7 +46,7 @@ export const TechList = Connect<GlobalState, unknown>()
         });
         setTech(Array.from(newTechMap.values()));
       }
-    }, [blips, useCaseFilter, disasterTypeFilter]);
+    }, [blips, radarData, useCaseFilter, disasterTypeFilter]);
 
     return (
       <div>
@@ -53,6 +54,7 @@ export const TechList = Connect<GlobalState, unknown>()
         {tech.map((t) => (
           <TechItem
             key={t.uuid}
+            setHoveredTech={setHoveredTech}
             hoveredItem={hoveredItem}
             tech={t}
             selected={t.slug === techFilter}

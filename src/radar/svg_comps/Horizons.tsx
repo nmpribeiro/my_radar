@@ -18,9 +18,6 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
   const { horizonShiftRadius } = radarOptions;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - horizonShiftRadius) / horizons.length;
-  // const quadAngle = (2 * Math.PI) / quadrants.length;
-  // const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
-  // const data = radarData;
 
   const quads: QuadsType[] = [];
   for (let i = 0, ilen = quadrants.length; i < ilen; i++) {
@@ -132,6 +129,49 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
   const quadAngle = (2 * Math.PI) / quadrants.length;
   return (
     <>
+      <g className="quadrants">
+        {quadrants.map((q, i) => (
+          <line
+            key={`quadrant-${q}`}
+            className={`quadrant quadarant-${q.toLowerCase().replace(/ /, '-')}`}
+            x1={0}
+            y1={0}
+            x2={Math.cos(quadAngle * i) * horizonWidth}
+            y2={Math.sin(quadAngle * i) * horizonWidth}
+            stroke="rgba(0,0,0,1)"
+            strokeWidth={5}
+            fill="none"
+          />
+        ))}
+
+        {quads
+          .filter((q) => q.horizon === 0)
+          .map((q) => (
+            <text
+              key={`quadrant-text-${q.label}`}
+              className={`quadrant-text quadrant-${q.label}`}
+              dx={RadarUtilities.quadrants.getX(q, height)}
+              dy={RadarUtilities.quadrants.getY(q, width)}
+              textAnchor={RadarUtilities.quadrants.getLabelAnchor(q)}
+              onMouseUp={() => context.logic.setSelectedQuadrant(q.label)}
+            >
+              {RadarUtilities.capitalize(q.label)}
+            </text>
+          ))}
+
+        {quads.map((q) => (
+          <path
+            key={`quadrant-path-${q.label}-${q.horizon}-${q.quadrant}`}
+            className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
+            d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
+            fill={RadarUtilities.quadrants.fillArcs(q, horizons)?.toString()}
+            strokeWidth={0.2}
+            stroke="grey"
+            // fill="none"
+          />
+        ))}
+        <Blips quadrant={quadrant} />
+      </g>
       <g className="horizons">
         {horizons.map((h, i) => (
           <circle
@@ -156,43 +196,6 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
             {RadarUtilities.capitalize(h)}
           </text>
         ))}
-      </g>
-      <g className="quadrants">
-        {quadrants.map((q, i) => (
-          <line
-            key={`quadrant-${q}`}
-            className={`quadrant quadarant-${q.toLowerCase().replace(/ /, '-')}`}
-            x1={0}
-            y1={0}
-            x2={Math.cos(quadAngle * i) * horizonWidth}
-            y2={Math.sin(quadAngle * i) * horizonWidth}
-            stroke="rgba(0,0,0,1)"
-            strokeWidth={5}
-          />
-        ))}
-
-        {quads
-          .filter((q) => q.horizon === 0)
-          .map((q) => (
-            <text
-              className={`quadrant-text quadrant-${q.label}`}
-              dx={RadarUtilities.quadrants.getX(q, height)}
-              dy={RadarUtilities.quadrants.getY(q, width)}
-              textAnchor={RadarUtilities.quadrants.getLabelAnchor(q)}
-              onMouseUp={() => context.logic.setSelectedQuadrant(q.label)}
-            >
-              {RadarUtilities.capitalize(q.label)}
-            </text>
-          ))}
-
-        {quads.map((q) => (
-          <path
-            className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
-            d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
-            fill={RadarUtilities.quadrants.fillArcs(q, quadrants)?.toString()}
-          />
-        ))}
-        <Blips quadrant={quadrant} />
       </g>
     </>
   );

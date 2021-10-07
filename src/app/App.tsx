@@ -51,6 +51,6 @@ export const App = Connect<GlobalState>()
         </Layout>
       )}
       {!selectedQuadrant && selectedItem && <BlipPage />}
-      {selectedQuadrant && !selectedItem && <QuadrantPage />}
+      {selectedQuadrant && <QuadrantPage />}
     </div>
   ));

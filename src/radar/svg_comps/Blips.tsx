@@ -13,10 +13,12 @@ const RawBlip: React.FC<{
   blip: BlipType;
   scaleFactor?: number;
   hoveredItem: BlipType | null;
+  selectedItem: BlipType | null;
   fillLogic: (blip: BlipType) => string;
   setHoveredItem: (blip: BlipType | null) => void;
+  setSelectedItem: (blip: BlipType | null) => void;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, d3.BaseType>;
-}> = ({ blip, tooltip, fillLogic, scaleFactor = 1, hoveredItem, setHoveredItem }) => (
+}> = ({ blip, scaleFactor = 1, hoveredItem, selectedItem, fillLogic, setHoveredItem, setSelectedItem, tooltip }) => (
   <g
     key={blip.id}
     className="blip"
@@ -38,17 +40,22 @@ const RawBlip: React.FC<{
       event.currentTarget.setAttribute('opacity', '1');
     }}
     onMouseEnter={() => setHoveredItem(blip)}
+    onMouseUp={() => {
+      if (selectedItem && selectedItem.id === blip.id) setSelectedItem(null);
+      else setSelectedItem(blip);
+      setHoveredItem(null);
+    }}
   >
-    <circle r={6} fill={fillLogic(blip)} />
+    <circle className="circle" r={6} fill={fillLogic(blip)} />
     <circle
-      className={hoveredItem?.id === blip.id ? 'circle-pulse1' : ''}
+      className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse1' : ''}`}
       r={8}
       strokeWidth={1.5}
       stroke={fillLogic(blip)}
       fill="none"
     />
     <circle
-      className={hoveredItem?.id === blip.id ? 'circle-pulse2' : ''}
+      className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse2' : ''}`}
       r={11}
       strokeWidth={0.5}
       stroke={fillLogic(blip)}
@@ -68,12 +75,15 @@ export const Blips = Connect<GlobalState, Props>()
       blips: selectors(state).blips,
       radarData: selectors(state).radarData,
       hoveredItem: selectors(state).hoveredItem,
+      hoveredTech: selectors(state).hoveredTech,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
       techFilter: selectors(state).techFilter,
+      selectedItem: selectors(state).selectedItem,
     }),
     {
       setHoveredItem: actions.setHoveredItem,
+      setSelectedItem: actions.setSelectedItem,
     }
   )
   .withComp(
@@ -81,10 +91,13 @@ export const Blips = Connect<GlobalState, Props>()
       blips,
       radarData,
       hoveredItem,
+      hoveredTech,
       useCaseFilter,
       disasterTypeFilter,
       techFilter,
+      selectedItem,
       setHoveredItem,
+      setSelectedItem,
       scaleFactor = 1,
       quadrant = null,
     }) => {
@@ -107,8 +120,17 @@ export const Blips = Connect<GlobalState, Props>()
 
       const fillLogic = (blip: BlipType) => {
         const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
-        if (tech) return tech.color;
-        return '';
+        if (selectedItem !== null) {
+          if (selectedItem.id === blip.id && tech) return tech.color;
+          return 'rgba(100,100,100,.5)';
+        }
+
+        if ((!hoveredItem && techFilter !== 'all') || hoveredItem?.id === blip.id) {
+          if (tech) {
+            if (hoveredTech === null || hoveredTech === tech?.slug) return tech.color;
+          }
+        }
+        return 'rgba(100,100,100,.5)';
       };
 
       // Add a div
@@ -122,12 +144,15 @@ export const Blips = Connect<GlobalState, Props>()
         <>
           {displayBlips.map((blip) => (
             <RawBlip
+              key={blip.id}
               blip={blip}
-              scaleFactor={scaleFactor}
               tooltip={tooltip}
               fillLogic={fillLogic}
-              setHoveredItem={setHoveredItem}
+              scaleFactor={scaleFactor}
+              selectedItem={selectedItem}
               hoveredItem={hoveredItem}
+              setHoveredItem={setHoveredItem}
+              setSelectedItem={setSelectedItem}
             />
           ))}
         </>

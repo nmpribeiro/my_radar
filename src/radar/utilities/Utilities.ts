@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { v4 as uuidv4 } from 'uuid';
 import * as d3 from 'd3';
 // Lorem Ipsum from https://fatihtelis.github.io/react-lorem-ipsum/
@@ -14,6 +13,9 @@ import {
   TECH_KEY,
   USE_CASE_KEY,
 } from '../../constants/RadarData';
+
+import { PoissonAlgo } from './poisson_dist/PoissonAlgo';
+import { Vector2D } from './poisson_dist/Vector2D';
 
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
@@ -51,6 +53,13 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
+  // we need multiple poissonDists
+  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 20 });
+  poissonDist.setup();
+  poissonDist.sample(10000);
+
+  const usedItems: Map<string, Vector2D> = new Map();
+
   rawBlips.forEach((blip) => {
     // TODO: get them a bit more appart
     // for instance: (quantize the area and assign to each square)
@@ -59,7 +68,7 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
     const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY] as QuadrantKey) - 1;
     const minAngle = quadrantIndex * (Math.PI / 2) + data.radarOptions.circlePadding;
     const maxAngle = quadrantIndex * (Math.PI / 2) + Math.PI / 2 - data.radarOptions.circlePadding;
-    const angle = randomFromInterval(minAngle, maxAngle);
+    let angle = randomFromInterval(minAngle, maxAngle);
 
     // get radius
     const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY] as HorizonKey) + 1;
@@ -70,15 +79,25 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
       (horizonIndex === 0 ? 0 : data.radarOptions.horizonShiftRadius) +
       data.radarOptions.radiusPadding;
 
-    const radius = randomFromInterval(innerRadius, outerRadius);
+    let radius = randomFromInterval(innerRadius, outerRadius);
+    let x = radius * Math.cos(angle);
+    let y = radius * Math.sin(angle);
 
-    results.push({
-      ...blip,
-      id: uuidv4(),
-      quadrantIndex,
-      x: radius * Math.cos(angle),
-      y: radius * Math.sin(angle),
-    });
+    let item: Vector2D | null = poissonDist.getNearesGridItem({ x, y }) || null;
+    let counter = 0;
+    while (item === null) {
+      if (counter > 10) break;
+      angle = randomFromInterval(minAngle, maxAngle);
+      radius = randomFromInterval(innerRadius, outerRadius);
+      x = radius * Math.cos(angle);
+      y = radius * Math.sin(angle);
+      item = poissonDist.getNearesGridItem({ x, y }) || null;
+      if (usedItems.has(item.id)) item = null;
+      else usedItems.set(item.id, item);
+      counter++;
+    }
+
+    results.push({ ...blip, id: uuidv4(), quadrantIndex, x: item?.x || x, y: item?.y || y });
   });
 
   return results;
@@ -128,21 +147,15 @@ const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityO
 const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
 
 const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataBlipsAndLogic => {
-  const radarData = { ...passedRadarData };
-
-  const newHorizons = getHorizons(rawBlips);
-  radarData.horizons = newHorizons.sort(orderHorizons);
-
-  const newQuadrants = getQuadrants(rawBlips);
-  radarData.quadrants = newQuadrants.sort(orderQuadrants);
-
-  const techItems = getTechnologies(rawBlips);
-  radarData.tech = techItems;
-
-  const blips: BlipType[] = processBlips(radarData, rawBlips);
+  const radarData: RadarOptionsType = {
+    ...passedRadarData,
+    horizons: getHorizons(rawBlips).sort(orderHorizons),
+    quadrants: getQuadrants(rawBlips).sort(orderQuadrants),
+    tech: getTechnologies(rawBlips),
+  };
   return {
     radarData,
-    blips,
+    blips: processBlips(radarData, rawBlips),
     logic: {
       setHoveredItem: () => {},
       setSelectedItem: () => {},
@@ -174,13 +187,12 @@ const drawArcs: (h: QuadsType, horizonUnit: number, horizonShiftRadius?: number,
     .startAngle((d) => d.quadrant * (Math.PI / 2))
     .endAngle((d) => d.quadrant * (Math.PI / 2) + Math.PI / 2)(h) || null;
 
-const thisColorScale = d3.scaleOrdinal(d3.schemePastel1);
+const thisColorScale = d3.scaleOrdinal(d3.schemePastel2);
 
 const fillArcs = (d: QuadsType, horizons: unknown[]): RgbOut => {
-  const quadrantInput = d.quadrant * 0.4;
-  const brighter = (d.horizon / horizons.length) * 0.7 + 0.2;
+  const quadrantInput = d.label;
+  const brighter = (d.horizon / horizons.length) * 0.7;
   const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
-  // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
   return result as unknown as RgbOut;
 };
 

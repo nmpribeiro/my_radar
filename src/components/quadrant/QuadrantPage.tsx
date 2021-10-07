@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
 
 import { GlobalState } from '../../store/state';
-import { RadarSVG } from '../../radar/RadarSVG';
+import { RadarSVG } from '../../radar/svg_comps/RadarSVG';
 import { Layout } from '../../app/layout/Layout';
 import { LeftColumn } from '../../app/layout/LeftColumn';
 import { RightColumn } from '../../app/layout/RightColumn';
@@ -40,10 +40,6 @@ export const QuadrantPage = Connect<GlobalState>()
       setSelectedQuadrant,
     }) => {
       const [filtered, setFiltered] = useState<BlipType[]>([]);
-      useEffect(() => {
-        // eslint-disable-next-line no-console
-        console.log('selectedQuadrant: ', selectedQuadrant);
-      }, [selectedQuadrant]);
 
       useEffect(() => {
         let newFiltered = blips;
