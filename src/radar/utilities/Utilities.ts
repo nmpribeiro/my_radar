@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { v4 as uuidv4 } from 'uuid';
 import * as d3 from 'd3';
 // Lorem Ipsum from https://fatihtelis.github.io/react-lorem-ipsum/
@@ -97,7 +96,6 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
       else usedItems.set(item.id, item);
       counter++;
     }
-    console.log(counter, item);
 
     results.push({ ...blip, id: uuidv4(), quadrantIndex, x: item?.x || x, y: item?.y || y });
   });
@@ -195,7 +193,6 @@ const fillArcs = (d: QuadsType, horizons: unknown[]): RgbOut => {
   const quadrantInput = d.label;
   const brighter = (d.horizon / horizons.length) * 0.7;
   const result = d3.rgb(thisColorScale(quadrantInput.toString())).brighter(brighter);
-  // console.log(i, quadrantInput.toString(), d.horizon / data.horizons.length, brighter, result);
   return result as unknown as RgbOut;
 };
 

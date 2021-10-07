@@ -40,10 +40,6 @@ export const QuadrantPage = Connect<GlobalState>()
       setSelectedQuadrant,
     }) => {
       const [filtered, setFiltered] = useState<BlipType[]>([]);
-      useEffect(() => {
-        // eslint-disable-next-line no-console
-        console.log('selectedQuadrant: ', selectedQuadrant);
-      }, [selectedQuadrant]);
 
       useEffect(() => {
         let newFiltered = blips;
