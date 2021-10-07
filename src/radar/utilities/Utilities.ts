@@ -16,6 +16,7 @@ import {
 } from '../../constants/RadarData';
 
 import { PoissonAlgo } from './poisson_dist/PoissonAlgo';
+import { Vector2D } from './poisson_dist/Vector2D';
 
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
@@ -58,6 +59,8 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   poissonDist.setup();
   poissonDist.sample(10000);
 
+  const usedItems: Map<string, Vector2D> = new Map();
+
   rawBlips.forEach((blip) => {
     // TODO: get them a bit more appart
     // for instance: (quantize the area and assign to each square)
@@ -66,7 +69,7 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
     const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY] as QuadrantKey) - 1;
     const minAngle = quadrantIndex * (Math.PI / 2) + data.radarOptions.circlePadding;
     const maxAngle = quadrantIndex * (Math.PI / 2) + Math.PI / 2 - data.radarOptions.circlePadding;
-    const angle = randomFromInterval(minAngle, maxAngle);
+    let angle = randomFromInterval(minAngle, maxAngle);
 
     // get radius
     const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY] as HorizonKey) + 1;
@@ -77,15 +80,26 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
       (horizonIndex === 0 ? 0 : data.radarOptions.horizonShiftRadius) +
       data.radarOptions.radiusPadding;
 
-    const radius = randomFromInterval(innerRadius, outerRadius);
+    let radius = randomFromInterval(innerRadius, outerRadius);
+    let x = radius * Math.cos(angle);
+    let y = radius * Math.sin(angle);
 
-    results.push({
-      ...blip,
-      id: uuidv4(),
-      quadrantIndex,
-      x: radius * Math.cos(angle),
-      y: radius * Math.sin(angle),
-    });
+    let item: Vector2D | null = poissonDist.getNearesGridItem({ x, y }) || null;
+    let counter = 0;
+    while (item === null) {
+      if (counter > 10) break;
+      angle = randomFromInterval(minAngle, maxAngle);
+      radius = randomFromInterval(innerRadius, outerRadius);
+      x = radius * Math.cos(angle);
+      y = radius * Math.sin(angle);
+      item = poissonDist.getNearesGridItem({ x, y }) || null;
+      if (usedItems.has(item.id)) item = null;
+      else usedItems.set(item.id, item);
+      counter++;
+    }
+    console.log(counter, item);
+
+    results.push({ ...blip, id: uuidv4(), quadrantIndex, x: item?.x || x, y: item?.y || y });
   });
 
   return results;
