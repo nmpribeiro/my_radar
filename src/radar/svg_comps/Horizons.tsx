@@ -129,31 +129,6 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
   const quadAngle = (2 * Math.PI) / quadrants.length;
   return (
     <>
-      <g className="horizons">
-        {horizons.map((h, i) => (
-          <circle
-            key={`horizon-${h}`}
-            className="horizon"
-            r={(i + 1) * horizonUnit + horizonShiftRadius}
-            cx={0}
-            cy={0}
-            fill="none"
-            stroke="grey"
-          />
-        ))}
-        {horizons.map((h, i) => (
-          <text
-            key={`horizon-${h}`}
-            className={`horizon-text horizon-${h}`}
-            textAnchor="middle"
-            dx={(i + 1) * horizonUnit - horizonUnit / 2 + (i === 0 ? horizonShiftRadius / 2 : horizonShiftRadius)}
-            dy={10}
-            style={{ fontSize: quadrant ? 14 : 10 }}
-          >
-            {RadarUtilities.capitalize(h)}
-          </text>
-        ))}
-      </g>
       <g className="quadrants">
         {quadrants.map((q, i) => (
           <line
@@ -196,6 +171,31 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
           />
         ))}
         <Blips quadrant={quadrant} />
+      </g>
+      <g className="horizons">
+        {horizons.map((h, i) => (
+          <circle
+            key={`horizon-${h}`}
+            className="horizon"
+            r={(i + 1) * horizonUnit + horizonShiftRadius}
+            cx={0}
+            cy={0}
+            fill="none"
+            stroke="grey"
+          />
+        ))}
+        {horizons.map((h, i) => (
+          <text
+            key={`horizon-${h}`}
+            className={`horizon-text horizon-${h}`}
+            textAnchor="middle"
+            dx={(i + 1) * horizonUnit - horizonUnit / 2 + (i === 0 ? horizonShiftRadius / 2 : horizonShiftRadius)}
+            dy={10}
+            style={{ fontSize: quadrant ? 14 : 10 }}
+          >
+            {RadarUtilities.capitalize(h)}
+          </text>
+        ))}
       </g>
     </>
   );
