@@ -15,6 +15,8 @@ import {
   USE_CASE_KEY,
 } from '../../constants/RadarData';
 
+import { PoissonAlgo } from './poisson_dist/PoissonAlgo';
+
 /* eslint-disable no-plusplus */
 const blipsSorting = (a: BlipType, b: BlipType): number => {
   if (a.quadrantIndex < b.quadrantIndex) return -1;
@@ -50,6 +52,11 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   const height = data.height || 600;
   const horizonWidth = (0.95 * (width > height ? height : width)) / 2;
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
+
+  // we need multiple poissonDists
+  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 20 });
+  poissonDist.setup();
+  poissonDist.sample(10000);
 
   rawBlips.forEach((blip) => {
     // TODO: get them a bit more appart
@@ -128,21 +135,15 @@ const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityO
 const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
 
 const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataBlipsAndLogic => {
-  const radarData = { ...passedRadarData };
-
-  const newHorizons = getHorizons(rawBlips);
-  radarData.horizons = newHorizons.sort(orderHorizons);
-
-  const newQuadrants = getQuadrants(rawBlips);
-  radarData.quadrants = newQuadrants.sort(orderQuadrants);
-
-  const techItems = getTechnologies(rawBlips);
-  radarData.tech = techItems;
-
-  const blips: BlipType[] = processBlips(radarData, rawBlips);
+  const radarData: RadarOptionsType = {
+    ...passedRadarData,
+    horizons: getHorizons(rawBlips).sort(orderHorizons),
+    quadrants: getQuadrants(rawBlips).sort(orderQuadrants),
+    tech: getTechnologies(rawBlips),
+  };
   return {
     radarData,
-    blips,
+    blips: processBlips(radarData, rawBlips),
     logic: {
       setHoveredItem: () => {},
       setSelectedItem: () => {},
