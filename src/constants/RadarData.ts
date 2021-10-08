@@ -1,9 +1,11 @@
 // Radar constants
 const DEFAULT_WIDTH = 800;
 const DEFAULT_HEIGHT = 600;
-const HORIZON_SHIFT_RADIUS = 30;
-const RADIUS_PADDING = 10;
+const HORIZON_SHIFT_RADIUS = 50;
+const RADIUS_PADDING = 15;
 const CIRCLE_PADDING = Math.PI / 18;
+
+export const MAX_TRIES_TO_FIND_SPOT_PER_BLIP = 50;
 
 export const DEFAULT_TITLE = 'Technology Radar';
 

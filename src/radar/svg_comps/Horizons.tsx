@@ -120,7 +120,9 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
               />
             </React.Fragment>
           ))}
-          <Blips quadrant={quadrant} scaleFactor={SCALE_FAC} blipSize={0.8} />
+          <g className="blips">
+            <Blips quadrant={quadrant} scaleFactor={SCALE_FAC} blipSize={0.8} />
+          </g>
         </g>
       </>
     );
@@ -170,7 +172,6 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
             // fill="none"
           />
         ))}
-        <Blips quadrant={quadrant} blipSize={0.6} />
       </g>
       <g className="horizons">
         {horizons.map((h, i) => (
@@ -196,6 +197,9 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
             {RadarUtilities.capitalize(h)}
           </text>
         ))}
+      </g>
+      <g className="blips">
+        <Blips quadrant={quadrant} blipSize={0.6} />
       </g>
     </>
   );

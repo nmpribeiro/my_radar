@@ -20,52 +20,63 @@ const RawBlip: React.FC<{
   setHoveredItem: (blip: BlipType | null) => void;
   setSelectedItem: (blip: BlipType | null) => void;
   tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, d3.BaseType>;
-}> = ({ blip, blipSize = 1, scaleFactor = 1, hoveredItem, selectedItem, getFill, setHoveredItem, setSelectedItem, tooltip }) => (
-  <g
-    key={blip.id}
-    className="blip"
-    id={`blip-${blip.id}`}
-    transform={`translate(${blip.x * scaleFactor}, ${blip.y * scaleFactor})`}
-    cursor="pointer"
-    onMouseOver={(event) => {
-      tooltip.transition().duration(200).style('opacity', 0.9);
-      tooltip
-        .html(`<h4>${blip[TITLE_KEY]}</h4>`)
-        .style('left', `${event.pageX + 15}px`)
-        .style('top', `${event.pageY - 10}px`);
-      event.currentTarget.setAttribute('opacity', '0.5');
-    }}
-    onMouseMove={(event) => tooltip.style('left', `${event.pageX + 15}px`).style('top', `${event.pageY - 10}px`)}
-    onMouseOut={(event) => {
-      setHoveredItem(null);
-      tooltip.transition().duration(250).style('opacity', 0);
-      event.currentTarget.setAttribute('opacity', '1');
-    }}
-    onMouseEnter={() => setHoveredItem(blip)}
-    onMouseUp={() => {
-      if (selectedItem && selectedItem.id === blip.id) setSelectedItem(null);
-      else setSelectedItem(blip);
-      setHoveredItem(null);
-    }}
-  >
-    <circle className="circle" r={6 * blipSize} fill={getFill(blip, 0)} />
-    {/* https://codepen.io/riccardoscalco/pen/GZzZRz */}
-    <circle
-      className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse1' : ''}`}
-      r={8 * blipSize}
-      strokeWidth={1.5 * blipSize}
-      stroke={getFill(blip, 1)}
-      fill="none"
-    />
-    <circle
-      className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse2' : ''}`}
-      r={11 * blipSize}
-      strokeWidth={0.5 * blipSize}
-      stroke={getFill(blip, 2)}
-      fill="transparent"
-    />
-  </g>
-);
+}> = ({ blip, blipSize = 1, scaleFactor = 1, hoveredItem, selectedItem, getFill, setHoveredItem, setSelectedItem, tooltip }) => {
+  const openToolTip = () => {
+    tooltip.attr('display', 'initial');
+    tooltip.transition().duration(200).style('opacity', 0.9);
+  };
+  const closeTooltip = () => {
+    setHoveredItem(null);
+    const transition = tooltip.transition().duration(250);
+    transition.style('opacity', 0);
+    transition.end().then(() => tooltip.attr('display', 'none'));
+  };
+  return (
+    <g
+      key={blip.id}
+      className="blip"
+      id={`blip-${blip.id}`}
+      transform={`translate(${blip.x * scaleFactor}, ${blip.y * scaleFactor})`}
+      cursor="pointer"
+      onMouseOver={(event) => {
+        openToolTip();
+        tooltip
+          .html(`<h4>${blip[TITLE_KEY]}</h4>`)
+          .style('left', `${event.pageX + 15}px`)
+          .style('top', `${event.pageY - 10}px`);
+        event.currentTarget.setAttribute('opacity', '0.5');
+      }}
+      onMouseMove={(event) => tooltip.style('left', `${event.pageX + 15}px`).style('top', `${event.pageY - 10}px`)}
+      onMouseOut={(event) => {
+        closeTooltip();
+        event.currentTarget.setAttribute('opacity', '1');
+      }}
+      onMouseEnter={() => setHoveredItem(blip)}
+      onMouseUp={() => {
+        if (selectedItem && selectedItem.id === blip.id) setSelectedItem(null);
+        else setSelectedItem(blip);
+        closeTooltip();
+      }}
+    >
+      <circle className="circle" r={6 * blipSize} fill={getFill(blip, 0)} />
+      {/* https://codepen.io/riccardoscalco/pen/GZzZRz */}
+      <circle
+        className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse1' : ''}`}
+        r={8 * blipSize}
+        strokeWidth={1.5 * blipSize}
+        stroke={getFill(blip, 1)}
+        fill="none"
+      />
+      <circle
+        className={`circle ${hoveredItem?.id === blip.id ? 'circle-pulse2' : ''}`}
+        r={11 * blipSize}
+        strokeWidth={0.5 * blipSize}
+        stroke={getFill(blip, 2)}
+        fill="transparent"
+      />
+    </g>
+  );
+};
 
 interface Props {
   quadrant?: QuadrantKey | null;

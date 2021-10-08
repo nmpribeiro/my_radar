@@ -93,9 +93,12 @@ export const BlipPage = Connect<GlobalState>()
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Source</h4>
                 <div className={styles.paragraph}>
-                  <a href={selectedItem.Source} target="_blank" rel="noreferrer">
-                    {selectedItem.Source}
-                  </a>
+                  {selectedItem.Source === 'No Information' && selectedItem.Source}
+                  {selectedItem.Source !== 'No Information' && (
+                    <a href={selectedItem.Source} target="_blank" rel="noreferrer">
+                      {selectedItem.Source}
+                    </a>
+                  )}
                 </div>
               </div>
               <div style={{ flexDirection: 'row', flex: 1 }}>
