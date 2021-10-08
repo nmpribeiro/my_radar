@@ -2,6 +2,7 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 
 import { GlobalState } from '../state';
+import { Utilities } from '../../helpers/Utilities';
 import { CSVManager, getCSVFileFromUrl } from '../../services/CSVManager';
 
 import { ActionType, radarModule, RadarState } from './radar.state';
@@ -74,10 +75,10 @@ type RadarThunks<R> = ThunkAction<R, GlobalState, null, AnyAction>;
 type FetchRadarDataThunk = (content: string) => RadarThunks<void>;
 const fetchRadarBlips: FetchRadarDataThunk = (content) => async (dispatch) => {
   const radarCSV = await getCSVFileFromUrl(content);
-  const csvManager = new CSVManager(radarCSV);
-  const rawBlips = csvManager.processCSV<RawBlipType>();
-  setRawBlips(csvManager.processCSV<RawBlipType>());
-  dispatch(setRawBlips(rawBlips));
+  const rawBlips = new CSVManager(radarCSV).processCSV<SuperRawBlipType>();
+  const cleanedRawBlips = Utilities.cleanRawBlips(rawBlips);
+  setRawBlips(cleanedRawBlips);
+  dispatch(setRawBlips(cleanedRawBlips));
 };
 
 export const actions = {

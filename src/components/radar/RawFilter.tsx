@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from 'react';
 import { Connect } from 'redux-auto-actions';
 
-import { RadarUtilities } from '../../radar/utilities/Utilities';
+import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
 import { GlobalState } from '../../store/state';
 

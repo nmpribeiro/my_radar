@@ -7,7 +7,7 @@ import { Layout } from '../../app/layout/Layout';
 import { LeftColumn } from '../../app/layout/LeftColumn';
 import { RightColumn } from '../../app/layout/RightColumn';
 import { CenterColumn } from '../../app/layout/CenterColumn';
-import { RadarUtilities } from '../../radar/utilities/Utilities';
+import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
 import { DISASTER_TYPE_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 

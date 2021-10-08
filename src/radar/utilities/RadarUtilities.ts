@@ -8,6 +8,7 @@ import {
   DISASTER_TYPE_KEY,
   horizonPriorityOrder,
   HORIZONS_KEY,
+  MAX_TRIES_TO_FIND_SPOT_PER_BLIP,
   quadrantPriorityOrder,
   QUADRANT_KEY,
   TECH_KEY,
@@ -27,18 +28,17 @@ const blipsSorting = (a: BlipType, b: BlipType): number => {
 // TODO: this is to be driven by supplied DATA
 const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[] => {
   const newTechItems: Map<string, TechItemType> = new Map();
-
   rawBlipData.forEach((val) => {
-    if (!newTechItems.has(val[TECH_KEY]))
-      newTechItems.set(val[TECH_KEY], {
-        uuid: uuidv4(),
-        color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
-        type: val[TECH_KEY],
-        slug: Utilities.createSlug(val[TECH_KEY]),
-        description: loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 }),
-      });
+    const valTechs: string[] = val[TECH_KEY] as string[];
+    valTechs.forEach((type) => {
+      const slug = Utilities.createSlug(type);
+      if (!newTechItems.has(slug)) {
+        const color = `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`;
+        const description = loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 });
+        newTechItems.set(slug, { uuid: uuidv4(), color, type, slug, description });
+      }
+    });
   });
-
   return Array.from(newTechItems.values());
 };
 
@@ -54,16 +54,17 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
   // we need multiple poissonDists
-  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 20 });
+  const t0 = Date.now();
+  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 12 });
   poissonDist.setup();
   poissonDist.sample(10000);
+  const duration = Date.now() - t0;
+  // eslint-disable-next-line no-console
+  console.log(`Poisson distribution took ${duration} ms`);
 
   const usedItems: Map<string, Vector2D> = new Map();
 
   rawBlips.forEach((blip) => {
-    // TODO: get them a bit more appart
-    // for instance: (quantize the area and assign to each square)
-
     // get angle
     const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY] as QuadrantKey) - 1;
     const minAngle = quadrantIndex * (Math.PI / 2) + data.radarOptions.circlePadding;
@@ -75,28 +76,36 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
 
     const outerRadius = horizonIndex * horizonUnit + data.radarOptions.horizonShiftRadius - data.radarOptions.radiusPadding;
     const innerRadius =
-      (horizonIndex - 1) * horizonUnit +
-      (horizonIndex === 0 ? 0 : data.radarOptions.horizonShiftRadius) +
-      data.radarOptions.radiusPadding;
+      horizonIndex === 1
+        ? data.radarOptions.radiusPadding
+        : (horizonIndex - 1) * horizonUnit +
+          (horizonIndex === 0 ? 0 : data.radarOptions.horizonShiftRadius) +
+          data.radarOptions.radiusPadding;
 
     let radius = randomFromInterval(innerRadius, outerRadius);
-    let x = radius * Math.cos(angle);
-    let y = radius * Math.sin(angle);
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
 
-    let item: Vector2D | null = poissonDist.getNearesGridItem({ x, y }) || null;
+    let item: Vector2D | null = null;
     let counter = 0;
     while (item === null) {
-      if (counter > 10) break;
+      if (counter > MAX_TRIES_TO_FIND_SPOT_PER_BLIP) {
+        // eslint-disable-next-line no-console
+        console.log(`Item failed to find spot at iteration ${counter} - it might overlap.`);
+        break;
+      }
       angle = randomFromInterval(minAngle, maxAngle);
       radius = randomFromInterval(innerRadius, outerRadius);
-      x = radius * Math.cos(angle);
-      y = radius * Math.sin(angle);
-      item = poissonDist.getNearesGridItem({ x, y }) || null;
-      if (usedItems.has(item.id)) item = null;
-      else usedItems.set(item.id, item);
+      const newX = radius * Math.cos(angle);
+      const newY = radius * Math.sin(angle);
+      const potentialNewitem = poissonDist.getNearesGridItem({ x: newX, y: newY }) || null;
+      if (!usedItems.has(potentialNewitem.id)) {
+        item = potentialNewitem;
+        usedItems.set(item.id, item);
+      }
       counter++;
     }
-
+    // not using a 'nearest grid item' and falling back to previous random ones will allow less overlap
     results.push({ ...blip, id: uuidv4(), quadrantIndex, x: item?.x || x, y: item?.y || y });
   });
 
@@ -122,11 +131,14 @@ const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): QuadrantKey[] =>
 const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
   const newUseCases: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
-    if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY]))
-      newUseCases.set(val[USE_CASE_KEY], {
-        uuid: uuidv4(),
-        name: val[USE_CASE_KEY],
-      } as SelectableItem);
+    if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY] as string))
+      newUseCases.set(
+        val[USE_CASE_KEY] as string,
+        {
+          uuid: uuidv4(),
+          name: val[USE_CASE_KEY],
+        } as SelectableItem
+      );
   });
   return Array.from(newUseCases.values());
 };
@@ -134,11 +146,14 @@ const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
 const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   const newDisterTypes: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
-    if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY]))
-      newDisterTypes.set(val[DISASTER_TYPE_KEY], {
-        uuid: uuidv4(),
-        name: val[DISASTER_TYPE_KEY],
-      } as SelectableItem);
+    if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY] as string))
+      newDisterTypes.set(
+        val[DISASTER_TYPE_KEY] as string,
+        {
+          uuid: uuidv4(),
+          name: val[DISASTER_TYPE_KEY],
+        } as SelectableItem
+      );
   });
   return Array.from(newDisterTypes.values());
 };

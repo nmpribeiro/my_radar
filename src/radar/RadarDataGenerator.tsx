@@ -5,7 +5,7 @@ import { GlobalState } from '../store/state';
 import { RADAR_OPTIONS } from '../constants/RadarData';
 import { selectors, actions } from '../store/radar/radar.actions';
 
-import { RadarUtilities } from './utilities/Utilities';
+import { RadarUtilities } from './utilities/RadarUtilities';
 
 export const RadarDataGenerator = Connect<GlobalState>()
   .stateAndDispatch(

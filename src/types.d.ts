@@ -2,33 +2,41 @@ type QuadsType = { quadrant: number; horizon: number; label: QuadrantKey };
 
 type RgbOut = string | number | boolean | null;
 
-type BaseCSVType = Record<string, string>;
+type BaseCSVType = { [x: key]: string };
 
-type RawCSVItem = {
-  Title: string;
-  Summary: string;
-  Description: string;
-  'Level of implementation': string;
-  Quadrant: string;
+interface SuperRawBlipType extends BaseCSVType {
+  'Country of Implementation': string;
   Data: string;
+  'Date of Implementation': string;
   Description: string;
-  Developer: string;
-  Implementer: string;
-  'Level of implementation': string;
-  Organization: string;
-  Origin: string;
-  Partner: string;
-  Quadrant: string;
-  'SDG goal': string;
+  'Disaster Cycle': string;
+  'Ideas/Concepts/Examples': string;
+  SDG: string;
   Source: string;
-  Summary: string;
+  'Status/Maturity': string;
+  'Supporting Partners': string;
   Technology: string;
-  Title: string;
-  'Use case': string;
-};
-interface RawBlipType extends BaseCSVType, RawCSVItem {}
+  'Un Host Organisation': string;
+  'Use Case': string;
+}
 
-interface BlipType extends RawCSVItem {
+type RawBlipType = {
+  'Country of Implementation': string;
+  Data: string;
+  'Date of Implementation': string;
+  Description: string;
+  'Disaster Cycle': string;
+  'Ideas/Concepts/Examples': string;
+  SDG: string[];
+  Source: string;
+  'Status/Maturity': string;
+  'Supporting Partners': string;
+  Technology: string[];
+  'Un Host Organisation': string;
+  'Use Case': string;
+};
+
+interface BlipType extends RawBlipType {
   id: string;
   quadrantIndex: number;
   x: number;

@@ -5,9 +5,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { Title } from '../shared/Title';
 import { GlobalState } from '../../store/state';
 import { Utilities } from '../../helpers/Utilities';
+import { ScrollableDiv } from '../shared/ScrollableDiv';
+import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
 import { actions, selectors } from '../../store/radar/radar.actions';
-import { RadarUtilities } from '../../radar/utilities/Utilities';
-import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY } from '../../constants/RadarData';
+import { HORIZONS_KEY, QUADRANT_KEY, TECH_KEY, TITLE_KEY } from '../../constants/RadarData';
 
 import './DataLists.scss';
 import styles from './BlipItemList.module.scss';
@@ -35,34 +36,36 @@ const ItemList: React.FC<Props> = ({
   setHoveredItem,
   setSelectedItem,
 }) => (
-  <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
-    {blips.map((blip) => {
-      const onMouseEnter = () => setHoveredItem(blip);
-      const onMouseLeave = () => setHoveredItem(null);
-      const getHoveredStyle = () => {
-        const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
-        if (hoveredItem?.id === blip.id) {
-          if (hoveredTech === null || hoveredTech === tech?.slug) return styles.blipItemHovered;
-        }
-        return '';
-      };
-      if (blip[QUADRANT_KEY] === quadrant.name && (horizon === null || blip[HORIZONS_KEY] === horizon.name))
-        return (
-          <li key={`${blip.Title}-${quadrant.uuid}-${horizon && horizon.uuid}`} className={styles.blipItemWrapper}>
-            <button
-              className={`${styles.blipItem} ${getHoveredStyle()}`}
-              onClick={() => setSelectedItem(blip)}
-              type="button"
-              onMouseEnter={onMouseEnter}
-              onMouseLeave={onMouseLeave}
-            >
-              {blip.Title}
-            </button>
-          </li>
-        );
-      return null;
-    })}
-  </ul>
+  <ScrollableDiv maxHeight={200}>
+    <ul style={{ listStyle: 'none', margin: 0, padding: 0, textAlign: 'left', fontSize: 14 }}>
+      {blips.map((blip) => {
+        const onMouseEnter = () => setHoveredItem(blip);
+        const onMouseLeave = () => setHoveredItem(null);
+        const getHoveredStyle = () => {
+          const tech = radarData.tech.find((t) => t.type === blip[TECH_KEY]);
+          if (hoveredItem?.id === blip.id) {
+            if (hoveredTech === null || hoveredTech === tech?.slug) return styles.blipItemHovered;
+          }
+          return '';
+        };
+        if (blip[QUADRANT_KEY] === quadrant.name && (horizon === null || blip[HORIZONS_KEY] === horizon.name))
+          return (
+            <li key={`${blip.id}-${quadrant.uuid}-${horizon && horizon.uuid}`} className={styles.blipItemWrapper}>
+              <button
+                className={`${styles.blipItem} ${getHoveredStyle()}`}
+                onClick={() => setSelectedItem(blip)}
+                type="button"
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
+              >
+                {blip[TITLE_KEY]}
+              </button>
+            </li>
+          );
+        return null;
+      })}
+    </ul>
+  </ScrollableDiv>
 );
 
 export const DataLists = Connect<GlobalState, Record<string, unknown>>()
@@ -142,9 +145,7 @@ export const DataLists = Connect<GlobalState, Record<string, unknown>>()
                       setHoveredItem={setHoveredItem}
                       hoveredItem={hoveredItem}
                       setSelectedItem={setSelectedItemLogic}
-                      blips={myBlips.filter(
-                        (b) => Utilities.createSlug(b[TECH_KEY]) === techFilter && b[QUADRANT_KEY] === header.name
-                      )}
+                      blips={myBlips.filter((b) => Utilities.checkItemHasTech(b, techFilter) && b[QUADRANT_KEY] === header.name)}
                       quadrant={header}
                     />
                   </div>
