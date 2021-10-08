@@ -27,9 +27,13 @@ const RawBlip: React.FC<{
   };
   const closeTooltip = () => {
     setHoveredItem(null);
-    const transition = tooltip.transition().duration(250);
-    transition.style('opacity', 0);
-    transition.end().then(() => tooltip.attr('display', 'none'));
+    tooltip
+      .transition()
+      .duration(250)
+      .style('opacity', 0)
+      .end()
+      .then(() => tooltip.attr('display', 'none'))
+      .catch(() => {}); // no need to act
   };
   return (
     <g

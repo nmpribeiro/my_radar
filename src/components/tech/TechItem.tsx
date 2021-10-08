@@ -6,18 +6,21 @@ import style from './TechItem.module.scss';
 
 export const TechItem: React.FC<{
   tech: TechItemType;
+  hoveredTech: string | null;
   selected: boolean;
   setTechFilter: (techSlug: string | null) => void;
   setHoveredTech: (techSlug: string | null) => void;
   hoveredItem: BlipType | null;
-}> = ({ tech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
+}> = ({ tech, hoveredTech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
   const selectTech = () => setTechFilter(tech.slug);
 
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
+  const [isItemHovered, setIsItemHovered] = useState(false);
 
   useEffect(() => {
     setBackgroundColor(selected || (hoveredItem && Utilities.checkItemHasTech(hoveredItem, tech.slug)) ? tech.color : undefined);
-  }, [tech, selected, hoveredItem]);
+    setIsItemHovered(tech.slug === hoveredTech || Utilities.checkItemHasTech(hoveredItem, tech.slug));
+  }, [tech, selected, hoveredItem, hoveredTech]);
 
   const changeBackgroundEnter = () => {
     setHoveredTech(tech.slug);
@@ -35,7 +38,7 @@ export const TechItem: React.FC<{
         background: 'none',
         display: 'flex',
         alignItems: 'center',
-        padding: 5,
+        padding: 1,
         paddingLeft: 10,
         cursor: 'pointer',
         width: '100%',
@@ -47,18 +50,19 @@ export const TechItem: React.FC<{
       onFocus={changeBackgroundEnter}
       onBlur={changeBackgroundLeave}
     >
-      <div style={{ backgroundColor: tech.color }} className={style.techItem} />
+      <div style={{ backgroundColor: tech.color, marginLeft: 10 }} className={style.techItem} />
       <div style={{ paddingLeft: 20, width: '100%' }}>
         <div
           style={{
-            backgroundColor: selected ? tech.color : backgroundColor,
-            color: selected ? 'white' : undefined,
-            padding: 10,
+            backgroundColor: isItemHovered || selected ? tech.color : backgroundColor,
+            color: isItemHovered || selected ? 'white' : tech.color,
+            padding: 4,
             border: 1,
             borderColor: 'lightgrey',
             borderStyle: 'solid',
             borderRadius: 5,
             fontSize: 14,
+            fontWeight: 500,
           }}
         >
           {tech.type}

@@ -30,7 +30,8 @@ const cleanRawBlips = (rawBlips: SuperRawBlipType[]): RawBlipType[] =>
     Technology: cleanupStringArray(item.Technology.split(',')),
   }));
 
-const checkItemHasTech = (item: BlipType, tech: string): boolean => {
+const checkItemHasTech = (item: BlipType | null, tech: string): boolean => {
+  if (item === null) return false;
   // check if techFilter was selected
   const sluggedTechs: string[] = [];
   const itemTechs: string[] = item[TECH_KEY] as string[];

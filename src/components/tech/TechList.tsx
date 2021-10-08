@@ -9,6 +9,7 @@ import { TECH_KEY, USE_CASE_KEY } from '../../constants/RadarData';
 import { actions, selectors } from '../../store/radar/radar.actions';
 
 import { TechItem } from './TechItem';
+import styles from './TechList.module.scss';
 
 export const TechList = Connect<GlobalState, unknown>()
   .stateAndDispatch(
@@ -16,6 +17,7 @@ export const TechList = Connect<GlobalState, unknown>()
       blips: selectors(state).blips,
       radarData: selectors(state).radarData,
       techFilter: selectors(state).techFilter,
+      hoveredTech: selectors(state).hoveredTech,
       hoveredItem: selectors(state).hoveredItem,
       useCaseFilter: selectors(state).useCaseFilter,
       disasterTypeFilter: selectors(state).disasterTypeFilter,
@@ -25,55 +27,68 @@ export const TechList = Connect<GlobalState, unknown>()
       setHoveredTech: actions.setHoveredTech,
     }
   )
-  .withComp(({ blips, radarData, techFilter, hoveredItem, useCaseFilter, disasterTypeFilter, setTechFilter, setHoveredTech }) => {
-    const [tech, setTech] = useState<TechItemType[]>([]);
+  .withComp(
+    ({
+      blips,
+      radarData,
+      techFilter,
+      hoveredTech,
+      hoveredItem,
+      useCaseFilter,
+      disasterTypeFilter,
+      setTechFilter,
+      setHoveredTech,
+    }) => {
+      const [tech, setTech] = useState<TechItemType[]>([]);
 
-    const resetTech = () => setTechFilter(null);
+      const resetTech = () => setTechFilter(null);
 
-    useEffect(() => {
-      if (blips.length > 0) {
-        const newTechMap: Map<string, TechItemType> = new Map();
-        RadarUtilities.filterBlips(blips, useCaseFilter, disasterTypeFilter).forEach((b) => {
-          (b[TECH_KEY] as string[]).forEach((techy) => {
-            const foundTech = radarData.tech.find((t) => t.type === techy);
+      useEffect(() => {
+        if (blips.length > 0) {
+          const newTechMap: Map<string, TechItemType> = new Map();
+          RadarUtilities.filterBlips(blips, useCaseFilter, disasterTypeFilter).forEach((b) => {
+            (b[TECH_KEY] as string[]).forEach((techy) => {
+              const foundTech = radarData.tech.find((t) => t.type === techy);
 
-            if (foundTech && !newTechMap.has(foundTech.slug)) {
-              // could be added
-              if (b[USE_CASE_KEY] === useCaseFilter || useCaseFilter === 'all') {
-                (b[TECH_KEY] as string[]).forEach((t) => {
-                  if (t === foundTech.type) newTechMap.set(t, foundTech);
-                });
+              if (foundTech && !newTechMap.has(foundTech.slug)) {
+                // could be added
+                if (b[USE_CASE_KEY] === useCaseFilter || useCaseFilter === 'all') {
+                  (b[TECH_KEY] as string[]).forEach((t) => {
+                    if (t === foundTech.type) newTechMap.set(t, foundTech);
+                  });
+                }
+                if (b[USE_CASE_KEY] === disasterTypeFilter || disasterTypeFilter === 'all') {
+                  (b[TECH_KEY] as string[]).forEach((t) => {
+                    if (t === foundTech.type) newTechMap.set(t, foundTech);
+                  });
+                }
               }
-              if (b[USE_CASE_KEY] === disasterTypeFilter || disasterTypeFilter === 'all') {
-                (b[TECH_KEY] as string[]).forEach((t) => {
-                  if (t === foundTech.type) newTechMap.set(t, foundTech);
-                });
-              }
-            }
+            });
           });
-        });
-        setTech(Array.from(newTechMap.values()));
-      }
-    }, [blips, radarData, useCaseFilter, disasterTypeFilter]);
+          setTech(Array.from(newTechMap.values()));
+        }
+      }, [blips, radarData, useCaseFilter, disasterTypeFilter]);
 
-    return (
-      <div>
-        <Title label="Technologies" />
-        <ScrollableDiv>
-          {tech.map((t) => (
-            <TechItem
-              key={t.uuid}
-              setHoveredTech={setHoveredTech}
-              hoveredItem={hoveredItem}
-              tech={t}
-              selected={t.slug === techFilter}
-              setTechFilter={setTechFilter}
-            />
-          ))}
-        </ScrollableDiv>
-        <button onClick={resetTech} type="button" style={{ marginTop: 10 }}>
-          Reset
-        </button>
-      </div>
-    );
-  });
+      return (
+        <div style={{ textAlign: 'end' }}>
+          <Title label="Technologies" />
+          <ScrollableDiv>
+            {tech.map((t) => (
+              <TechItem
+                key={t.uuid}
+                hoveredTech={hoveredTech}
+                setHoveredTech={setHoveredTech}
+                hoveredItem={hoveredItem}
+                tech={t}
+                selected={t.slug === techFilter}
+                setTechFilter={setTechFilter}
+              />
+            ))}
+          </ScrollableDiv>
+          <button onClick={resetTech} type="button" className={styles.resetTechButton}>
+            Reset
+          </button>
+        </div>
+      );
+    }
+  );

@@ -56,14 +56,13 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
   // we need multiple poissonDists
-  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 12 });
   const t0 = Date.now();
-  // eslint-disable-next-line no-console
-  console.log('here', t0 - Date.now());
+  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 12 });
   poissonDist.setup();
-  poissonDist.sample(30000);
+  poissonDist.sample(10000);
+  const duration = Date.now() - t0;
   // eslint-disable-next-line no-console
-  console.log('here1', t0 - Date.now());
+  console.log(`Poisson distribution took ${duration} ms`);
 
   const usedItems: Map<string, Vector2D> = new Map();
 
@@ -94,7 +93,7 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
     while (item === null) {
       if (counter > MAX_TRIES_TO_FIND_SPOT_PER_BLIP) {
         // eslint-disable-next-line no-console
-        console.log('ITEM BREAKING AT ', counter, ' it will be overlapped by another.');
+        console.log(`Item failed to find spot at iteration ${counter} - it might overlap.`);
         break;
       }
       angle = randomFromInterval(minAngle, maxAngle);

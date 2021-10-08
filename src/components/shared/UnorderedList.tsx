@@ -19,7 +19,7 @@ export const UnorderedList: React.FC<Props> = ({ children, array, itemStyle }) =
       }}
     >
       {array.map((item) => (
-        <li style={itemStyle instanceof Function ? itemStyle(item) : itemStyle}>
+        <li key={item} style={itemStyle instanceof Function ? itemStyle(item) : itemStyle}>
           {children && children(item)}
           {!children && item}
         </li>
