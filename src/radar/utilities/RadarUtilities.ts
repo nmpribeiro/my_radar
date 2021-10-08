@@ -30,15 +30,13 @@ const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[
   const newTechItems: Map<string, TechItemType> = new Map();
   rawBlipData.forEach((val) => {
     const valTechs: string[] = val[TECH_KEY] as string[];
-    valTechs.forEach((tech) => {
-      if (!newTechItems.has(tech))
-        newTechItems.set(tech, {
-          uuid: uuidv4(),
-          color: `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`,
-          type: tech,
-          slug: Utilities.createSlug(tech),
-          description: loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 }),
-        });
+    valTechs.forEach((type) => {
+      const slug = Utilities.createSlug(type);
+      if (!newTechItems.has(slug)) {
+        const color = `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`;
+        const description = loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 });
+        newTechItems.set(slug, { uuid: uuidv4(), color, type, slug, description });
+      }
     });
   });
   return Array.from(newTechItems.values());
