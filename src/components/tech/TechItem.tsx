@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
+import { Utilities } from '../../helpers/Utilities';
+
 import style from './TechItem.module.scss';
 
 export const TechItem: React.FC<{
@@ -14,7 +16,7 @@ export const TechItem: React.FC<{
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    setBackgroundColor(selected || hoveredItem?.Technology === tech.type ? tech.color : undefined);
+    setBackgroundColor(selected || (hoveredItem && Utilities.checkItemHasTech(hoveredItem, tech.slug)) ? tech.color : undefined);
   }, [tech, selected, hoveredItem]);
 
   const changeBackgroundEnter = () => {

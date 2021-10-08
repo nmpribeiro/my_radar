@@ -24,13 +24,13 @@ export class CSVManager {
     const rawObjects = this.processRawData();
     rawObjects.forEach((v, i) => {
       if (i === 0) {
-        v.forEach((h) => headers.push(h));
+        v.forEach((h) => headers.push(h.trim()));
       } else {
         // actual objects
         const newItem: Record<string, string> = {};
         v.forEach((value, j) => {
           const header = headers[j];
-          newItem[header] = value;
+          newItem[header] = value.trim();
         });
         result.push(newItem as T);
       }
@@ -136,7 +136,7 @@ export class CSVManager {
       csv_field_str = csv_field_str.substring(1, csv_field_str.length - 1); // remove the start and end quotes
       csv_field_str = csv_field_str.split('""').join('"'); // handle double quotes
     }
-    return csv_field_str;
+    return csv_field_str.replace(/^\s+|\s+$/g, '');
   }
 
   static get_new_line_char(csv_str: string): string {

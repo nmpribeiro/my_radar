@@ -27,10 +27,8 @@ const blipsSorting = (a: BlipType, b: BlipType): number => {
 // TODO: this is to be driven by supplied DATA
 const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[] => {
   const newTechItems: Map<string, TechItemType> = new Map();
-
   rawBlipData.forEach((val) => {
     const valTechs: string[] = val[TECH_KEY] as string[];
-
     valTechs.forEach((tech) => {
       if (!newTechItems.has(tech))
         newTechItems.set(tech, {
@@ -42,7 +40,6 @@ const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[
         });
     });
   });
-
   return Array.from(newTechItems.values());
 };
 
@@ -58,9 +55,15 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   const horizonUnit = (horizonWidth - data.radarOptions.horizonShiftRadius) / data.horizons.length;
 
   // we need multiple poissonDists
-  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 20 });
+  const poissonDist = new PoissonAlgo(data.width, data.height, { distance: 10 });
+  const MAX_TRIES = 20;
+  const t0 = Date.now();
+  // eslint-disable-next-line no-console
+  console.log('here', t0 - Date.now());
   poissonDist.setup();
-  poissonDist.sample(10000);
+  poissonDist.sample(30000);
+  // eslint-disable-next-line no-console
+  console.log('here1', t0 - Date.now());
 
   const usedItems: Map<string, Vector2D> = new Map();
 
@@ -84,18 +87,18 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
       data.radarOptions.radiusPadding;
 
     let radius = randomFromInterval(innerRadius, outerRadius);
-    let x = radius * Math.cos(angle);
-    let y = radius * Math.sin(angle);
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
 
     let item: Vector2D | null = poissonDist.getNearesGridItem({ x, y }) || null;
     let counter = 0;
     while (item === null) {
-      if (counter > 10) break;
+      if (counter > MAX_TRIES) break;
       angle = randomFromInterval(minAngle, maxAngle);
       radius = randomFromInterval(innerRadius, outerRadius);
-      x = radius * Math.cos(angle);
-      y = radius * Math.sin(angle);
-      item = poissonDist.getNearesGridItem({ x, y }) || null;
+      const newX = radius * Math.cos(angle);
+      const newY = radius * Math.sin(angle);
+      item = poissonDist.getNearesGridItem({ x: newX, y: newY }) || null;
       if (usedItems.has(item.id)) item = null;
       else usedItems.set(item.id, item);
       counter++;

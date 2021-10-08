@@ -11,30 +11,24 @@ const createSlug = (str: string, separator = '-'): string =>
     .replace(/[^a-z0-9 ]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
     .replace(/\s+/g, separator);
 
-const cleanRawBlips = (rawBlips: SuperRawBlipType[]): RawBlipType[] => {
-  const result: RawBlipType[] = [];
-  rawBlips.forEach((item) => {
-    const SDG: string[] = item.SDG.split(',');
-    const Technology: string[] = item.Technology.split(',');
-    const newItem: RawBlipType = {
-      'Country of Implementation': item['Country of Implementation'],
-      Data: item.Data,
-      'Date of Implementation': item['Date of Implementation'],
-      Description: item.Description,
-      'Disaster Cycle': item['Disaster Cycle'],
-      'Ideas/Concepts/Examples': item['Ideas/Concepts/Examples'],
-      Source: item.Source,
-      'Status/Maturity': item['Status/Maturity'],
-      'Supporting Partners': item['Supporting Partners'],
-      'Un Host Organisation': item['Un Host Organisation'],
-      'Use Case': item['Use Case'],
-      SDG,
-      Technology,
-    };
-    result.push(newItem);
-  });
-  return result;
-};
+const cleanupStringArray = (arr: string[]): string[] => arr.map((t) => t.trim());
+
+const cleanRawBlips = (rawBlips: SuperRawBlipType[]): RawBlipType[] =>
+  [...rawBlips].map((item) => ({
+    'Country of Implementation': item['Country of Implementation'],
+    Data: item.Data,
+    'Date of Implementation': item['Date of Implementation'],
+    Description: item.Description,
+    'Disaster Cycle': item['Disaster Cycle'],
+    'Ideas/Concepts/Examples': item['Ideas/Concepts/Examples'],
+    Source: item.Source,
+    'Status/Maturity': item['Status/Maturity'],
+    'Supporting Partners': item['Supporting Partners'],
+    'Un Host Organisation': item['Un Host Organisation'],
+    'Use Case': item['Use Case'],
+    SDG: cleanupStringArray(item.SDG.split(',')),
+    Technology: cleanupStringArray(item.Technology.split(',')),
+  }));
 
 const checkItemHasTech = (item: BlipType, tech: string): boolean => {
   // check if techFilter was selected
