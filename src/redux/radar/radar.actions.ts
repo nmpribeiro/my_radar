@@ -1,21 +1,21 @@
 import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
+import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
 
-import { GlobalState } from '../state';
-import { Utilities } from '../../helpers/Utilities';
 import { CSVManager, getCSVFileFromUrl } from '../../services/CSVManager';
+import { BlipWithQuadrantKey, QuadrantKey, RadarOptionsType } from '../../types';
 
 import { ActionType, radarModule, RadarState } from './radar.state';
 
 /**
  * Exportable Actions
  */
-const setBlips = radarModule.setPayloadAction<BlipType[]>(ActionType.SET_BLIPS, (state, action) => ({
+const setBlips = radarModule.setPayloadAction<BlipWithQuadrantKey[]>(ActionType.SET_BLIPS, (state, action) => ({
   ...state,
   blips: action.payload,
 }));
 
-const setRawBlips = radarModule.setPayloadAction<RawBlipType[]>(ActionType.SET_RAW_BLIPS, (state, action) => ({
+const setRawBlips = radarModule.setPayloadAction<BlipWithQuadrantKey[]>(ActionType.SET_RAW_BLIPS, (state, action) => ({
   ...state,
   rawBlips: action.payload,
 }));
@@ -45,12 +45,15 @@ const setTechFilter = radarModule.setPayloadAction<string | null>(ActionType.SET
   techFilter: action.payload,
 }));
 
-const setSelectedItem = radarModule.setPayloadAction<BlipType | null>(ActionType.SET_SELECTED_ITEM, (state, action) => ({
-  ...state,
-  selectedItem: action.payload,
-}));
+const setSelectedItem = radarModule.setPayloadAction<BlipWithQuadrantKey | null>(
+  ActionType.SET_SELECTED_ITEM,
+  (state, action) => ({
+    ...state,
+    selectedItem: action.payload,
+  })
+);
 
-const setHoveredItem = radarModule.setPayloadAction<BlipType | null>(ActionType.SET_HOVERED_ITEM, (state, action) => ({
+const setHoveredItem = radarModule.setPayloadAction<BlipWithQuadrantKey | null>(ActionType.SET_HOVERED_ITEM, (state, action) => ({
   ...state,
   hoveredItem: action.payload,
 }));
@@ -70,13 +73,16 @@ const reset = radarModule.setSimpleAction(ActionType.RESET, () => radarModule.in
 /**
  * Thunks
  */
-type RadarThunks<R> = ThunkAction<R, GlobalState, null, AnyAction>;
+type RadarThunks<R> = ThunkAction<R, RadarState, null, AnyAction>;
 
-type FetchRadarDataThunk = (content: string) => RadarThunks<void>;
-const fetchRadarBlips: FetchRadarDataThunk = (content) => async (dispatch) => {
+type FetchRadarDataThunk = (
+  content: string,
+  mappingLogic: (value: BlipWithQuadrantKey, index: number, array: BlipWithQuadrantKey[]) => BlipWithQuadrantKey
+) => RadarThunks<void>;
+const fetchRadarBlips: FetchRadarDataThunk = (content, mappingLogic) => async (dispatch) => {
   const radarCSV = await getCSVFileFromUrl(content);
-  const rawBlips = new CSVManager(radarCSV).processCSV<SuperRawBlipType>();
-  const cleanedRawBlips = Utilities.cleanRawBlips(rawBlips);
+  const rawBlips: BlipWithQuadrantKey[] = new CSVManager(radarCSV).processCSV() as unknown as BlipWithQuadrantKey[];
+  const cleanedRawBlips = RadarUtilities.cleanRawBlips(rawBlips, mappingLogic);
   setRawBlips(cleanedRawBlips);
   dispatch(setRawBlips(cleanedRawBlips));
 };
@@ -101,4 +107,4 @@ export const actions = {
 /**
  * Exportable Selectors
  */
-export const selectors = (state: GlobalState): RadarState => radarModule.helper(state);
+export const selectors = (state: RadarState): RadarState => radarModule.helper(state);

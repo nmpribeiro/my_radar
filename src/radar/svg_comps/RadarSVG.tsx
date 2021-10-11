@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Translate } from './Translate';
 import { Horizons } from './Horizons';
+import { QuadrantKey, RadarDataBlipsAndLogic } from '../../types';
 
 const DEFAULT_HEIGHT = 600;
 const DEFAULT_WIDTH = 600;

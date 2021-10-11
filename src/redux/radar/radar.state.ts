@@ -1,4 +1,5 @@
 import { StoreModule } from 'redux-auto-actions';
+import { BlipWithQuadrantKey, QuadrantKey, RadarOptionsType } from '../../types';
 
 export enum RadarStateLabel {
   STATE = 'radar',
@@ -6,14 +7,14 @@ export enum RadarStateLabel {
 
 export interface RadarState {
   radarData: RadarOptionsType;
-  rawBlips: RawBlipType[];
-  blips: BlipType[];
+  rawBlips: BlipWithQuadrantKey[]; // TODO: rename to unprocessed
+  blips: BlipWithQuadrantKey[];
   isFiltered: boolean;
   useCaseFilter: string;
   disasterTypeFilter: string;
   techFilter: string | null;
-  selectedItem: BlipType | null;
-  hoveredItem: BlipType | null;
+  selectedItem: BlipWithQuadrantKey | null;
+  hoveredItem: BlipWithQuadrantKey | null;
   hoveredTech: string | null;
   selectedQuadrant: QuadrantKey | null;
 }

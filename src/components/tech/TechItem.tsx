@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
+import { RadarContext } from '../../RadarProvider';
+import { DataStateLabel } from '../../redux/data/data.state';
 
-import { Utilities } from '../../helpers/Utilities';
+import { BlipType, TechItemType } from '../../types';
 
 import style from './TechItem.module.scss';
 
@@ -10,16 +13,24 @@ export const TechItem: React.FC<{
   selected: boolean;
   setTechFilter: (techSlug: string | null) => void;
   setHoveredTech: (techSlug: string | null) => void;
-  hoveredItem: BlipType | null;
+  hoveredItem: BlipType<unknown> | null;
 }> = ({ tech, hoveredTech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
+  const {
+    state: {
+      [DataStateLabel.STATE]: { techKey },
+    },
+  } = React.useContext(RadarContext);
+
   const selectTech = () => setTechFilter(tech.slug);
 
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);
   const [isItemHovered, setIsItemHovered] = useState(false);
 
   useEffect(() => {
-    setBackgroundColor(selected || (hoveredItem && Utilities.checkItemHasTech(hoveredItem, tech.slug)) ? tech.color : undefined);
-    setIsItemHovered(tech.slug === hoveredTech || Utilities.checkItemHasTech(hoveredItem, tech.slug));
+    setBackgroundColor(
+      selected || (hoveredItem && RadarUtilities.checkItemHasTech(hoveredItem, tech.slug, techKey)) ? tech.color : undefined
+    );
+    setIsItemHovered(tech.slug === hoveredTech || RadarUtilities.checkItemHasTech(hoveredItem, tech.slug, techKey));
   }, [tech, selected, hoveredItem, hoveredTech]);
 
   const changeBackgroundEnter = () => {

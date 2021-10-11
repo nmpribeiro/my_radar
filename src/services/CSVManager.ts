@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-plusplus */
 import { RequestBuilder } from 'react-rb-auth';
-// USDAGE:
 
+import { BaseCSVType } from '../types';
+
+// USDAGE:
 export const getCSVFileFromUrl = async (url: string): Promise<string> => new RequestBuilder(url).build<string>();
 
 export class CSVManager {

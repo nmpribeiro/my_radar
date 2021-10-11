@@ -1,95 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import { Connect } from 'redux-auto-actions';
 
-import { GlobalState } from '../../store/state';
+import { Layout } from '../../layout/Layout';
+import { BlipWithQuadrantKey } from '../../types';
+import { RadarContext } from '../../RadarProvider';
+import { LeftColumn } from '../../layout/LeftColumn';
+import { RightColumn } from '../../layout/RightColumn';
+import { CenterColumn } from '../../layout/CenterColumn';
 import { RadarSVG } from '../../radar/svg_comps/RadarSVG';
-import { Layout } from '../../app/layout/Layout';
-import { LeftColumn } from '../../app/layout/LeftColumn';
-import { RightColumn } from '../../app/layout/RightColumn';
-import { CenterColumn } from '../../app/layout/CenterColumn';
+import { actions } from '../../redux/radar/radar.actions';
+import { RadarStateLabel } from '../../redux/radar/radar.state';
 import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
-import { actions, selectors } from '../../store/radar/radar.actions';
-import { DISASTER_TYPE_KEY, USE_CASE_KEY } from '../../constants/RadarData';
+import { DISASTER_TYPE_KEY, USE_CASE_KEY } from '../../constants/RadarConstants';
 
 import style from './QuadrantPage.module.scss';
 
-export const QuadrantPage = Connect<GlobalState>()
-  .stateAndDispatch(
-    (state) => ({
-      blips: selectors(state).blips,
-      radarData: selectors(state).radarData,
-      useCaseFilter: selectors(state).useCaseFilter,
-      selectedQuadrant: selectors(state).selectedQuadrant,
-      disasterTypeFilter: selectors(state).disasterTypeFilter,
-    }),
-    {
-      setHoveredItem: actions.setHoveredItem,
-      setSelectedItem: actions.setSelectedItem,
-      setSelectedQuadrant: actions.setSelectedQuadrant,
-    }
-  )
-  .withComp(
-    ({
-      blips,
-      radarData,
-      useCaseFilter,
-      selectedQuadrant,
-      disasterTypeFilter,
-      setSelectedItem,
-      setHoveredItem,
-      setSelectedQuadrant,
-    }) => {
-      const [filtered, setFiltered] = useState<BlipType[]>([]);
+export const QuadrantPage: React.FC = () => {
+  const {
+    state: {
+      [RadarStateLabel.STATE]: { radarData, useCaseFilter, disasterTypeFilter, blips, selectedQuadrant },
+    },
+    dispatch,
+  } = React.useContext(RadarContext);
 
-      useEffect(() => {
-        let newFiltered = blips;
-        if (useCaseFilter !== 'all') newFiltered = newFiltered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
-        if (disasterTypeFilter !== 'all') newFiltered = newFiltered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
-        setFiltered(newFiltered);
-      }, [blips]);
+  const [filtered, setFiltered] = useState<BlipWithQuadrantKey[]>([]);
 
-      return (
-        <div className="App">
-          {selectedQuadrant && (
-            <Layout>
-              <LeftColumn>
-                <div style={{ position: 'absolute', top: 20, left: 0 }}>
-                  <button type="button" onClick={() => setSelectedQuadrant(null)} className={style.button}>
-                    <span style={{ fontSize: 30 }}>&#10094;</span>
-                  </button>
-                </div>
-                {/* <Switch>
-              <Route exact path="/" component={TechList} />
-            </Switch>
+  useEffect(() => {
+    let newFiltered = blips;
+    if (useCaseFilter !== 'all') newFiltered = newFiltered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
+    if (disasterTypeFilter !== 'all') newFiltered = newFiltered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
+    setFiltered(newFiltered);
+  }, [blips]);
 
-            <Switch>
-              <Route exact path="/" component={Filter} />
-            </Switch> */}
-                <p>Todo: put list of items based on level of implementation</p>
-              </LeftColumn>
+  const logic = {
+    setSelectedItem: (blip: BlipWithQuadrantKey | null) => dispatch(actions.setSelectedItem(blip)),
+    setHoveredItem: (blip: BlipWithQuadrantKey | null) => dispatch(actions.setHoveredItem(blip)),
+    setSelectedQuadrant: (quadrant: string | null) => dispatch(actions.setSelectedQuadrant(quadrant)),
+  };
 
-              <CenterColumn>
-                <h3>{RadarUtilities.capitalize(selectedQuadrant)}</h3>
-                <RadarSVG
-                  quadrant={selectedQuadrant}
-                  context={{
-                    blips: filtered,
-                    radarData,
-                    logic: {
-                      setSelectedItem,
-                      setHoveredItem,
-                      setSelectedQuadrant,
-                    },
-                  }}
-                />
-                {/* <Radar />
-            <TechOrBlipDescription /> */}
-              </CenterColumn>
+  return (
+    <div className="App">
+      {selectedQuadrant && (
+        <Layout>
+          <LeftColumn>
+            <div style={{ position: 'absolute', top: 20, left: 0 }}>
+              <button type="button" onClick={() => dispatch(actions.setSelectedQuadrant(null))} className={style.button}>
+                <span style={{ fontSize: 30 }}>&#10094;</span>
+              </button>
+            </div>
+            {/* <Switch>
+          <Route exact path="/" component={TechList} />
+        </Switch>
 
-              <RightColumn>{/* <DataLists /> */}</RightColumn>
-            </Layout>
-          )}
-        </div>
-      );
-    }
+        <Switch>
+          <Route exact path="/" component={Filter} />
+        </Switch> */}
+            <p>Todo: put list of items based on level of implementation</p>
+          </LeftColumn>
+
+          <CenterColumn>
+            <h3>{RadarUtilities.capitalize(selectedQuadrant)}</h3>
+            <RadarSVG quadrant={selectedQuadrant} context={{ blips: filtered, radarData, logic }} />
+            {/* <Radar />
+        <TechOrBlipDescription /> */}
+          </CenterColumn>
+
+          <RightColumn>{/* <DataLists /> */}</RightColumn>
+        </Layout>
+      )}
+    </div>
   );
+};

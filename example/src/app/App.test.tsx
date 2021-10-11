@@ -5,7 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
 
 import { appStore } from '../store/store';
-import { RADAR_OPTIONS } from '../constants/RadarData';
+import { RADAR_OPTIONS } from '../../../src/constants/RadarConstants';
 
 import { App } from './App';
 

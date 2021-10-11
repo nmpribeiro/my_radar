@@ -49,6 +49,7 @@
     "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx", ".tsx"] }],
     "react/prop-types": "off",
     "react/jsx-curly-newline": "off",
+    "react-hooks/exhaustive-deps": "off",
     "import/prefer-default-export": "off",
     "object-curly-newline": "off",
     "function-paren-newline": "off",

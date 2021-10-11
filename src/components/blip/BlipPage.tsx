@@ -1,29 +1,26 @@
 import React from 'react';
-import { Connect } from 'redux-auto-actions';
 
-import { GlobalState } from '../../store/state';
+import { RadarContext } from '../../RadarProvider';
 import { UnorderedList } from '../shared/UnorderedList';
-import { HORIZONS_KEY, TITLE_KEY } from '../../constants/RadarData';
-import { actions, selectors } from '../../store/radar/radar.actions';
+import { actions } from '../../redux/radar/radar.actions';
+import { RadarStateLabel } from '../../redux/radar/radar.state';
+import { HORIZONS_KEY, TITLE_KEY } from '../../constants/RadarConstants';
 
 import styles from './BlipPage.module.scss';
 
-export const BlipPage = Connect<GlobalState>()
-  .stateAndDispatch(
-    (state) => ({
-      radarData: selectors(state).radarData,
-      selectedItem: selectors(state).selectedItem,
-    }),
-    {
-      setSelectedItem: actions.setSelectedItem,
-    }
-  )
-  .withComp(({ radarData, selectedItem, setSelectedItem }) => (
+export const BlipPage: React.FC = () => {
+  const {
+    state: {
+      [RadarStateLabel.STATE]: { radarData, selectedItem },
+    },
+    dispatch,
+  } = React.useContext(RadarContext);
+  return (
     <div>
       {selectedItem && (
         <div>
           <div style={{ position: 'absolute', top: 20, left: 0 }}>
-            <button type="button" onClick={() => setSelectedItem(null)} className={styles.button}>
+            <button type="button" onClick={() => dispatch(actions.setSelectedItem(null))} className={styles.button}>
               <span style={{ fontSize: 30 }}>&#10094;</span>
             </button>
           </div>
@@ -40,9 +37,9 @@ export const BlipPage = Connect<GlobalState>()
                 <div className={styles.paragraph}>{selectedItem[TITLE_KEY]}</div>
               </div>
               {/* <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>Summary</h4>
-                <div className={styles.paragraph}>{selectedItem.Summary}</div>
-              </div> */}
+              <h4>Summary</h4>
+              <div className={styles.paragraph}>{selectedItem.Summary}</div>
+            </div> */}
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Description</h4>
@@ -95,7 +92,7 @@ export const BlipPage = Connect<GlobalState>()
                 <div className={styles.paragraph}>
                   {selectedItem.Source === 'No Information' && selectedItem.Source}
                   {selectedItem.Source !== 'No Information' && (
-                    <a href={selectedItem.Source} target="_blank" rel="noreferrer">
+                    <a href={selectedItem.Source as string} target="_blank" rel="noreferrer">
                       {selectedItem.Source}
                     </a>
                   )}
@@ -108,19 +105,19 @@ export const BlipPage = Connect<GlobalState>()
                 </div>
               </div>
               {/* <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>Organization</h4>
-                <div className={styles.paragraph}>{selectedItem.Organization}</div>
-              </div>
+              <h4>Organization</h4>
+              <div className={styles.paragraph}>{selectedItem.Organization}</div>
+            </div>
 
-              <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>Developer</h4>
-                <div className={styles.paragraph}>{selectedItem.Developer}</div>
-              </div> */}
+            <div style={{ flexDirection: 'row', flex: 1 }}>
+              <h4>Developer</h4>
+              <div className={styles.paragraph}>{selectedItem.Developer}</div>
+            </div> */}
 
               {/* <div style={{ flexDirection: 'row', flex: 1 }}>
-                <h4>Implementer</h4>
-                <div className={styles.paragraph}>{selectedItem.Implementer}</div>
-              </div> */}
+              <h4>Implementer</h4>
+              <div className={styles.paragraph}>{selectedItem.Implementer}</div>
+            </div> */}
 
               <div style={{ flexDirection: 'row', flex: 1 }}>
                 <h4>Partner</h4>
@@ -131,4 +128,5 @@ export const BlipPage = Connect<GlobalState>()
         </div>
       )}
     </div>
-  ));
+  );
+};

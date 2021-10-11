@@ -3,35 +3,44 @@ import * as d3 from 'd3';
 // Lorem Ipsum from https://fatihtelis.github.io/react-lorem-ipsum/
 import { loremIpsum } from 'react-lorem-ipsum';
 
-import { Utilities } from '../../helpers/Utilities';
 import {
   DISASTER_TYPE_KEY,
-  horizonPriorityOrder,
   HORIZONS_KEY,
   MAX_TRIES_TO_FIND_SPOT_PER_BLIP,
-  quadrantPriorityOrder,
   QUADRANT_KEY,
   TECH_KEY,
   USE_CASE_KEY,
-} from '../../constants/RadarData';
+} from '../../constants/RadarConstants';
+import {
+  BlipWithQuadrantKey,
+  HorizonKey,
+  IdIndexXandY,
+  QuadrantKey,
+  QuadsType,
+  RadarDataBlipsAndLogic,
+  RadarOptionsType,
+  RgbOut,
+  SelectableItem,
+  TechItemType,
+} from '../../types';
 
 import { PoissonAlgo } from './poisson_dist/PoissonAlgo';
 import { Vector2D } from './poisson_dist/Vector2D';
 
 /* eslint-disable no-plusplus */
-const blipsSorting = (a: BlipType, b: BlipType): number => {
+const blipsSorting = (a: BlipWithQuadrantKey, b: BlipWithQuadrantKey): number => {
   if (a.quadrantIndex < b.quadrantIndex) return -1;
   if (a.quadrantIndex > b.quadrantIndex) return 1;
   return 0;
 };
 
 // TODO: this is to be driven by supplied DATA
-const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[] => {
+const getTechnologies = <T>(rawBlipData: T[]): TechItemType[] => {
   const newTechItems: Map<string, TechItemType> = new Map();
   rawBlipData.forEach((val) => {
     const valTechs: string[] = val[TECH_KEY] as string[];
     valTechs.forEach((type) => {
-      const slug = Utilities.createSlug(type);
+      const slug = createSlug(type);
       if (!newTechItems.has(slug)) {
         const color = `#${(0x1000000 + Math.random() * 0xffffff).toString(16).substr(1, 6)}`;
         const description = loremIpsum({ p: 2, avgSentencesPerParagraph: 10, avgWordsPerSentence: 8 });
@@ -44,9 +53,19 @@ const getTechnologies = (rawBlipData: (RawBlipType | BlipType)[]): TechItemType[
 
 const randomFromInterval = (min: number, max: number): number => Math.random() * (max - min) + min;
 
-const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType[] => {
+const processBlips = (
+  data: RadarOptionsType,
+  rawBlips: BlipWithQuadrantKey[],
+  quadrantKey = QUADRANT_KEY,
+  horizonKey = HORIZONS_KEY
+): {
+  id: string;
+  quadrantIndex: number;
+  x: number;
+  y: number;
+}[] => {
   // go through the data
-  const results: BlipType[] = [];
+  const results: IdIndexXandY[] = [];
 
   const width = data.width || 800;
   const height = data.height || 600;
@@ -66,13 +85,13 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
 
   rawBlips.forEach((blip) => {
     // get angle
-    const quadrantIndex = data.quadrants.indexOf(blip[QUADRANT_KEY] as QuadrantKey) - 1;
+    const quadrantIndex = data.quadrants.indexOf(blip[quadrantKey] as string) - 1;
     const minAngle = quadrantIndex * (Math.PI / 2) + data.radarOptions.circlePadding;
     const maxAngle = quadrantIndex * (Math.PI / 2) + Math.PI / 2 - data.radarOptions.circlePadding;
     let angle = randomFromInterval(minAngle, maxAngle);
 
     // get radius
-    const horizonIndex = data.horizons.indexOf(blip[HORIZONS_KEY] as HorizonKey) + 1;
+    const horizonIndex = data.horizons.indexOf(blip[horizonKey] as string) + 1;
 
     const outerRadius = horizonIndex * horizonUnit + data.radarOptions.horizonShiftRadius - data.radarOptions.radiusPadding;
     const innerRadius =
@@ -112,23 +131,23 @@ const processBlips = (data: RadarOptionsType, rawBlips: RawBlipType[]): BlipType
   return results;
 };
 
-const getHorizons = (rawBlipData: (RawBlipType | BlipType)[]): HorizonKey[] => {
+const getHorizons = <T>(rawBlipData: T[], horizonKey = HORIZONS_KEY): HorizonKey[] => {
   const newHorizons: HorizonKey[] = [];
   rawBlipData.forEach((val) => {
-    if (!newHorizons.includes(val[HORIZONS_KEY] as HorizonKey)) newHorizons.push(val[HORIZONS_KEY] as HorizonKey);
+    if (!newHorizons.includes(val[horizonKey] as HorizonKey)) newHorizons.push(val[horizonKey] as HorizonKey);
   });
   return newHorizons;
 };
 
-const getQuadrants = (rawBlipData: (RawBlipType | BlipType)[]): QuadrantKey[] => {
+const getQuadrants = <T>(rawBlipData: T[], quadrantKey = QUADRANT_KEY): QuadrantKey[] => {
   const newQuadrants: QuadrantKey[] = [];
   rawBlipData.forEach((val) => {
-    if (!newQuadrants.includes(val[QUADRANT_KEY] as QuadrantKey)) newQuadrants.push(val[QUADRANT_KEY] as QuadrantKey);
+    if (!newQuadrants.includes(val[quadrantKey] as QuadrantKey)) newQuadrants.push(val[quadrantKey] as QuadrantKey);
   });
   return newQuadrants;
 };
 
-const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
+const getUseCases = <T>(rawBlipData: T[]): SelectableItem[] => {
   const newUseCases: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
     if (val[USE_CASE_KEY] !== '' && !newUseCases.has(val[USE_CASE_KEY] as string))
@@ -143,7 +162,7 @@ const getUseCases = (rawBlipData: BlipType[]): SelectableItem[] => {
   return Array.from(newUseCases.values());
 };
 
-const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
+const getDisasterTypes = <T>(rawBlipData: T[]): SelectableItem[] => {
   const newDisterTypes: Map<string, SelectableItem> = new Map();
   rawBlipData.forEach((val) => {
     if (val[DISASTER_TYPE_KEY] !== '' && !newDisterTypes.has(val[DISASTER_TYPE_KEY] as string))
@@ -158,19 +177,28 @@ const getDisasterTypes = (rawBlipData: BlipType[]): SelectableItem[] => {
   return Array.from(newDisterTypes.values());
 };
 
-const orderHorizons = (a: HorizonKey, b: HorizonKey): number => horizonPriorityOrder[a] - horizonPriorityOrder[b];
-const orderQuadrants = (a: QuadrantKey, b: QuadrantKey): number => quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
+const orderHorizons = (a: HorizonKey, b: HorizonKey, horizonPriorityOrder: Record<HorizonKey, number>): number =>
+  horizonPriorityOrder[a] - horizonPriorityOrder[b];
+const orderQuadrants = (a: QuadrantKey, b: QuadrantKey, quadrantPriorityOrder: Record<QuadrantKey, number>): number =>
+  quadrantPriorityOrder[a] - quadrantPriorityOrder[b];
 
-const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType): RadarDataBlipsAndLogic => {
+const getRadarData = (
+  rawBlips: BlipWithQuadrantKey[],
+  passedRadarData: RadarOptionsType,
+  ordering: {
+    horizonOrder: Record<HorizonKey, number>;
+    quadrantOrder: Record<QuadrantKey, number>;
+  }
+): RadarDataBlipsAndLogic => {
   const radarData: RadarOptionsType = {
     ...passedRadarData,
-    horizons: getHorizons(rawBlips).sort(orderHorizons),
-    quadrants: getQuadrants(rawBlips).sort(orderQuadrants),
+    horizons: getHorizons(rawBlips).sort((a, b) => orderHorizons(a, b, ordering.horizonOrder)),
+    quadrants: getQuadrants(rawBlips).sort((a, b) => orderQuadrants(a, b, ordering.quadrantOrder)),
     tech: getTechnologies(rawBlips),
   };
   return {
     radarData,
-    blips: processBlips(radarData, rawBlips),
+    blips: processBlips(radarData, rawBlips) as unknown as BlipWithQuadrantKey[],
     logic: {
       setHoveredItem: () => {},
       setSelectedItem: () => {},
@@ -181,10 +209,16 @@ const getRadarData = (rawBlips: RawBlipType[], passedRadarData: RadarOptionsType
 
 const capitalize = (d: string): string => d.charAt(0).toUpperCase() + d.slice(1);
 
-const filterBlips = (blips: BlipType[], useCaseFilter = 'all', disasterTypeFilter = 'all'): BlipType[] => {
+const filterBlips = (
+  blips: BlipWithQuadrantKey[],
+  useCaseFilter = 'all',
+  disasterTypeFilter = 'all',
+  useCaseKey = USE_CASE_KEY,
+  disasterTypeKey = DISASTER_TYPE_KEY
+): BlipWithQuadrantKey[] => {
   let filtered = blips;
-  if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[USE_CASE_KEY] === useCaseFilter);
-  if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[DISASTER_TYPE_KEY] === disasterTypeFilter);
+  if (useCaseFilter !== 'all') filtered = filtered.filter((i) => i[useCaseKey] === useCaseFilter);
+  if (disasterTypeFilter !== 'all') filtered = filtered.filter((i) => i[disasterTypeKey] === disasterTypeFilter);
   return filtered;
 };
 
@@ -256,6 +290,31 @@ const getLabelAnchor = (d: QuadsType): string => {
 };
 // END QUADRANTS
 
+// taken from https://gist.github.com/codeguy/6684588
+const createSlug = (str: string, separator = '-'): string =>
+  str
+    .toString()
+    .normalize('NFD') // split an accented letter in the base letter and the acent
+    .replace(/[\u0300-\u036f]/g, '') // remove all previously split accents
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9 ]/g, '') // remove all chars not letters, numbers and spaces (to be replaced)
+    .replace(/\s+/g, separator);
+
+const checkItemHasTech = <T>(item: T | null, tech: string, techKey = TECH_KEY): boolean => {
+  if (item === null) return false;
+  // check if techFilter was selected
+  const sluggedTechs: string[] = [];
+  const itemTechs: string[] = item[techKey] as string[];
+  itemTechs.forEach((t) => sluggedTechs.push(createSlug(t)));
+  return sluggedTechs.includes(tech);
+};
+
+const cleanRawBlips = (
+  rawBlips: BlipWithQuadrantKey[],
+  mappingLogic: (value: BlipWithQuadrantKey, index: number, array: BlipWithQuadrantKey[]) => BlipWithQuadrantKey
+): BlipWithQuadrantKey[] => [...rawBlips].map(mappingLogic);
+
 export const RadarUtilities = {
   processBlips,
   blipsSorting,
@@ -267,6 +326,8 @@ export const RadarUtilities = {
   getRadarData,
   capitalize,
   filterBlips,
+  createSlug,
+  checkItemHasTech,
   quadrants: {
     drawArcs,
     fillArcs,
@@ -274,4 +335,5 @@ export const RadarUtilities = {
     getX,
     getLabelAnchor,
   },
+  cleanRawBlips,
 };

@@ -1,5 +1,6 @@
 /* eslint-disable no-plusplus */
 import React from 'react';
+import { QuadrantKey, QuadsType, RadarDataBlipsAndLogic } from '../../types';
 
 import { RadarUtilities } from '../utilities/RadarUtilities';
 
@@ -91,15 +92,17 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
     }
   };
 
-  if (quadrant) {
-    return (
-      <>
+  const quadAngle = (2 * Math.PI) / quadrants.length;
+
+  return (
+    <>
+      {quadrant && (
         <g transform={`translate(${getX()}, ${getY()})`}>
           {quads.map((h, i) => (
             <React.Fragment key={`${h.label}-${h.quadrant}-${h.horizon}`}>
               {/* <text className={`quadrant-text quadrant-${h.label}`} dx={getDx()} dy={getDy()} textAnchor={getLabelAnchor()}>
-              {h.label.charAt(0).toUpperCase() + h.label.slice(1)}
-            </text> */}
+            {h.label.charAt(0).toUpperCase() + h.label.slice(1)}
+          </text> */}
               <text
                 className={`horizon-text horizon-${horizons[h.horizon]}`}
                 textAnchor="middle"
@@ -124,83 +127,81 @@ export const Horizons: React.FC<Props> = ({ quadrant, context }) => {
             <Blips quadrant={quadrant} scaleFactor={SCALE_FAC} blipSize={0.8} />
           </g>
         </g>
-      </>
-    );
-  }
+      )}
+      {!quadrant && (
+        <>
+          <g className="quadrants">
+            {quadrants.map((q, i) => (
+              <line
+                key={`quadrant-${q}`}
+                className={`quadrant quadarant-${q.toLowerCase().replace(/ /, '-')}`}
+                x1={0}
+                y1={0}
+                x2={Math.cos(quadAngle * i) * horizonWidth}
+                y2={Math.sin(quadAngle * i) * horizonWidth}
+                stroke="rgba(0,0,0,1)"
+                strokeWidth={5}
+                fill="none"
+              />
+            ))}
 
-  const quadAngle = (2 * Math.PI) / quadrants.length;
-  return (
-    <>
-      <g className="quadrants">
-        {quadrants.map((q, i) => (
-          <line
-            key={`quadrant-${q}`}
-            className={`quadrant quadarant-${q.toLowerCase().replace(/ /, '-')}`}
-            x1={0}
-            y1={0}
-            x2={Math.cos(quadAngle * i) * horizonWidth}
-            y2={Math.sin(quadAngle * i) * horizonWidth}
-            stroke="rgba(0,0,0,1)"
-            strokeWidth={5}
-            fill="none"
-          />
-        ))}
+            {quads
+              .filter((q) => q.horizon === 0)
+              .map((q) => (
+                <text
+                  key={`quadrant-text-${q.label}`}
+                  className={`quadrant-text quadrant-${q.label}`}
+                  dx={RadarUtilities.quadrants.getX(q, height)}
+                  dy={RadarUtilities.quadrants.getY(q, width)}
+                  textAnchor={RadarUtilities.quadrants.getLabelAnchor(q)}
+                  onMouseUp={() => context.logic.setSelectedQuadrant(q.label)}
+                >
+                  {RadarUtilities.capitalize(q.label)}
+                </text>
+              ))}
 
-        {quads
-          .filter((q) => q.horizon === 0)
-          .map((q) => (
-            <text
-              key={`quadrant-text-${q.label}`}
-              className={`quadrant-text quadrant-${q.label}`}
-              dx={RadarUtilities.quadrants.getX(q, height)}
-              dy={RadarUtilities.quadrants.getY(q, width)}
-              textAnchor={RadarUtilities.quadrants.getLabelAnchor(q)}
-              onMouseUp={() => context.logic.setSelectedQuadrant(q.label)}
-            >
-              {RadarUtilities.capitalize(q.label)}
-            </text>
-          ))}
-
-        {quads.map((q) => (
-          <path
-            key={`quadrant-path-${q.label}-${q.horizon}-${q.quadrant}`}
-            className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
-            d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
-            fill={RadarUtilities.quadrants.fillArcs(q, horizons)?.toString()}
-            strokeWidth={0.2}
-            stroke="grey"
-            // fill="none"
-          />
-        ))}
-      </g>
-      <g className="horizons">
-        {horizons.map((h, i) => (
-          <circle
-            key={`horizon-${h}`}
-            className="horizon"
-            r={(i + 1) * horizonUnit + horizonShiftRadius}
-            cx={0}
-            cy={0}
-            fill="none"
-            stroke="grey"
-          />
-        ))}
-        {horizons.map((h, i) => (
-          <text
-            key={`horizon-${h}`}
-            className={`horizon-text horizon-${h}`}
-            textAnchor="middle"
-            dx={(i + 1) * horizonUnit - horizonUnit / 2 + (i === 0 ? horizonShiftRadius / 2 : horizonShiftRadius)}
-            dy={10}
-            style={{ fontSize: quadrant ? 14 : 10 }}
-          >
-            {RadarUtilities.capitalize(h)}
-          </text>
-        ))}
-      </g>
-      <g className="blips">
-        <Blips quadrant={quadrant} blipSize={0.6} />
-      </g>
+            {quads.map((q) => (
+              <path
+                key={`quadrant-path-${q.label}-${q.horizon}-${q.quadrant}`}
+                className={`quadrant quadarant-${q.label.toLowerCase().replace(/ /, '-')}`}
+                d={RadarUtilities.quadrants.drawArcs(q, horizonUnit, horizonShiftRadius) || undefined}
+                fill={RadarUtilities.quadrants.fillArcs(q, horizons)?.toString()}
+                strokeWidth={0.2}
+                stroke="grey"
+                // fill="none"
+              />
+            ))}
+          </g>
+          <g className="horizons">
+            {horizons.map((h, i) => (
+              <circle
+                key={`horizon-${h}`}
+                className="horizon"
+                r={(i + 1) * horizonUnit + horizonShiftRadius}
+                cx={0}
+                cy={0}
+                fill="none"
+                stroke="grey"
+              />
+            ))}
+            {horizons.map((h, i) => (
+              <text
+                key={`horizon-${h}`}
+                className={`horizon-text horizon-${h}`}
+                textAnchor="middle"
+                dx={(i + 1) * horizonUnit - horizonUnit / 2 + (i === 0 ? horizonShiftRadius / 2 : horizonShiftRadius)}
+                dy={10}
+                style={{ fontSize: quadrant ? 14 : 10 }}
+              >
+                {RadarUtilities.capitalize(h)}
+              </text>
+            ))}
+          </g>
+          <g className="blips">
+            <Blips quadrant={quadrant} blipSize={0.6} />
+          </g>
+        </>
+      )}
     </>
   );
 };
