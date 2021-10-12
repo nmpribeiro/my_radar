@@ -1,3 +1,4 @@
+import { ModuleRadarState } from '../state';
 import { ActionType, dataModule, DataState } from './data.state';
 
 /**
@@ -43,4 +44,4 @@ export const actions = {
 /**
  * Exportable Selectors
  */
-export const selectors = (state: DataState): DataState => dataModule.helper(state);
+export const selectors = (state: ModuleRadarState): DataState => dataModule.helper(state);

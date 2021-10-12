@@ -2,6 +2,7 @@ import { AnyAction } from 'redux';
 import { ThunkAction } from 'redux-thunk';
 import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
 
+import { ModuleRadarState } from '../state';
 import { CSVManager, getCSVFileFromUrl } from '../../services/CSVManager';
 import { BlipWithQuadrantKey, QuadrantKey, RadarOptionsType } from '../../types';
 
@@ -107,4 +108,4 @@ export const actions = {
 /**
  * Exportable Selectors
  */
-export const selectors = (state: RadarState): RadarState => radarModule.helper(state);
+export const selectors = (state: ModuleRadarState): RadarState => radarModule.helper(state);

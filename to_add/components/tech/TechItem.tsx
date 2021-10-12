@@ -1,26 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { RadarUtilities } from '../../radar/utilities/RadarUtilities';
-import { RadarContext } from '../../RadarProvider';
-import { DataStateLabel } from '../../redux/data/data.state';
 
-import { BlipType, TechItemType } from '../../types';
+import { BlipWithQuadrantKey, TechItemType, TechKey } from '../../types';
 
 import style from './TechItem.module.scss';
 
 export const TechItem: React.FC<{
   tech: TechItemType;
+  techKey: TechKey;
   hoveredTech: string | null;
   selected: boolean;
   setTechFilter: (techSlug: string | null) => void;
   setHoveredTech: (techSlug: string | null) => void;
-  hoveredItem: BlipType<unknown> | null;
-}> = ({ tech, hoveredTech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
-  const {
-    state: {
-      [DataStateLabel.STATE]: { techKey },
-    },
-  } = React.useContext(RadarContext);
-
+  hoveredItem: BlipWithQuadrantKey | null;
+}> = ({ tech, techKey, hoveredTech, selected, setTechFilter, setHoveredTech, hoveredItem }) => {
   const selectTech = () => setTechFilter(tech.slug);
 
   const [backgroundColor, setBackgroundColor] = useState<string | undefined>(undefined);

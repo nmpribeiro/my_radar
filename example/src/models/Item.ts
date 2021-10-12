@@ -1,6 +1,4 @@
-// TODO
-type BaseCSVType = { [key: string]: string };
-
+import { BaseCSVType } from 'undp-radar';
 export interface SuperRawBlipType extends BaseCSVType {
   'Country of Implementation': string;
   Data: string;

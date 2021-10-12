@@ -25,4 +25,9 @@ export const RADAR_OPTIONS: RadarOptionsType = {
   tech: [],
 };
 
-
+export const HORIZONS_KEY = 'Status/Maturity';
+export const QUADRANT_KEY = 'Disaster Cycle';
+export const TITLE_KEY = 'Ideas/Concepts/Examples';
+export const TECH_KEY = 'Technology';
+export const USE_CASE_KEY = 'Use Case';
+export const DISASTER_TYPE_KEY = 'Un Host Organisation';

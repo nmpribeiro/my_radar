@@ -13,7 +13,6 @@ export type BlipType<T> = T & {
   y: number;
 };
 
-export type MappingLogicType = <T extends BaseCSVType>(value: T, index: number, array: T[]) => T;
 export interface TechItemType {
   uuid: string;
   color: string;

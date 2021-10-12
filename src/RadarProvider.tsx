@@ -1,31 +1,48 @@
-import React, { createContext, useContext, useEffect, useReducer } from 'react';
-import { AnyAction, CombinedState } from 'redux';
+import React, { useState, useEffect } from 'react';
 
-import { combinedRadarModuleReducers } from './redux/reducer';
-import { defaultModuleState, ModuleRadarState } from './redux/state';
+import { RadarUtilities } from './radar/utilities/RadarUtilities';
+import { ActionsInitialState, ActionsType } from './state/Actions';
+import { DataInitialState, DataStateType } from './state/DataState';
+import { RadarInitialState, RadarStateType } from './state/RadarState';
+import { CSVManager, getCSVFileFromUrl } from './services/CSVManager';
+import { BaseCSVType, MappingLogicType } from './types';
 
-type RadarContextType = {
-  state: CombinedState<ModuleRadarState>;
-  dispatch: React.Dispatch<AnyAction>;
+export type RadarContextType = {
+  data: DataStateType;
+  radar: RadarStateType;
+  actions: ActionsType;
 };
 
-export const RadarContext = createContext<RadarContextType>({
-  state: defaultModuleState,
-  dispatch: () => {},
-});
+const RadarContextInitialValue: RadarContextType = {
+  data: DataInitialState,
+  radar: RadarInitialState,
+  actions: ActionsInitialState,
+};
+
+export const RadarContext = React.createContext<RadarContextType>(RadarContextInitialValue);
 
 interface Props {
-  subscriber?: (state: ModuleRadarState) => {};
+  csvFileUrl: string;
+  mappingLogic: MappingLogicType;
 }
 
-export const RadarProvider: React.FC<Props> = ({ subscriber }) => {
-  const [state, dispatch] = useReducer(combinedRadarModuleReducers, defaultModuleState);
+export const RadarProvider: React.FC<Props> = ({ children, csvFileUrl, mappingLogic }) => {
+  const [value, setValue] = useState(RadarContextInitialValue);
 
+  const actions: ActionsType = {
+    setRawBlips: (rawBlips) => setValue({ ...value, radar: { ...value.radar, rawBlips } }),
+    setBlips: (blips) => setValue({ ...value, radar: { ...value.radar, blips } }),
+  };
+
+  const processCSV = async () => {
+    const radarCSV = await getCSVFileFromUrl(csvFileUrl);
+    const rawBlips: BaseCSVType[] = new CSVManager(radarCSV).processCSV();
+    const cleanedRawBlips = RadarUtilities.cleanRawBlips(rawBlips, mappingLogic);
+    actions.setRawBlips(cleanedRawBlips);
+  };
   useEffect(() => {
-    if (subscriber) subscriber(state);
-  }, [state]);
+    processCSV();
+  }, [csvFileUrl]);
 
-  return <RadarContext.Provider value={{ state, dispatch }} />;
+  return <RadarContext.Provider value={{ ...value, actions }}>{children}</RadarContext.Provider>;
 };
-
-export const useRadarStore = () => useContext(RadarContext);

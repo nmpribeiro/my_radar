@@ -11,13 +11,6 @@
     "prettify": "prettier --write 'src/**/*.{ts,js,tsx}'"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
-    "@testing-library/user-event": "^12.1.10",
-    "@types/jest": "^26.0.15",
-    "@types/node": "^12.0.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
     "d3": "^7.0.1",
     "node-sass": "^6.0.1",
     "react": "^17.0.2",
@@ -35,13 +28,20 @@
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
     "typescript": "^4.1.2",
+    "undp-radar": "link:..",
     "uuid": "^8.3.2",
-    "web-vitals": "^1.0.1",
-    "undp-radar": "link:.."
+    "web-vitals": "^1.0.1"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.11.4",
+    "@testing-library/react": "^11.1.0",
+    "@testing-library/user-event": "^12.1.10",
+    "@types/jest": "^26.0.15",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.28",
+    "@types/react-dom": "^17.0.9",
     "@types/d3": "^7.0.0",
-    "@types/react-router-dom": "^5.1.9",
+    "@types/react-router-dom": "^5.3.1",
     "@types/redux-immutable-state-invariant": "^2.1.2",
     "@types/redux-logger": "^3.0.9",
     "@types/uuid": "^8.3.1",
